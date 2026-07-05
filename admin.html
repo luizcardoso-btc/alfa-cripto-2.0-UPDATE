@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Alfa Cripto Sinais — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+  :root{--bg:#060a06;--bg2:#0a0f0a;--bg3:#0d1f0d;--border:#1a2a1a;--green:#00ff88;--red:#ff4466;--text:#e8f4e8;--text4:#556655;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:"Rajdhani",sans-serif;padding:24px;max-width:1100px;margin:0 auto;}
+  h1{font-size:22px;margin-bottom:4px;letter-spacing:1px;}
+  .sub{color:var(--text4);font-family:"Share Tech Mono",monospace;font-size:12px;margin-bottom:20px;}
+  .key-gate{max-width:420px;margin:80px auto;text-align:center;}
+  .key-gate input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:#fff;font-size:14px;margin-bottom:10px;}
+  .key-gate button, .toolbar button, .row-actions button{background:linear-gradient(135deg,var(--green),#00cc55);border:none;border-radius:8px;padding:9px 16px;font-weight:700;color:#000;cursor:pointer;font-family:"Rajdhani",sans-serif;font-size:13px;}
+  .toolbar{display:flex;gap:10px;margin-bottom:16px;align-items:center;}
+  .toolbar input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:#fff;}
+  table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:10px;overflow:hidden;}
+  th{background:var(--bg3);text-align:left;padding:10px 12px;font-size:11px;color:var(--text4);letter-spacing:1px;}
+  td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;}
+  tr:last-child td{border-bottom:none;}
+  .badge{padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700;}
+  .badge.active{background:#00ff8820;color:var(--green);}
+  .badge.inactive{background:#ff446620;color:var(--red);}
+  .row-actions{display:flex;gap:6px;}
+  .row-actions button{padding:5px 10px;font-size:11px;}
+  .row-actions .danger{background:linear-gradient(135deg,#ff4466,#cc3355);}
+  .row-actions .neutral{background:#2a3a2a;color:#ccc;}
+  .modal{position:fixed;inset:0;background:#000000cc;display:none;align-items:center;justify-content:center;z-index:100;}
+  .modal.open{display:flex;}
+  .modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;width:380px;}
+  .modal-box h3{margin-bottom:14px;}
+  .modal-box input,.modal-box select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:#fff;margin-bottom:10px;font-size:13px;}
+  .modal-box .actions{display:flex;gap:8px;margin-top:8px;}
+  .modal-box .actions button.cancel{background:#2a3a2a;color:#ccc;}
+  #errorMsg{color:var(--red);font-size:13px;margin-top:8px;}
+  .empty{text-align:center;padding:40px;color:var(--text4);}
+</style>
+</head>
+<body>
+
+  <div id="gate" class="key-gate">
+    <h1>🔐 ALFA ADMIN</h1>
+    <p class="sub" style="margin-bottom:20px">Cole sua ADMIN_KEY (definida no .env)</p>
+    <input type="password" id="adminKeyInput" placeholder="sua chave admin..."/>
+    <button onclick="unlock()">ENTRAR</button>
+    <div id="errorMsg"></div>
+  </div>
+
+  <div id="panel" style="display:none">
+    <h1>⚡ ALFA CRIPTO SINAIS — ADMIN</h1>
+    <p class="sub" id="countText">carregando assinantes...</p>
+
+    <div class="toolbar">
+      <input type="text" id="searchBox" placeholder="Buscar por email..." oninput="renderTable()"/>
+      <button onclick="openCreateModal()">+ NOVO ASSINANTE</button>
+      <button onclick="loadUsers()" style="background:#2a3a2a;color:#ccc">↻ Atualizar</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>EMAIL</th><th>NOME</th><th>STATUS</th><th>PLANO</th><th>CRIADO</th><th>AÇÕES</th></tr>
+      </thead>
+      <tbody id="usersBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Modal criar -->
+  <div class="modal" id="createModal">
+    <div class="modal-box">
+      <h3>+ Novo Assinante</h3>
+      <input type="email" id="newEmail" placeholder="email@cliente.com"/>
+      <input type="text" id="newPassword" placeholder="senha temporária"/>
+      <input type="text" id="newName" placeholder="nome (opcional)"/>
+      <input type="text" id="newPlan" placeholder="plano (ex: Mensal VIP)"/>
+      <div id="createError" style="color:#ff4466;font-size:12px;margin-bottom:8px"></div>
+      <div class="actions">
+        <button class="cancel" onclick="closeModal('createModal')">Cancelar</button>
+        <button onclick="submitCreate()">Criar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal editar -->
+  <div class="modal" id="editModal">
+    <div class="modal-box">
+      <h3>Editar Assinante</h3>
+      <input type="hidden" id="editId"/>
+      <input type="text" id="editName" placeholder="nome"/>
+      <input type="text" id="editPlan" placeholder="plano"/>
+      <select id="editStatus">
+        <option value="active">active</option>
+        <option value="inactive">inactive</option>
+      </select>
+      <input type="text" id="editNewPassword" placeholder="nova senha (deixe vazio p/ não alterar)"/>
+      <div class="actions">
+        <button class="cancel" onclick="closeModal('editModal')">Cancelar</button>
+        <button onclick="submitEdit()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+let ADMIN_KEY = localStorage.getItem("alfa_admin_key") || "";
+let allUsers = [];
+
+const urlKey = new URLSearchParams(location.search).get("key");
+if (urlKey) ADMIN_KEY = urlKey;
+
+if (ADMIN_KEY) tryUnlock();
+
+function unlock() {
+  ADMIN_KEY = document.getElementById("adminKeyInput").value.trim();
+  tryUnlock();
+}
+
+async function tryUnlock() {
+  try {
+    const res = await fetch("/api/admin/users", { headers: { "x-admin-key": ADMIN_KEY } });
+    if (!res.ok) throw new Error("unauthorized");
+    localStorage.setItem("alfa_admin_key", ADMIN_KEY);
+    document.getElementById("gate").style.display = "none";
+    document.getElementById("panel").style.display = "block";
+    loadUsers();
+  } catch {
+    document.getElementById("errorMsg").textContent = "Chave inválida.";
+  }
+}
+
+async function loadUsers() {
+  const res = await fetch("/api/admin/users", { headers: { "x-admin-key": ADMIN_KEY } });
+  const data = await res.json();
+  allUsers = data.users || [];
+  document.getElementById("countText").textContent = `${allUsers.length} assinante(s) cadastrado(s)`;
+  renderTable();
+}
+
+function renderTable() {
+  const search = document.getElementById("searchBox").value.toLowerCase();
+  const filtered = allUsers.filter(u => u.email.toLowerCase().includes(search));
+  const body = document.getElementById("usersBody");
+
+  if (filtered.length === 0) {
+    body.innerHTML = `<tr><td colspan="6"><div class="empty">Nenhum assinante encontrado.</div></td></tr>`;
+    return;
+  }
+
+  body.innerHTML = filtered.map(u => `
+    <tr>
+      <td>${u.email}</td>
+      <td>${u.name || "—"}</td>
+      <td><span class="badge ${u.status}">${u.status}</span></td>
+      <td>${u.plan || "—"}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:11px">${new Date(u.created_at).toLocaleDateString("pt-BR")}</td>
+      <td>
+        <div class="row-actions">
+          <button class="neutral" onclick='openEditModal(${JSON.stringify(u).replace(/'/g,"&apos;")})'>Editar</button>
+          ${u.status === "active"
+            ? `<button class="danger" onclick="quickToggle(${u.id}, 'inactive')">Bloquear</button>`
+            : `<button onclick="quickToggle(${u.id}, 'active')">Ativar</button>`}
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+async function quickToggle(id, status) {
+  await fetch(`/api/admin/users/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", "x-admin-key": ADMIN_KEY },
+    body: JSON.stringify({ status }),
+  });
+  loadUsers();
+}
+
+function openCreateModal() {
+  document.getElementById("newEmail").value = "";
+  document.getElementById("newPassword").value = "";
+  document.getElementById("newName").value = "";
+  document.getElementById("newPlan").value = "";
+  document.getElementById("createError").textContent = "";
+  document.getElementById("createModal").classList.add("open");
+}
+
+async function submitCreate() {
+  const email = document.getElementById("newEmail").value.trim();
+  const password = document.getElementById("newPassword").value.trim();
+  const name = document.getElementById("newName").value.trim();
+  const plan = document.getElementById("newPlan").value.trim();
+
+  if (!email || !password) {
+    document.getElementById("createError").textContent = "Email e senha são obrigatórios.";
+    return;
+  }
+
+  const res = await fetch("/api/admin/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-admin-key": ADMIN_KEY },
+    body: JSON.stringify({ email, password, name, plan }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    document.getElementById("createError").textContent = data.message || "Erro ao criar.";
+    return;
+  }
+  closeModal("createModal");
+  loadUsers();
+}
+
+function openEditModal(user) {
+  document.getElementById("editId").value = user.id;
+  document.getElementById("editName").value = user.name || "";
+  document.getElementById("editPlan").value = user.plan || "";
+  document.getElementById("editStatus").value = user.status;
+  document.getElementById("editNewPassword").value = "";
+  document.getElementById("editModal").classList.add("open");
+}
+
+async function submitEdit() {
+  const id = document.getElementById("editId").value;
+  const name = document.getElementById("editName").value.trim();
+  const plan = document.getElementById("editPlan").value.trim();
+  const status = document.getElementById("editStatus").value;
+  const newPassword = document.getElementById("editNewPassword").value.trim();
+
+  const body = { name, plan, status };
+  if (newPassword) body.newPassword = newPassword;
+
+  await fetch(`/api/admin/users/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", "x-admin-key": ADMIN_KEY },
+    body: JSON.stringify(body),
+  });
+  closeModal("editModal");
+  loadUsers();
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove("open");
+}
+</script>
+</body>
+</html>

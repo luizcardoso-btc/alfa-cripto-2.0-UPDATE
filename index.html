@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Alfa Cripto Sinais</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Barlow:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div id="app">
+
+    <!-- ══ HEADER ══ -->
+    <header id="header">
+      <div class="header-top">
+        <div class="brand">
+          <div class="brand-icon">α</div>
+          <div class="brand-text">
+            <span class="brand-name">ALFA CRIPTO</span>
+            <span class="brand-sub">SINAIS INTELIGENTES</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <div class="live-badge"><span class="pulse-dot"></span>AO VIVO</div>
+          <button class="refresh-btn" id="btnRefreshSignals" title="Gerar novos sinais">↻</button>
+          <button class="refresh-btn" id="btnLogout" title="Sair da conta">⏻</button>
+        </div>
+      </div>
+
+      <!-- Ticker -->
+      <div class="ticker-bar">
+        <span id="tickerText" class="ticker-text">▲ BTC/USDT 103,450 +2.4%</span>
+      </div>
+
+      <!-- Scan Progress (hidden by default) -->
+      <div class="scan-wrap" id="scanWrap" style="display:none">
+        <div class="scan-header">
+          <span class="scan-label">⚡ ALFA TRADER ANALISANDO...</span>
+          <span class="scan-pct" id="scanPct">0%</span>
+        </div>
+        <div class="scan-track"><div class="scan-bar" id="scanBar"></div></div>
+      </div>
+
+      <!-- Market mini-bar -->
+      <div class="market-mini" id="marketMini" style="display:none">
+        <div class="mini-card">
+          <span class="mini-label">VIÉS</span>
+          <span class="mini-val" id="miniBias">—</span>
+        </div>
+        <div class="mini-card">
+          <span class="mini-label">MEDO/GANÂNCIA</span>
+          <span class="mini-val" id="miniFG">—</span>
+        </div>
+        <div class="mini-card">
+          <span class="mini-label">BTC DOM</span>
+          <span class="mini-val" id="miniDom">—</span>
+        </div>
+        <div class="mini-card mini-cd">
+          <span class="mini-label">SCAN</span>
+          <span class="mini-val mono" id="miniCountdown">15:00</span>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-val" id="statAtivos">0</span>
+          <span class="stat-label">ATIVOS</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-val green" id="statLucros">0</span>
+          <span class="stat-label">LUCROS</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-val green" id="statWR">88%</span>
+          <span class="stat-label">WIN RATE</span>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="alerts">🔔 Alertas</button>
+        <button class="tab-btn" data-tab="mercado">📊 Mercado</button>
+        <button class="tab-btn" data-tab="sinais">📋 Sinais</button>
+        <button class="tab-btn" data-tab="edu">🎓 Edu</button>
+      </nav>
+    </header>
+
+    <!-- ══ CONTENT PANELS ══ -->
+    <main id="main">
+
+      <!-- ── ALERTAS ── -->
+      <section class="panel active" id="panel-alerts">
+        <button class="add-manual-btn" id="btnOpenManual">
+          <span class="plus-icon">+</span> ADICIONAR SINAL MANUAL
+        </button>
+        <div id="alertsFeed"></div>
+        <div class="market-note-box" id="marketNoteBox" style="display:none">
+          <div class="note-label">📡 NOTA DE MERCADO</div>
+          <div class="note-text" id="marketNoteText"></div>
+        </div>
+      </section>
+
+      <!-- ── MERCADO ── -->
+      <section class="panel" id="panel-mercado">
+        <div id="mercadoContent">
+          <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <div class="empty-title">Carregando dados de mercado...</div>
+            <button class="primary-btn" id="btnLoadMarket">CARREGAR DADOS</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── SINAIS ── -->
+      <section class="panel" id="panel-sinais">
+        <div class="filter-row">
+          <button class="filter-btn active" data-filter="TODOS">TODOS</button>
+          <button class="filter-btn" data-filter="LONG">LONG</button>
+          <button class="filter-btn" data-filter="SHORT">SHORT</button>
+        </div>
+        <div class="perf-grid">
+          <div class="perf-card">
+            <span class="perf-val" id="perfOps">108</span>
+            <span class="perf-label">Operações</span>
+            <span class="perf-sub" id="perfWL">95W/13L</span>
+          </div>
+          <div class="perf-card">
+            <span class="perf-val" id="perfAcerto">88%</span>
+            <span class="perf-label">Acerto</span>
+            <span class="perf-sub" id="perfAcertoSub">95/108</span>
+          </div>
+          <div class="perf-card">
+            <span class="perf-val green">+9176%</span>
+            <span class="perf-label">Valorização</span>
+            <span class="perf-sub">Histórico</span>
+          </div>
+        </div>
+        <div id="sinaisFeed"></div>
+      </section>
+
+      <!-- ── EDUCAÇÃO ── -->
+      <section class="panel" id="panel-edu">
+        <div class="edu-header">CURSO COMPLETO · 8 AULAS</div>
+        <div id="lessonList"></div>
+      </section>
+
+    </main>
+
+    <!-- ══ BOTTOM NAV ══ -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-tab="alerts">
+        <span class="nav-icon">🔔</span>
+        <span class="nav-label">Alertas</span>
+        <span class="nav-badge" id="navBadge" style="display:none">0</span>
+      </button>
+      <button class="nav-btn" data-tab="mercado">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Mercado</span>
+      </button>
+      <button class="nav-btn" data-tab="sinais">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">Sinais</span>
+      </button>
+      <button class="nav-btn" data-tab="edu">
+        <span class="nav-icon">🎓</span>
+        <span class="nav-label">Edu</span>
+      </button>
+    </nav>
+
+    <!-- ══ CHAT BUTTON ══ -->
+    <button class="chat-fab" id="chatFab" title="ALFA AI">🤖</button>
+
+    <!-- ══ CHAT PANEL ══ -->
+    <div class="chat-panel" id="chatPanel" style="display:none">
+      <div class="chat-header">
+        <div class="chat-brand">
+          <div class="chat-icon">🤖</div>
+          <div>
+            <div class="chat-name">ALFA AI</div>
+            <div class="chat-sub">SMC · Order Blocks · Futuros</div>
+          </div>
+        </div>
+        <button class="chat-close" id="chatClose">✕</button>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg msg-ai">
+          <div class="bubble bubble-ai">👋 Sou a <strong>ALFA AI</strong>! Sinais IA + suporte a manuais ativos. Posso analisar qualquer par cripto. Como posso ajudar?</div>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" placeholder="Analise BTC, ETH, altcoins..." type="text"/>
+        <button class="chat-send" id="chatSend">➤</button>
+      </div>
+    </div>
+
+    <!-- ══ MANUAL SIGNAL MODAL ══ -->
+    <div class="modal-overlay" id="modalOverlay" style="display:none">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">✍️ SINAL MANUAL</span>
+          <button class="modal-close" id="modalClose">✕</button>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>PAR</label>
+            <select id="fPair">
+              <option>BTC/USDT</option><option>ETH/USDT</option><option>BNB/USDT</option>
+              <option>SOL/USDT</option><option>XRP/USDT</option><option>ADA/USDT</option>
+              <option>AVAX/USDT</option><option>LINK/USDT</option><option>DOGE/USDT</option>
+              <option>ARB/USDT</option><option>OP/USDT</option><option>INJ/USDT</option>
+              <option>TON/USDT</option><option>SUI/USDT</option><option>PEPE/USDT</option>
+              <option>WLD/USDT</option><option>TIA/USDT</option><option>ORDI/USDT</option>
+              <option>NEAR/USDT</option><option>FTM/USDT</option><option>APT/USDT</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>TIPO</label>
+            <select id="fType">
+              <option value="LONG">LONG (COMPRA)</option>
+              <option value="SHORT">SHORT (VENDA)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>ENTRADA</label>
+            <input type="text" id="fEntry" placeholder="ex: 103450"/>
+          </div>
+          <div class="form-group">
+            <label>ALAVANCAGEM</label>
+            <select id="fLeverage">
+              <option>10x</option><option>10x-15x</option><option selected>10x-20x</option>
+              <option>15x</option><option>15x-20x</option><option>20x</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label>STOPLOSS</label>
+          <input type="text" id="fSL" placeholder="Hold ou ex: 3%"/>
+        </div>
+        <div class="form-group full">
+          <label>NOTA / ANÁLISE (opcional)</label>
+          <textarea id="fNote" rows="2" placeholder="Descrição do setup..."></textarea>
+        </div>
+        <button class="submit-btn" id="submitManual">PUBLICAR SINAL</button>
+      </div>
+    </div>
+
+  </div><!-- /#app -->
+
+  <script src="app.js"></script>
+</body>
+</html>
