@@ -39,7 +39,7 @@ body {
 }
 
 .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; justify-content: center; }
-.brand-icon {
+.brand-icon-OLD {
   width: 46px; height: 46px;
   background: linear-gradient(135deg, var(--green), var(--green2));
   border-radius: 13px;
@@ -104,3 +104,10 @@ h1 {
 }
 .help-box a { color: var(--green); text-decoration: none; }
 .help-box a:hover { text-decoration: underline; }
+
+/* ACS SYSTEM — logo SVG */
+.brand-icon {
+  width: 52px; height: 52px;
+  display: flex; align-items: center; justify-content: center;
+  filter: drop-shadow(0 0 10px rgba(0,255,136,0.5));
+}
