@@ -3,60 +3,188 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Alfa Cripto Sinais — Admin</title>
+<title>ACS SYSTEM — Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <style>
-  :root{--bg:#060a06;--bg2:#0a0f0a;--bg3:#0d1f0d;--border:#1a2a1a;--green:#00ff88;--red:#ff4466;--text:#e8f4e8;--text4:#556655;}
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:"Rajdhani",sans-serif;padding:24px;max-width:1100px;margin:0 auto;}
-  h1{font-size:22px;margin-bottom:4px;letter-spacing:1px;}
-  .sub{color:var(--text4);font-family:"Share Tech Mono",monospace;font-size:12px;margin-bottom:20px;}
-  .key-gate{max-width:420px;margin:80px auto;text-align:center;}
-  .key-gate input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:#fff;font-size:14px;margin-bottom:10px;}
-  .key-gate button, .toolbar button, .row-actions button{background:linear-gradient(135deg,var(--green),#00cc55);border:none;border-radius:8px;padding:9px 16px;font-weight:700;color:#000;cursor:pointer;font-family:"Rajdhani",sans-serif;font-size:13px;}
-  .toolbar{display:flex;gap:10px;margin-bottom:16px;align-items:center;}
-  .toolbar input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:#fff;}
-  table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:10px;overflow:hidden;}
-  th{background:var(--bg3);text-align:left;padding:10px 12px;font-size:11px;color:var(--text4);letter-spacing:1px;}
-  td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;}
-  tr:last-child td{border-bottom:none;}
-  .badge{padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700;}
-  .badge.active{background:#00ff8820;color:var(--green);}
-  .badge.inactive{background:#ff446620;color:var(--red);}
-  .row-actions{display:flex;gap:6px;}
-  .row-actions button{padding:5px 10px;font-size:11px;}
-  .row-actions .danger{background:linear-gradient(135deg,#ff4466,#cc3355);}
-  .row-actions .neutral{background:#2a3a2a;color:#ccc;}
-  .modal{position:fixed;inset:0;background:#000000cc;display:none;align-items:center;justify-content:center;z-index:100;}
-  .modal.open{display:flex;}
-  .modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;width:380px;}
-  .modal-box h3{margin-bottom:14px;}
-  .modal-box input,.modal-box select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:#fff;margin-bottom:10px;font-size:13px;}
-  .modal-box .actions{display:flex;gap:8px;margin-top:8px;}
-  .modal-box .actions button.cancel{background:#2a3a2a;color:#ccc;}
-  #errorMsg{color:var(--red);font-size:13px;margin-top:8px;}
-  .empty{text-align:center;padding:40px;color:var(--text4);}
+:root{
+  --bg:#060a06;--bg2:#0a0f0a;--bg3:#0d1f0d;--border:#1a2a1a;
+  --green:#00ff88;--red:#ff4466;--blue:#00c8ff;--yellow:#ffcc00;
+  --text:#e8f4e8;--text4:#556655;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:"Rajdhani",sans-serif;padding:20px;max-width:1200px;margin:0 auto;}
+
+/* ── Gate ── */
+.gate{max-width:400px;margin:80px auto;text-align:center;}
+.gate h1{font-size:24px;margin-bottom:6px;letter-spacing:1px;}
+.gate p{color:var(--text4);font-family:"Share Tech Mono",monospace;font-size:12px;margin-bottom:20px;}
+.gate input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:#fff;font-size:14px;margin-bottom:10px;}
+
+/* ── Buttons ── */
+.btn{background:linear-gradient(135deg,var(--green),#00cc55);border:none;border-radius:8px;padding:9px 18px;font-weight:700;color:#000;cursor:pointer;font-family:"Rajdhani",sans-serif;font-size:14px;letter-spacing:.5px;transition:.15s;}
+.btn:hover{opacity:.85;}
+.btn.danger{background:linear-gradient(135deg,var(--red),#cc3355);color:#fff;}
+.btn.neutral{background:#1a2a1a;color:#aaa;border:1px solid var(--border);}
+.btn.blue{background:linear-gradient(135deg,var(--blue),#0099cc);color:#000;}
+.btn.yellow{background:linear-gradient(135deg,var(--yellow),#cc9900);color:#000;}
+.btn.sm{padding:5px 12px;font-size:12px;}
+
+/* ── Tabs ── */
+.admin-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.admin-tab{flex:1;padding:10px 0;background:none;border:none;border-bottom:2px solid transparent;color:var(--text4);font-family:"Rajdhani",sans-serif;font-size:14px;cursor:pointer;letter-spacing:.5px;transition:.15s;}
+.admin-tab.active{color:var(--green);border-bottom-color:var(--green);}
+
+/* ── Header ── */
+.admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.admin-title{font-size:22px;letter-spacing:1px;}
+.admin-sub{color:var(--text4);font-family:"Share Tech Mono",monospace;font-size:11px;margin-top:2px;}
+
+/* ── Toolbar ── */
+.toolbar{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap;}
+.toolbar input,.toolbar select{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:#fff;font-family:"Rajdhani",sans-serif;font-size:13px;}
+.toolbar input{flex:1;min-width:150px;}
+
+/* ── Tables ── */
+table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:10px;overflow:hidden;margin-bottom:20px;}
+th{background:var(--bg3);text-align:left;padding:10px 12px;font-size:11px;color:var(--text4);letter-spacing:1px;}
+td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(0,255,136,.02);}
+.actions-col{display:flex;gap:5px;flex-wrap:wrap;}
+
+/* ── Badges ── */
+.badge{padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700;font-family:"Share Tech Mono",monospace;}
+.badge.active{background:#00ff8820;color:var(--green);}
+.badge.inactive{background:#ff446620;color:var(--red);}
+.badge.profit{background:#00ff8820;color:var(--green);}
+.badge.loss{background:#ff446620;color:var(--red);}
+.badge.closed{background:#33333320;color:#888;}
+.badge.long{background:rgba(0,200,255,.15);color:var(--blue);}
+.badge.short{background:rgba(255,68,102,.15);color:var(--red);}
+
+/* ── Stat cards ── */
+.stat-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.stat-box{flex:1;min-width:120px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.stat-val{font-family:"Share Tech Mono",monospace;font-size:24px;color:var(--green);}
+.stat-lbl{font-size:11px;color:var(--text4);margin-top:4px;letter-spacing:.5px;}
+
+/* ── Modals ── */
+.modal{position:fixed;inset:0;background:#000c;display:none;align-items:center;justify-content:center;z-index:200;}
+.modal.open{display:flex;}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.modal-box h3{margin-bottom:16px;font-size:18px;letter-spacing:.5px;}
+.modal-box label{display:block;font-size:11px;color:var(--text4);letter-spacing:.5px;margin-bottom:4px;margin-top:10px;}
+.modal-box input,.modal-box select,.modal-box textarea{
+  width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  padding:9px 12px;color:#fff;font-size:13px;font-family:"Rajdhani",sans-serif;
+}
+.modal-box textarea{min-height:60px;resize:vertical;}
+.modal-actions{display:flex;gap:8px;margin-top:16px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.err-msg{color:var(--red);font-size:12px;margin-top:8px;}
+
+/* ── Prices box ── */
+.prices-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px;}
+.price-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
+.price-pair{font-size:11px;color:var(--text4);margin-bottom:4px;}
+.price-val{font-family:"Share Tech Mono",monospace;font-size:14px;color:#fff;}
+.price-chg{font-size:11px;margin-top:2px;}
+.price-chg.up{color:var(--green);}
+.price-chg.dn{color:var(--red);}
+
+/* ── Empty ── */
+.empty-state{text-align:center;padding:40px;color:var(--text4);}
+.mono{font-family:"Share Tech Mono",monospace;font-size:12px;}
+.error-msg{color:var(--red);font-size:13px;margin-top:8px;}
 </style>
 </head>
 <body>
 
-  <div id="gate" class="key-gate">
-    <h1>🔐 ALFA ADMIN</h1>
-    <p class="sub" style="margin-bottom:20px">Cole sua ADMIN_KEY (definida no .env)</p>
-    <input type="password" id="adminKeyInput" placeholder="sua chave admin..."/>
-    <button onclick="unlock()">ENTRAR</button>
-    <div id="errorMsg"></div>
+<!-- ══ GATE ══ -->
+<div id="gate" class="gate">
+  <h1>🔐 ACS SYSTEM — ADMIN</h1>
+  <p>Cole sua ADMIN_KEY (definida no .env)</p>
+  <input type="password" id="adminKeyInput" placeholder="sua chave admin..." onkeydown="if(event.key==='Enter')unlock()"/>
+  <br/>
+  <button class="btn" onclick="unlock()" style="width:100%;margin-top:4px">ENTRAR</button>
+  <div class="error-msg" id="gateError"></div>
+</div>
+
+<!-- ══ PAINEL PRINCIPAL ══ -->
+<div id="panel" style="display:none">
+  <div class="admin-header">
+    <div>
+      <div class="admin-title">⚡ ACS SYSTEM — ADMIN</div>
+      <div class="admin-sub" id="adminSub">Carregando...</div>
+    </div>
+    <button class="btn neutral sm" onclick="logout()">Sair</button>
   </div>
 
-  <div id="panel" style="display:none">
-    <h1>⚡ ALFA CRIPTO SINAIS — ADMIN</h1>
-    <p class="sub" id="countText">carregando assinantes...</p>
+  <!-- Tabs -->
+  <div class="admin-tabs">
+    <button class="admin-tab active" data-tab="sinais" onclick="switchTab('sinais')">📡 Sinais</button>
+    <button class="admin-tab" data-tab="precos" onclick="switchTab('precos')">💰 Preços</button>
+    <button class="admin-tab" data-tab="usuarios" onclick="switchTab('usuarios')">👥 Usuários</button>
+    <button class="admin-tab" data-tab="webhook" onclick="switchTab('webhook')">🔗 Webhook</button>
+  </div>
+
+  <!-- ══ TAB SINAIS ══ -->
+  <div id="tab-sinais">
+    <div class="stat-row" id="sigStats">
+      <div class="stat-box"><div class="stat-val" id="sigTotal">0</div><div class="stat-lbl">TOTAL</div></div>
+      <div class="stat-box"><div class="stat-val" id="sigActive">0</div><div class="stat-lbl">ATIVOS</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:#00ff88" id="sigProfit">0</div><div class="stat-lbl">LUCROS</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:#ff4466" id="sigClosed">0</div><div class="stat-lbl">FECHADOS</div></div>
+    </div>
 
     <div class="toolbar">
-      <input type="text" id="searchBox" placeholder="Buscar por email..." oninput="renderTable()"/>
-      <button onclick="openCreateModal()">+ NOVO ASSINANTE</button>
-      <button onclick="loadUsers()" style="background:#2a3a2a;color:#ccc">↻ Atualizar</button>
+      <input type="text" id="sigSearch" placeholder="Filtrar por par..." oninput="renderSignalsTable()"/>
+      <select id="sigFilterStatus" onchange="renderSignalsTable()">
+        <option value="">Todos status</option>
+        <option value="active">Ativos</option>
+        <option value="profit">Lucro</option>
+        <option value="loss">Loss</option>
+        <option value="closed">Fechados</option>
+      </select>
+      <button class="btn" onclick="openCreateSignal()">+ NOVO SINAL</button>
+      <button class="btn blue" onclick="checkTargetsNow()">⚡ CHECAR TARGETS AGORA</button>
+      <button class="btn neutral sm" onclick="loadSignals()">↻</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>PAR</th><th>TIPO</th><th>ENTRADA</th><th>ALVANCAGEM</th>
+          <th>STOP</th><th>HITS</th><th>STATUS</th><th>FONTE</th><th>CRIADO</th><th>AÇÕES</th>
+        </tr>
+      </thead>
+      <tbody id="signalsBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ══ TAB PREÇOS ══ -->
+  <div id="tab-precos" style="display:none">
+    <div class="toolbar">
+      <button class="btn" onclick="loadPrices()">↻ ATUALIZAR PREÇOS</button>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text4)" id="pricesAt">—</span>
+    </div>
+    <div class="prices-grid" id="pricesGrid">
+      <div class="empty-state">Clique em "Atualizar Preços"</div>
+    </div>
+  </div>
+
+  <!-- ══ TAB USUÁRIOS ══ -->
+  <div id="tab-usuarios" style="display:none">
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-val" id="userTotal">0</div><div class="stat-lbl">TOTAL</div></div>
+      <div class="stat-box"><div class="stat-val" id="userActive">0</div><div class="stat-lbl">ATIVOS</div></div>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" id="searchBox" placeholder="Buscar por email..." oninput="renderUsersTable()"/>
+      <button class="btn" onclick="openCreateUser()">+ NOVO ASSINANTE</button>
+      <button class="btn neutral sm" onclick="loadUsers()">↻</button>
     </div>
 
     <table>
@@ -67,83 +195,413 @@
     </table>
   </div>
 
-  <!-- Modal criar -->
-  <div class="modal" id="createModal">
-    <div class="modal-box">
-      <h3>+ Novo Assinante</h3>
-      <input type="email" id="newEmail" placeholder="email@cliente.com"/>
-      <input type="text" id="newPassword" placeholder="senha temporária"/>
-      <input type="text" id="newName" placeholder="nome (opcional)"/>
-      <input type="text" id="newPlan" placeholder="plano (ex: Mensal VIP)"/>
-      <div id="createError" style="color:#ff4466;font-size:12px;margin-bottom:8px"></div>
-      <div class="actions">
-        <button class="cancel" onclick="closeModal('createModal')">Cancelar</button>
-        <button onclick="submitCreate()">Criar</button>
-      </div>
+  <!-- ══ TAB WEBHOOK ══ -->
+  <div id="tab-webhook" style="display:none">
+    <div class="toolbar">
+      <button class="btn neutral sm" onclick="loadWebhookLog()">↻ Atualizar</button>
     </div>
+    <table>
+      <thead><tr><th>#</th><th>FONTE</th><th>EVENTO</th><th>DATA</th><th>PAYLOAD</th></tr></thead>
+      <tbody id="webhookBody"></tbody>
+    </table>
   </div>
+</div>
 
-  <!-- Modal editar -->
-  <div class="modal" id="editModal">
-    <div class="modal-box">
-      <h3>Editar Assinante</h3>
-      <input type="hidden" id="editId"/>
-      <input type="text" id="editName" placeholder="nome"/>
-      <input type="text" id="editPlan" placeholder="plano"/>
-      <select id="editStatus">
-        <option value="active">active</option>
-        <option value="inactive">inactive</option>
-      </select>
-      <input type="text" id="editNewPassword" placeholder="nova senha (deixe vazio p/ não alterar)"/>
-      <div class="actions">
-        <button class="cancel" onclick="closeModal('editModal')">Cancelar</button>
-        <button onclick="submitEdit()">Salvar</button>
+<!-- ══ MODAL: Criar/Editar Sinal ══ -->
+<div class="modal" id="signalModal">
+  <div class="modal-box">
+    <h3 id="signalModalTitle">Novo Sinal</h3>
+    <input type="hidden" id="sigId"/>
+    <div class="form-row">
+      <div>
+        <label>PAR</label>
+        <select id="sigPair">
+          <option>BTC/USDT</option><option>ETH/USDT</option><option>BNB/USDT</option>
+          <option>SOL/USDT</option><option>XRP/USDT</option><option>ADA/USDT</option>
+          <option>AVAX/USDT</option><option>LINK/USDT</option><option>DOGE/USDT</option>
+          <option>ARB/USDT</option><option>OP/USDT</option><option>INJ/USDT</option>
+          <option>TON/USDT</option><option>SUI/USDT</option><option>PEPE/USDT</option>
+          <option>WLD/USDT</option><option>NEAR/USDT</option><option>FTM/USDT</option>
+          <option>APT/USDT</option>
+        </select>
+      </div>
+      <div>
+        <label>TIPO</label>
+        <select id="sigType">
+          <option value="LONG">LONG (COMPRA)</option>
+          <option value="SHORT">SHORT (VENDA)</option>
+        </select>
       </div>
     </div>
+    <div class="form-row">
+      <div>
+        <label>PREÇO DE ENTRADA</label>
+        <input type="text" id="sigEntry" placeholder="ex: 103450"/>
+      </div>
+      <div>
+        <label>ALAVANCAGEM</label>
+        <select id="sigLeverage">
+          <option>10x</option><option>10x-15x</option><option selected>10x-20x</option>
+          <option>15x</option><option>15x-20x</option><option>20x</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label>STOPLOSS</label>
+        <input type="text" id="sigSL" placeholder="Hold ou ex: 3%"/>
+      </div>
+      <div>
+        <label>CONFIANÇA (1-5)</label>
+        <select id="sigConf">
+          <option value="1">1 ★</option><option value="2">2 ★★</option>
+          <option value="3" selected>3 ★★★</option><option value="4">4 ★★★★</option>
+          <option value="5">5 ★★★★★</option>
+        </select>
+      </div>
+    </div>
+    <label>TIMEFRAME</label>
+    <input type="text" id="sigTF" placeholder="ex: 15M/1H"/>
+    <label>SETUP</label>
+    <input type="text" id="sigSetup" placeholder="ex: OB + FVG"/>
+    <label>ANÁLISE / RAZÃO</label>
+    <textarea id="sigReason" rows="3" placeholder="Descreva o setup e a análise técnica..."></textarea>
+    <label>ALVOS (11 separados por vírgula)</label>
+    <input type="text" id="sigTargets" value="3%,20%,40%,60%,80%,100%,120%,140%,160%,180%,200%+"/>
+
+    <!-- Edição: status e hit -->
+    <div id="sigEditExtra" style="display:none">
+      <div class="form-row" style="margin-top:10px">
+        <div>
+          <label>STATUS</label>
+          <select id="sigStatus">
+            <option value="active">active</option>
+            <option value="profit">profit</option>
+            <option value="loss">loss</option>
+            <option value="closed">closed</option>
+          </select>
+        </div>
+        <div>
+          <label>HITS ATINGIDOS</label>
+          <input type="number" id="sigHit" min="0" max="11" value="0"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="err-msg" id="sigError"></div>
+    <div class="modal-actions">
+      <button class="btn neutral" onclick="closeModal('signalModal')">Cancelar</button>
+      <button class="btn" id="sigSubmitBtn" onclick="submitSignal()">PUBLICAR SINAL</button>
+    </div>
   </div>
+</div>
+
+<!-- ══ MODAL: Criar Usuário ══ -->
+<div class="modal" id="createUserModal">
+  <div class="modal-box">
+    <h3>+ Novo Assinante</h3>
+    <label>EMAIL</label><input type="email" id="newEmail" placeholder="email@cliente.com"/>
+    <label>SENHA</label><input type="text" id="newPassword" placeholder="senha temporária"/>
+    <label>NOME</label><input type="text" id="newName" placeholder="nome completo (opcional)"/>
+    <label>PLANO</label><input type="text" id="newPlan" placeholder="ex: Mensal VIP"/>
+    <div class="err-msg" id="createUserError"></div>
+    <div class="modal-actions">
+      <button class="btn neutral" onclick="closeModal('createUserModal')">Cancelar</button>
+      <button class="btn" onclick="submitCreateUser()">Criar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Editar Usuário ══ -->
+<div class="modal" id="editUserModal">
+  <div class="modal-box">
+    <h3>Editar Assinante</h3>
+    <input type="hidden" id="editUserId"/>
+    <label>NOME</label><input type="text" id="editName" placeholder="nome"/>
+    <label>PLANO</label><input type="text" id="editPlan" placeholder="plano"/>
+    <label>STATUS</label>
+    <select id="editStatus">
+      <option value="active">active</option>
+      <option value="inactive">inactive</option>
+    </select>
+    <label>NOVA SENHA (deixe vazio p/ não alterar)</label>
+    <input type="text" id="editNewPassword" placeholder="nova senha..."/>
+    <div class="modal-actions">
+      <button class="btn neutral" onclick="closeModal('editUserModal')">Cancelar</button>
+      <button class="btn" onclick="submitEditUser()">Salvar</button>
+    </div>
+  </div>
+</div>
 
 <script>
-let ADMIN_KEY = localStorage.getItem("alfa_admin_key") || "";
-let allUsers = [];
+let ADMIN_KEY  = localStorage.getItem("alfa_admin_key") || "";
+let allSignals = [];
+let allUsers   = [];
+let currentTab = "sinais";
 
+// Chave na URL
 const urlKey = new URLSearchParams(location.search).get("key");
 if (urlKey) ADMIN_KEY = urlKey;
-
 if (ADMIN_KEY) tryUnlock();
 
+// ── Gate ────────────────────────────────────────────────────────────────────
 function unlock() {
   ADMIN_KEY = document.getElementById("adminKeyInput").value.trim();
   tryUnlock();
 }
 
 async function tryUnlock() {
-  try {
-    const res = await fetch("/api/admin/users", { headers: { "x-admin-key": ADMIN_KEY } });
-    if (!res.ok) throw new Error("unauthorized");
-    localStorage.setItem("alfa_admin_key", ADMIN_KEY);
-    document.getElementById("gate").style.display = "none";
-    document.getElementById("panel").style.display = "block";
-    loadUsers();
-  } catch {
-    document.getElementById("errorMsg").textContent = "Chave inválida.";
-  }
+  const res = await fetch("/api/admin/users", { headers:{ "x-admin-key": ADMIN_KEY } });
+  if (!res.ok) { document.getElementById("gateError").textContent = "Chave inválida."; return; }
+  localStorage.setItem("alfa_admin_key", ADMIN_KEY);
+  document.getElementById("gate").style.display  = "none";
+  document.getElementById("panel").style.display = "block";
+  loadSignals();
+  loadUsers();
+  loadPrices();
 }
 
-async function loadUsers() {
-  const res = await fetch("/api/admin/users", { headers: { "x-admin-key": ADMIN_KEY } });
+function logout() {
+  localStorage.removeItem("alfa_admin_key");
+  location.reload();
+}
+
+// ── Tabs ────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll(".admin-tab").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  ["sinais","precos","usuarios","webhook"].forEach(t => {
+    document.getElementById("tab-"+t).style.display = t === tab ? "" : "none";
+  });
+  if (tab === "webhook") loadWebhookLog();
+}
+
+// ══════════════════════════════════════════════
+// SINAIS
+// ══════════════════════════════════════════════
+async function loadSignals() {
+  const res = await fetch("/api/admin/signals", { headers:{ "x-admin-key": ADMIN_KEY } });
+  if (!res.ok) return;
   const data = await res.json();
-  allUsers = data.users || [];
-  document.getElementById("countText").textContent = `${allUsers.length} assinante(s) cadastrado(s)`;
-  renderTable();
+  allSignals = data.signals || [];
+  updateSignalStats();
+  renderSignalsTable();
 }
 
-function renderTable() {
-  const search = document.getElementById("searchBox").value.toLowerCase();
-  const filtered = allUsers.filter(u => u.email.toLowerCase().includes(search));
-  const body = document.getElementById("usersBody");
+function updateSignalStats() {
+  document.getElementById("sigTotal").textContent  = allSignals.length;
+  document.getElementById("sigActive").textContent = allSignals.filter(s=>s.status==="active").length;
+  document.getElementById("sigProfit").textContent = allSignals.filter(s=>s.status==="profit").length;
+  document.getElementById("sigClosed").textContent = allSignals.filter(s=>s.status==="loss"||s.status==="closed").length;
+}
+
+function renderSignalsTable() {
+  const search = document.getElementById("sigSearch").value.toLowerCase();
+  const status = document.getElementById("sigFilterStatus").value;
+  const body   = document.getElementById("signalsBody");
+
+  let filtered = allSignals;
+  if (search) filtered = filtered.filter(s => s.pair.toLowerCase().includes(search));
+  if (status) filtered = filtered.filter(s => s.status === status);
+  filtered.sort((a,b) => b.id - a.id);
 
   if (filtered.length === 0) {
-    body.innerHTML = `<tr><td colspan="6"><div class="empty">Nenhum assinante encontrado.</div></td></tr>`;
+    body.innerHTML = `<tr><td colspan="11"><div class="empty-state">Nenhum sinal encontrado.</div></td></tr>`;
+    return;
+  }
+
+  body.innerHTML = filtered.map(s => `
+    <tr>
+      <td class="mono">#${s.id}</td>
+      <td><b>${s.pair}</b></td>
+      <td><span class="badge ${s.type.toLowerCase()}">${s.type}</span></td>
+      <td class="mono">${s.entry}</td>
+      <td class="mono">${s.leverage}</td>
+      <td class="mono">${s.stoploss}</td>
+      <td class="mono">${s.hit}/${s.targets?.length||11}</td>
+      <td><span class="badge ${s.status}">${s.status}</span></td>
+      <td class="mono" style="font-size:10px">${s.source||"admin"}</td>
+      <td class="mono" style="font-size:10px">${new Date(s.created_at).toLocaleString("pt-BR")}</td>
+      <td>
+        <div class="actions-col">
+          <button class="btn neutral sm" onclick='openEditSignal(${JSON.stringify(s).replace(/'/g,"&apos;")})'>Editar</button>
+          <button class="btn danger sm" onclick="deleteSignal(${s.id})">Excluir</button>
+          ${s.status==="active"?`<button class="btn yellow sm" onclick="closeSignal(${s.id})">Fechar</button>`:""}
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function openCreateSignal() {
+  document.getElementById("signalModalTitle").textContent = "Novo Sinal";
+  document.getElementById("sigId").value        = "";
+  document.getElementById("sigPair").value      = "BTC/USDT";
+  document.getElementById("sigType").value      = "LONG";
+  document.getElementById("sigEntry").value     = "";
+  document.getElementById("sigLeverage").value  = "10x-20x";
+  document.getElementById("sigSL").value        = "Hold";
+  document.getElementById("sigConf").value      = "3";
+  document.getElementById("sigTF").value        = "";
+  document.getElementById("sigSetup").value     = "";
+  document.getElementById("sigReason").value    = "";
+  document.getElementById("sigTargets").value   = "3%,20%,40%,60%,80%,100%,120%,140%,160%,180%,200%+";
+  document.getElementById("sigError").textContent = "";
+  document.getElementById("sigEditExtra").style.display = "none";
+  document.getElementById("sigSubmitBtn").textContent = "PUBLICAR SINAL";
+  document.getElementById("signalModal").classList.add("open");
+}
+
+function openEditSignal(sig) {
+  document.getElementById("signalModalTitle").textContent = `Editar Sinal #${sig.id}`;
+  document.getElementById("sigId").value        = sig.id;
+  document.getElementById("sigPair").value      = sig.pair;
+  document.getElementById("sigType").value      = sig.type;
+  document.getElementById("sigEntry").value     = sig.entry;
+  document.getElementById("sigLeverage").value  = sig.leverage;
+  document.getElementById("sigSL").value        = sig.stoploss;
+  document.getElementById("sigConf").value      = sig.confidence || 3;
+  document.getElementById("sigTF").value        = sig.timeframe || "";
+  document.getElementById("sigSetup").value     = sig.setup || "";
+  document.getElementById("sigReason").value    = sig.reason || "";
+  document.getElementById("sigTargets").value   = (sig.targets||[]).join(",");
+  document.getElementById("sigError").textContent = "";
+  document.getElementById("sigEditExtra").style.display = "";
+  document.getElementById("sigStatus").value    = sig.status;
+  document.getElementById("sigHit").value       = sig.hit || 0;
+  document.getElementById("sigSubmitBtn").textContent = "SALVAR ALTERAÇÕES";
+  document.getElementById("signalModal").classList.add("open");
+}
+
+async function submitSignal() {
+  const id     = document.getElementById("sigId").value;
+  const entry  = document.getElementById("sigEntry").value.trim();
+  const pair   = document.getElementById("sigPair").value;
+  if (!entry)  { document.getElementById("sigError").textContent = "Informe o preço de entrada."; return; }
+
+  const targetsRaw = document.getElementById("sigTargets").value;
+  const targets    = targetsRaw.split(",").map(t=>t.trim()).filter(Boolean);
+
+  const body = {
+    pair, entry,
+    type:      document.getElementById("sigType").value,
+    leverage:  document.getElementById("sigLeverage").value,
+    stoploss:  document.getElementById("sigSL").value || "Hold",
+    confidence:Number(document.getElementById("sigConf").value),
+    timeframe: document.getElementById("sigTF").value || "—",
+    setup:     document.getElementById("sigSetup").value || "MANUAL",
+    reason:    document.getElementById("sigReason").value,
+    targets,
+    source:    "admin",
+  };
+
+  if (id) {
+    // Editar
+    body.status = document.getElementById("sigStatus").value;
+    body.hit    = Number(document.getElementById("sigHit").value);
+  }
+
+  const url    = id ? `/api/admin/signals/${id}` : "/api/admin/signals";
+  const method = id ? "PATCH" : "POST";
+
+  const res  = await fetch(url, { method, headers:{ "Content-Type":"application/json","x-admin-key":ADMIN_KEY }, body:JSON.stringify(body) });
+  const data = await res.json();
+  if (!res.ok) { document.getElementById("sigError").textContent = data.message || "Erro ao salvar."; return; }
+
+  closeModal("signalModal");
+  loadSignals();
+}
+
+async function deleteSignal(id) {
+  if (!confirm(`Excluir sinal #${id}?`)) return;
+  await fetch(`/api/admin/signals/${id}`, { method:"DELETE", headers:{"x-admin-key":ADMIN_KEY} });
+  loadSignals();
+}
+
+async function closeSignal(id) {
+  if (!confirm(`Fechar sinal #${id} como encerrado?`)) return;
+  await fetch(`/api/admin/signals/${id}`, {
+    method:"PATCH",
+    headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},
+    body:JSON.stringify({ status:"closed" }),
+  });
+  loadSignals();
+}
+
+async function checkTargetsNow() {
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = "Verificando...";
+  const res = await fetch("/api/admin/signals/check-targets", { method:"POST", headers:{"x-admin-key":ADMIN_KEY} });
+  const data = await res.json();
+  btn.disabled = false; btn.textContent = "⚡ CHECAR TARGETS AGORA";
+  loadSignals();
+  alert(`✅ Targets verificados para ${data.checked} sinal(is) ativo(s).`);
+}
+
+// ══════════════════════════════════════════════
+// PREÇOS
+// ══════════════════════════════════════════════
+async function loadPrices() {
+  const res = await fetch("/api/prices", { headers:{"x-admin-key":ADMIN_KEY} });
+  if (!res.ok) {
+    // Tenta via admin auth
+    const res2 = await fetch("/api/prices");
+    if (!res2.ok) return;
+    renderPrices(await res2.json());
+    return;
+  }
+  renderPrices(await res.json());
+}
+
+function renderPrices(data) {
+  const grid = document.getElementById("pricesGrid");
+  const at   = document.getElementById("pricesAt");
+  at.textContent = `Atualizado: ${new Date(data.fetchedAt).toLocaleTimeString("pt-BR")}`;
+
+  const prices = data.prices || {};
+  const pairs  = Object.keys(prices);
+  if (pairs.length === 0) { grid.innerHTML = '<div class="empty-state">Preços indisponíveis</div>'; return; }
+
+  grid.innerHTML = pairs.map(pair => {
+    const d   = prices[pair];
+    const chg = parseFloat(d.change24h);
+    const up  = chg >= 0;
+    const fmtPrice = p => {
+      if (p < 0.0001) return p.toExponential(4);
+      if (p < 1)      return p.toFixed(6);
+      if (p < 100)    return p.toFixed(4);
+      if (p < 10000)  return p.toFixed(2);
+      return p.toLocaleString("en-US",{maximumFractionDigits:0});
+    };
+    return `<div class="price-card">
+      <div class="price-pair">${pair}</div>
+      <div class="price-val">$${fmtPrice(d.price)}</div>
+      <div class="price-chg ${up?"up":"dn"}">${up?"+":""}${chg.toFixed(2)}%</div>
+    </div>`;
+  }).join("");
+}
+
+// ══════════════════════════════════════════════
+// USUÁRIOS
+// ══════════════════════════════════════════════
+async function loadUsers() {
+  const res = await fetch("/api/admin/users", { headers:{"x-admin-key":ADMIN_KEY} });
+  if (!res.ok) return;
+  const data = await res.json();
+  allUsers = data.users || [];
+  document.getElementById("userTotal").textContent  = allUsers.length;
+  document.getElementById("userActive").textContent = allUsers.filter(u=>u.status==="active").length;
+  document.getElementById("adminSub").textContent   = `${allUsers.length} assinante(s) · ${allSignals.length} sinal(is)`;
+  renderUsersTable();
+}
+
+function renderUsersTable() {
+  const search  = document.getElementById("searchBox").value.toLowerCase();
+  const filtered = allUsers.filter(u => u.email.toLowerCase().includes(search));
+  const body     = document.getElementById("usersBody");
+
+  if (filtered.length === 0) {
+    body.innerHTML = `<tr><td colspan="6"><div class="empty-state">Nenhum assinante encontrado.</div></td></tr>`;
     return;
   }
 
@@ -153,93 +611,107 @@ function renderTable() {
       <td>${u.name || "—"}</td>
       <td><span class="badge ${u.status}">${u.status}</span></td>
       <td>${u.plan || "—"}</td>
-      <td style="font-family:'Share Tech Mono',monospace;font-size:11px">${new Date(u.created_at).toLocaleDateString("pt-BR")}</td>
+      <td class="mono" style="font-size:10px">${new Date(u.created_at).toLocaleDateString("pt-BR")}</td>
       <td>
-        <div class="row-actions">
-          <button class="neutral" onclick='openEditModal(${JSON.stringify(u).replace(/'/g,"&apos;")})'>Editar</button>
-          ${u.status === "active"
-            ? `<button class="danger" onclick="quickToggle(${u.id}, 'inactive')">Bloquear</button>`
-            : `<button onclick="quickToggle(${u.id}, 'active')">Ativar</button>`}
+        <div class="actions-col">
+          <button class="btn neutral sm" onclick='openEditUser(${JSON.stringify(u).replace(/'/g,"&apos;")})'>Editar</button>
+          ${u.status==="active"
+            ? `<button class="btn danger sm" onclick="quickToggleUser(${u.id},'inactive')">Bloquear</button>`
+            : `<button class="btn sm" onclick="quickToggleUser(${u.id},'active')">Ativar</button>`}
         </div>
       </td>
     </tr>
   `).join("");
 }
 
-async function quickToggle(id, status) {
+function openCreateUser() {
+  document.getElementById("newEmail").value = document.getElementById("newPassword").value =
+  document.getElementById("newName").value  = document.getElementById("newPlan").value = "";
+  document.getElementById("createUserError").textContent = "";
+  document.getElementById("createUserModal").classList.add("open");
+}
+
+async function submitCreateUser() {
+  const email    = document.getElementById("newEmail").value.trim();
+  const password = document.getElementById("newPassword").value.trim();
+  const name     = document.getElementById("newName").value.trim();
+  const plan     = document.getElementById("newPlan").value.trim();
+  if (!email || !password) { document.getElementById("createUserError").textContent = "Email e senha são obrigatórios."; return; }
+  const res  = await fetch("/api/admin/users", {
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},
+    body: JSON.stringify({ email, password, name, plan }),
+  });
+  const data = await res.json();
+  if (!res.ok) { document.getElementById("createUserError").textContent = data.message || "Erro ao criar."; return; }
+  closeModal("createUserModal");
+  loadUsers();
+}
+
+function openEditUser(user) {
+  document.getElementById("editUserId").value     = user.id;
+  document.getElementById("editName").value       = user.name || "";
+  document.getElementById("editPlan").value       = user.plan || "";
+  document.getElementById("editStatus").value     = user.status;
+  document.getElementById("editNewPassword").value= "";
+  document.getElementById("editUserModal").classList.add("open");
+}
+
+async function submitEditUser() {
+  const id          = document.getElementById("editUserId").value;
+  const name        = document.getElementById("editName").value.trim();
+  const plan        = document.getElementById("editPlan").value.trim();
+  const status      = document.getElementById("editStatus").value;
+  const newPassword = document.getElementById("editNewPassword").value.trim();
+  const body = { name, plan, status };
+  if (newPassword) body.newPassword = newPassword;
   await fetch(`/api/admin/users/${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json", "x-admin-key": ADMIN_KEY },
+    method:"PATCH",
+    headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},
+    body: JSON.stringify(body),
+  });
+  closeModal("editUserModal");
+  loadUsers();
+}
+
+async function quickToggleUser(id, status) {
+  await fetch(`/api/admin/users/${id}`, {
+    method:"PATCH",
+    headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},
     body: JSON.stringify({ status }),
   });
   loadUsers();
 }
 
-function openCreateModal() {
-  document.getElementById("newEmail").value = "";
-  document.getElementById("newPassword").value = "";
-  document.getElementById("newName").value = "";
-  document.getElementById("newPlan").value = "";
-  document.getElementById("createError").textContent = "";
-  document.getElementById("createModal").classList.add("open");
-}
-
-async function submitCreate() {
-  const email = document.getElementById("newEmail").value.trim();
-  const password = document.getElementById("newPassword").value.trim();
-  const name = document.getElementById("newName").value.trim();
-  const plan = document.getElementById("newPlan").value.trim();
-
-  if (!email || !password) {
-    document.getElementById("createError").textContent = "Email e senha são obrigatórios.";
-    return;
-  }
-
-  const res = await fetch("/api/admin/users", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-admin-key": ADMIN_KEY },
-    body: JSON.stringify({ email, password, name, plan }),
-  });
+// ══════════════════════════════════════════════
+// WEBHOOK LOG
+// ══════════════════════════════════════════════
+async function loadWebhookLog() {
+  const res  = await fetch("/api/admin/webhook-log", { headers:{"x-admin-key":ADMIN_KEY} });
   const data = await res.json();
-  if (!res.ok) {
-    document.getElementById("createError").textContent = data.message || "Erro ao criar.";
-    return;
-  }
-  closeModal("createModal");
-  loadUsers();
+  const body = document.getElementById("webhookBody");
+  const logs = data.logs || [];
+  if (!logs.length) { body.innerHTML = `<tr><td colspan="5"><div class="empty-state">Nenhum evento registrado.</div></td></tr>`; return; }
+  body.innerHTML = logs.map(l => `
+    <tr>
+      <td class="mono">#${l.id}</td>
+      <td>${l.source}</td>
+      <td>${l.event}</td>
+      <td class="mono" style="font-size:10px">${new Date(l.created_at).toLocaleString("pt-BR")}</td>
+      <td class="mono" style="font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.payload||""}</td>
+    </tr>
+  `).join("");
 }
 
-function openEditModal(user) {
-  document.getElementById("editId").value = user.id;
-  document.getElementById("editName").value = user.name || "";
-  document.getElementById("editPlan").value = user.plan || "";
-  document.getElementById("editStatus").value = user.status;
-  document.getElementById("editNewPassword").value = "";
-  document.getElementById("editModal").classList.add("open");
-}
-
-async function submitEdit() {
-  const id = document.getElementById("editId").value;
-  const name = document.getElementById("editName").value.trim();
-  const plan = document.getElementById("editPlan").value.trim();
-  const status = document.getElementById("editStatus").value;
-  const newPassword = document.getElementById("editNewPassword").value.trim();
-
-  const body = { name, plan, status };
-  if (newPassword) body.newPassword = newPassword;
-
-  await fetch(`/api/admin/users/${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json", "x-admin-key": ADMIN_KEY },
-    body: JSON.stringify(body),
-  });
-  closeModal("editModal");
-  loadUsers();
-}
-
+// ── Utils ────────────────────────────────────────────────────────────────────
 function closeModal(id) {
   document.getElementById(id).classList.remove("open");
 }
+
+// Fecha modal ao clicar fora
+document.querySelectorAll(".modal").forEach(m => {
+  m.addEventListener("click", e => { if(e.target===m) closeModal(m.id); });
+});
 </script>
 </body>
 </html>
