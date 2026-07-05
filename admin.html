@@ -8,202 +8,231 @@
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --bg:#060a06;--bg2:#0a0f0a;--bg3:#0d1f0d;--border:#1a2a1a;
+  --bg:#060a06;--bg2:#0a0f0a;--bg3:#0c1a0d;--border:#162416;
   --green:#00ff88;--red:#ff4466;--blue:#00c8ff;--yellow:#ffcc00;
-  --text:#e8f4e8;--text4:#556655;
+  --text:#e8f4e8;--text4:#445544;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:"Rajdhani",sans-serif;padding:20px;max-width:1200px;margin:0 auto;}
-
-/* ── Gate ── */
-.gate{max-width:400px;margin:80px auto;text-align:center;}
-.gate h1{font-size:24px;margin-bottom:6px;letter-spacing:1px;}
-.gate p{color:var(--text4);font-family:"Share Tech Mono",monospace;font-size:12px;margin-bottom:20px;}
+body{background:var(--bg);color:var(--text);font-family:"Rajdhani",sans-serif;padding:16px;max-width:1200px;margin:0 auto;}
+.gate{max-width:380px;margin:80px auto;text-align:center;}
+.gate h1{font-size:22px;margin-bottom:6px;letter-spacing:1px;}
+.gate p{color:var(--text4);font-family:"Share Tech Mono",monospace;font-size:11px;margin-bottom:16px;}
 .gate input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:#fff;font-size:14px;margin-bottom:10px;}
-
-/* ── Buttons ── */
 .btn{background:linear-gradient(135deg,var(--green),#00cc55);border:none;border-radius:8px;padding:9px 18px;font-weight:700;color:#000;cursor:pointer;font-family:"Rajdhani",sans-serif;font-size:14px;letter-spacing:.5px;transition:.15s;}
 .btn:hover{opacity:.85;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
 .btn.danger{background:linear-gradient(135deg,var(--red),#cc3355);color:#fff;}
 .btn.neutral{background:#1a2a1a;color:#aaa;border:1px solid var(--border);}
 .btn.blue{background:linear-gradient(135deg,var(--blue),#0099cc);color:#000;}
 .btn.yellow{background:linear-gradient(135deg,var(--yellow),#cc9900);color:#000;}
+.btn.purple{background:linear-gradient(135deg,#9b59b6,#6c3483);color:#fff;}
 .btn.sm{padding:5px 12px;font-size:12px;}
-
-/* ── Tabs ── */
 .admin-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;}
 .admin-tab{flex:1;padding:10px 0;background:none;border:none;border-bottom:2px solid transparent;color:var(--text4);font-family:"Rajdhani",sans-serif;font-size:14px;cursor:pointer;letter-spacing:.5px;transition:.15s;}
 .admin-tab.active{color:var(--green);border-bottom-color:var(--green);}
-
-/* ── Header ── */
 .admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
-.admin-title{font-size:22px;letter-spacing:1px;}
+.admin-title{font-size:20px;letter-spacing:1px;}
 .admin-sub{color:var(--text4);font-family:"Share Tech Mono",monospace;font-size:11px;margin-top:2px;}
-
-/* ── Toolbar ── */
-.toolbar{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap;}
+.toolbar{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
 .toolbar input,.toolbar select{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:#fff;font-family:"Rajdhani",sans-serif;font-size:13px;}
-.toolbar input{flex:1;min-width:150px;}
-
-/* ── Tables ── */
+.toolbar input{flex:1;min-width:140px;}
 table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:10px;overflow:hidden;margin-bottom:20px;}
 th{background:var(--bg3);text-align:left;padding:10px 12px;font-size:11px;color:var(--text4);letter-spacing:1px;}
 td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:rgba(0,255,136,.02);}
 .actions-col{display:flex;gap:5px;flex-wrap:wrap;}
-
-/* ── Badges ── */
 .badge{padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700;font-family:"Share Tech Mono",monospace;}
 .badge.active{background:#00ff8820;color:var(--green);}
-.badge.inactive{background:#ff446620;color:var(--red);}
+.badge.inactive,.badge.loss{background:#ff446620;color:var(--red);}
 .badge.profit{background:#00ff8820;color:var(--green);}
-.badge.loss{background:#ff446620;color:var(--red);}
 .badge.closed{background:#33333320;color:#888;}
 .badge.long{background:rgba(0,200,255,.15);color:var(--blue);}
 .badge.short{background:rgba(255,68,102,.15);color:var(--red);}
-
-/* ── Stat cards ── */
-.stat-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
-.stat-box{flex:1;min-width:120px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
-.stat-val{font-family:"Share Tech Mono",monospace;font-size:24px;color:var(--green);}
+.stat-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+.stat-box{flex:1;min-width:100px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.stat-val{font-family:"Share Tech Mono",monospace;font-size:22px;color:var(--green);}
 .stat-lbl{font-size:11px;color:var(--text4);margin-top:4px;letter-spacing:.5px;}
-
-/* ── Modals ── */
-.modal{position:fixed;inset:0;background:#000c;display:none;align-items:center;justify-content:center;z-index:200;}
+.modal{position:fixed;inset:0;background:#000d;display:none;align-items:center;justify-content:center;z-index:200;padding:16px;}
 .modal.open{display:flex;}
-.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;}
-.modal-box h3{margin-bottom:16px;font-size:18px;letter-spacing:.5px;}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;width:520px;max-width:100%;max-height:92vh;overflow-y:auto;}
+.modal-box h3{margin-bottom:16px;font-size:18px;letter-spacing:.5px;display:flex;align-items:center;gap:8px;}
 .modal-box label{display:block;font-size:11px;color:var(--text4);letter-spacing:.5px;margin-bottom:4px;margin-top:10px;}
-.modal-box input,.modal-box select,.modal-box textarea{
-  width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;
-  padding:9px 12px;color:#fff;font-size:13px;font-family:"Rajdhani",sans-serif;
-}
+.modal-box input,.modal-box select,.modal-box textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:#fff;font-size:13px;font-family:"Rajdhani",sans-serif;}
 .modal-box textarea{min-height:60px;resize:vertical;}
-.modal-actions{display:flex;gap:8px;margin-top:16px;}
+.modal-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .err-msg{color:var(--red);font-size:12px;margin-top:8px;}
-
-/* ── Prices box ── */
-.prices-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px;}
+.prices-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:20px;}
 .price-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
-.price-pair{font-size:11px;color:var(--text4);margin-bottom:4px;}
+.price-pair{font-size:10px;color:var(--text4);margin-bottom:4px;}
 .price-val{font-family:"Share Tech Mono",monospace;font-size:14px;color:#fff;}
-.price-chg{font-size:11px;margin-top:2px;}
 .price-chg.up{color:var(--green);}
 .price-chg.dn{color:var(--red);}
-
-/* ── Empty ── */
-.empty-state{text-align:center;padding:40px;color:var(--text4);}
 .mono{font-family:"Share Tech Mono",monospace;font-size:12px;}
-.error-msg{color:var(--red);font-size:13px;margin-top:8px;}
+.empty-state{text-align:center;padding:40px;color:var(--text4);}
+
+/* ── AI Analysis box ── */
+.ai-box{background:rgba(155,89,182,.08);border:1px solid rgba(155,89,182,.25);border-radius:12px;padding:16px;margin-bottom:14px;}
+.ai-box-title{font-size:12px;color:#9b59b6;font-family:"Share Tech Mono",monospace;letter-spacing:1px;margin-bottom:10px;}
+.ai-result{font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;}
+.ai-loading{display:flex;align-items:center;gap:8px;color:#9b59b6;font-size:13px;}
+.dot-spin{display:flex;gap:4px;}
+.dot-spin span{width:6px;height:6px;border-radius:50%;background:#9b59b6;animation:ds .8s infinite;}
+.dot-spin span:nth-child(2){animation-delay:.15s;}
+.dot-spin span:nth-child(3){animation-delay:.3s;}
+@keyframes ds{0%,80%,100%{transform:scale(.6);opacity:.4;}40%{transform:scale(1);opacity:1;}}
+.suggest-card{background:var(--bg3);border:1px solid rgba(0,255,136,.2);border-radius:10px;padding:14px;margin-top:10px;}
+.suggest-title{font-size:11px;color:var(--green);font-family:"Share Tech Mono",monospace;letter-spacing:1px;margin-bottom:8px;}
+.suggest-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:8px;}
+.suggest-field{color:var(--text4);}
+.suggest-field span{color:#fff;font-family:"Share Tech Mono",monospace;}
 </style>
 </head>
 <body>
 
-<!-- ══ GATE ══ -->
+<!-- GATE -->
 <div id="gate" class="gate">
-  <h1>🔐 ACS SYSTEM — ADMIN</h1>
-  <p>Cole sua ADMIN_KEY (definida no .env)</p>
-  <input type="password" id="adminKeyInput" placeholder="sua chave admin..." onkeydown="if(event.key==='Enter')unlock()"/>
-  <br/>
+  <h1>🔐 ACS SYSTEM</h1>
+  <p>PAINEL ADMINISTRATIVO</p>
+  <input type="password" id="adminKeyInput" placeholder="Admin Key..." onkeydown="if(event.key==='Enter')unlock()"/>
   <button class="btn" onclick="unlock()" style="width:100%;margin-top:4px">ENTRAR</button>
-  <div class="error-msg" id="gateError"></div>
+  <div class="err-msg" id="gateError"></div>
 </div>
 
-<!-- ══ PAINEL PRINCIPAL ══ -->
+<!-- PAINEL -->
 <div id="panel" style="display:none">
   <div class="admin-header">
     <div>
       <div class="admin-title">⚡ ACS SYSTEM — ADMIN</div>
-      <div class="admin-sub" id="adminSub">Carregando...</div>
+      <div class="admin-sub" id="adminSub">carregando...</div>
     </div>
     <button class="btn neutral sm" onclick="logout()">Sair</button>
   </div>
 
-  <!-- Tabs -->
   <div class="admin-tabs">
     <button class="admin-tab active" data-tab="sinais" onclick="switchTab('sinais')">📡 Sinais</button>
-    <button class="admin-tab" data-tab="precos" onclick="switchTab('precos')">💰 Preços</button>
+    <button class="admin-tab" data-tab="precos"   onclick="switchTab('precos')">💰 Preços</button>
     <button class="admin-tab" data-tab="usuarios" onclick="switchTab('usuarios')">👥 Usuários</button>
-    <button class="admin-tab" data-tab="webhook" onclick="switchTab('webhook')">🔗 Webhook</button>
+    <button class="admin-tab" data-tab="webhook"  onclick="switchTab('webhook')">🔗 Webhook</button>
   </div>
 
-  <!-- ══ TAB SINAIS ══ -->
+  <!-- ══ SINAIS ══ -->
   <div id="tab-sinais">
-    <div class="stat-row" id="sigStats">
+    <div class="stat-row">
       <div class="stat-box"><div class="stat-val" id="sigTotal">0</div><div class="stat-lbl">TOTAL</div></div>
       <div class="stat-box"><div class="stat-val" id="sigActive">0</div><div class="stat-lbl">ATIVOS</div></div>
-      <div class="stat-box"><div class="stat-val" style="color:#00ff88" id="sigProfit">0</div><div class="stat-lbl">LUCROS</div></div>
-      <div class="stat-box"><div class="stat-val" style="color:#ff4466" id="sigClosed">0</div><div class="stat-lbl">FECHADOS</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--green)" id="sigProfit">0</div><div class="stat-lbl">LUCROS</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--red)"   id="sigClosed">0</div><div class="stat-lbl">FECHADOS</div></div>
     </div>
 
     <div class="toolbar">
       <input type="text" id="sigSearch" placeholder="Filtrar por par..." oninput="renderSignalsTable()"/>
       <select id="sigFilterStatus" onchange="renderSignalsTable()">
-        <option value="">Todos status</option>
+        <option value="">Todos</option>
         <option value="active">Ativos</option>
         <option value="profit">Lucro</option>
         <option value="loss">Loss</option>
         <option value="closed">Fechados</option>
       </select>
       <button class="btn" onclick="openCreateSignal()">+ NOVO SINAL</button>
-      <button class="btn blue" onclick="checkTargetsNow()">⚡ CHECAR TARGETS AGORA</button>
+      <button class="btn purple" onclick="openAIAnalysis()">🤖 ANALISAR COM IA</button>
+      <button class="btn blue sm" onclick="checkTargetsNow()">⚡ CHECAR TARGETS</button>
       <button class="btn neutral sm" onclick="loadSignals()">↻</button>
     </div>
 
     <table>
       <thead>
-        <tr>
-          <th>#</th><th>PAR</th><th>TIPO</th><th>ENTRADA</th><th>ALVANCAGEM</th>
-          <th>STOP</th><th>HITS</th><th>STATUS</th><th>FONTE</th><th>CRIADO</th><th>AÇÕES</th>
-        </tr>
+        <tr><th>#</th><th>PAR</th><th>TIPO</th><th>ENTRADA</th><th>ALAV.</th><th>STOP</th><th>HITS</th><th>STATUS</th><th>CRIADO</th><th>AÇÕES</th></tr>
       </thead>
       <tbody id="signalsBody"></tbody>
     </table>
   </div>
 
-  <!-- ══ TAB PREÇOS ══ -->
+  <!-- ══ PREÇOS ══ -->
   <div id="tab-precos" style="display:none">
     <div class="toolbar">
-      <button class="btn" onclick="loadPrices()">↻ ATUALIZAR PREÇOS</button>
-      <span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text4)" id="pricesAt">—</span>
+      <button class="btn" onclick="loadPricesAdmin()">↻ ATUALIZAR</button>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text4)" id="pricesAt"></span>
     </div>
-    <div class="prices-grid" id="pricesGrid">
-      <div class="empty-state">Clique em "Atualizar Preços"</div>
-    </div>
+    <div class="prices-grid" id="pricesGrid"><div class="empty-state">Clique em Atualizar</div></div>
   </div>
 
-  <!-- ══ TAB USUÁRIOS ══ -->
+  <!-- ══ USUÁRIOS ══ -->
   <div id="tab-usuarios" style="display:none">
     <div class="stat-row">
       <div class="stat-box"><div class="stat-val" id="userTotal">0</div><div class="stat-lbl">TOTAL</div></div>
       <div class="stat-box"><div class="stat-val" id="userActive">0</div><div class="stat-lbl">ATIVOS</div></div>
     </div>
-
     <div class="toolbar">
-      <input type="text" id="searchBox" placeholder="Buscar por email..." oninput="renderUsersTable()"/>
+      <input type="text" id="searchBox" placeholder="Buscar email..." oninput="renderUsersTable()"/>
       <button class="btn" onclick="openCreateUser()">+ NOVO ASSINANTE</button>
       <button class="btn neutral sm" onclick="loadUsers()">↻</button>
     </div>
-
     <table>
-      <thead>
-        <tr><th>EMAIL</th><th>NOME</th><th>STATUS</th><th>PLANO</th><th>CRIADO</th><th>AÇÕES</th></tr>
-      </thead>
+      <thead><tr><th>EMAIL</th><th>NOME</th><th>STATUS</th><th>PLANO</th><th>CRIADO</th><th>AÇÕES</th></tr></thead>
       <tbody id="usersBody"></tbody>
     </table>
   </div>
 
-  <!-- ══ TAB WEBHOOK ══ -->
+  <!-- ══ WEBHOOK ══ -->
   <div id="tab-webhook" style="display:none">
-    <div class="toolbar">
-      <button class="btn neutral sm" onclick="loadWebhookLog()">↻ Atualizar</button>
-    </div>
+    <div class="toolbar"><button class="btn neutral sm" onclick="loadWebhookLog()">↻ Atualizar</button></div>
     <table>
       <thead><tr><th>#</th><th>FONTE</th><th>EVENTO</th><th>DATA</th><th>PAYLOAD</th></tr></thead>
       <tbody id="webhookBody"></tbody>
     </table>
+  </div>
+</div>
+
+<!-- ══ MODAL: IA ANÁLISE ══ -->
+<div class="modal" id="aiModal">
+  <div class="modal-box" style="width:560px">
+    <h3>🤖 ANÁLISE IA — RSI · MACD · EMA100/200</h3>
+
+    <div class="form-row">
+      <div>
+        <label>PAR PARA ANALISAR</label>
+        <select id="aiPair">
+          <option>BTC/USDT</option><option>ETH/USDT</option><option>BNB/USDT</option>
+          <option>SOL/USDT</option><option>XRP/USDT</option><option>PEPE/USDT</option>
+          <option>DOGE/USDT</option><option>ADA/USDT</option><option>AVAX/USDT</option>
+          <option>LINK/USDT</option><option>ARB/USDT</option><option>OP/USDT</option>
+          <option>INJ/USDT</option><option>TON/USDT</option><option>SUI/USDT</option>
+          <option>WLD/USDT</option><option>NEAR/USDT</option><option>APT/USDT</option>
+          <option>FTM/USDT</option><option>TIA/USDT</option>
+        </select>
+      </div>
+      <div>
+        <label>TIMEFRAME</label>
+        <select id="aiTF">
+          <option value="15M">15 Minutos</option>
+          <option value="1H" selected>1 Hora</option>
+          <option value="4H">4 Horas</option>
+          <option value="1D">Diário</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="aiBox" class="ai-box" style="margin-top:14px;display:none">
+      <div class="ai-box-title">ANÁLISE TÉCNICA — ACS AI</div>
+      <div id="aiResult"></div>
+    </div>
+
+    <div id="aiSuggest" style="display:none">
+      <div class="suggest-card">
+        <div class="suggest-title">✅ SINAL SUGERIDO PELA IA</div>
+        <div class="suggest-grid" id="suggestGrid"></div>
+        <div id="suggestReason" style="font-size:12px;color:var(--text4);border-top:1px solid var(--border);padding-top:8px;margin-top:4px"></div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn neutral" onclick="closeModal('aiModal')">Fechar</button>
+      <button class="btn purple" id="btnRunAI" onclick="runAIAnalysis()">🔍 ANALISAR AGORA</button>
+      <button class="btn" id="btnPublishFromAI" style="display:none" onclick="publishSignalFromAI()">📡 PUBLICAR SINAL</button>
+    </div>
+    <div class="err-msg" id="aiError"></div>
   </div>
 </div>
 
@@ -213,20 +242,18 @@ tr:hover td{background:rgba(0,255,136,.02);}
     <h3 id="signalModalTitle">Novo Sinal</h3>
     <input type="hidden" id="sigId"/>
     <div class="form-row">
-      <div>
-        <label>PAR</label>
+      <div><label>PAR</label>
         <select id="sigPair">
           <option>BTC/USDT</option><option>ETH/USDT</option><option>BNB/USDT</option>
-          <option>SOL/USDT</option><option>XRP/USDT</option><option>ADA/USDT</option>
-          <option>AVAX/USDT</option><option>LINK/USDT</option><option>DOGE/USDT</option>
-          <option>ARB/USDT</option><option>OP/USDT</option><option>INJ/USDT</option>
-          <option>TON/USDT</option><option>SUI/USDT</option><option>PEPE/USDT</option>
-          <option>WLD/USDT</option><option>NEAR/USDT</option><option>FTM/USDT</option>
-          <option>APT/USDT</option>
+          <option>SOL/USDT</option><option>XRP/USDT</option><option>PEPE/USDT</option>
+          <option>DOGE/USDT</option><option>ADA/USDT</option><option>AVAX/USDT</option>
+          <option>LINK/USDT</option><option>ARB/USDT</option><option>OP/USDT</option>
+          <option>INJ/USDT</option><option>TON/USDT</option><option>SUI/USDT</option>
+          <option>WLD/USDT</option><option>NEAR/USDT</option><option>APT/USDT</option>
+          <option>FTM/USDT</option><option>TIA/USDT</option>
         </select>
       </div>
-      <div>
-        <label>TIPO</label>
+      <div><label>TIPO</label>
         <select id="sigType">
           <option value="LONG">LONG (COMPRA)</option>
           <option value="SHORT">SHORT (VENDA)</option>
@@ -234,12 +261,8 @@ tr:hover td{background:rgba(0,255,136,.02);}
       </div>
     </div>
     <div class="form-row">
-      <div>
-        <label>PREÇO DE ENTRADA</label>
-        <input type="text" id="sigEntry" placeholder="ex: 103450"/>
-      </div>
-      <div>
-        <label>ALAVANCAGEM</label>
+      <div><label>ENTRADA</label><input type="text" id="sigEntry" placeholder="ex: 103450"/></div>
+      <div><label>ALAVANCAGEM</label>
         <select id="sigLeverage">
           <option>10x</option><option>10x-15x</option><option selected>10x-20x</option>
           <option>15x</option><option>15x-20x</option><option>20x</option>
@@ -247,12 +270,8 @@ tr:hover td{background:rgba(0,255,136,.02);}
       </div>
     </div>
     <div class="form-row">
-      <div>
-        <label>STOPLOSS</label>
-        <input type="text" id="sigSL" placeholder="Hold ou ex: 3%"/>
-      </div>
-      <div>
-        <label>CONFIANÇA (1-5)</label>
+      <div><label>STOPLOSS</label><input type="text" id="sigSL" placeholder="Hold ou ex: 3%"/></div>
+      <div><label>CONFIANÇA (1-5)</label>
         <select id="sigConf">
           <option value="1">1 ★</option><option value="2">2 ★★</option>
           <option value="3" selected>3 ★★★</option><option value="4">4 ★★★★</option>
@@ -260,34 +279,23 @@ tr:hover td{background:rgba(0,255,136,.02);}
         </select>
       </div>
     </div>
-    <label>TIMEFRAME</label>
-    <input type="text" id="sigTF" placeholder="ex: 15M/1H"/>
-    <label>SETUP</label>
-    <input type="text" id="sigSetup" placeholder="ex: OB + FVG"/>
+    <label>TIMEFRAME</label><input type="text" id="sigTF" placeholder="ex: 1H/4H"/>
+    <label>SETUP</label><input type="text" id="sigSetup" placeholder="ex: OB + FVG + EMA200"/>
     <label>ANÁLISE / RAZÃO</label>
-    <textarea id="sigReason" rows="3" placeholder="Descreva o setup e a análise técnica..."></textarea>
+    <textarea id="sigReason" rows="3" placeholder="Descreva o setup: RSI, MACD, EMA100/200, Order Block..."></textarea>
     <label>ALVOS (11 separados por vírgula)</label>
     <input type="text" id="sigTargets" value="3%,20%,40%,60%,80%,100%,120%,140%,160%,180%,200%+"/>
-
-    <!-- Edição: status e hit -->
     <div id="sigEditExtra" style="display:none">
       <div class="form-row" style="margin-top:10px">
-        <div>
-          <label>STATUS</label>
+        <div><label>STATUS</label>
           <select id="sigStatus">
-            <option value="active">active</option>
-            <option value="profit">profit</option>
-            <option value="loss">loss</option>
-            <option value="closed">closed</option>
+            <option value="active">active</option><option value="profit">profit</option>
+            <option value="loss">loss</option><option value="closed">closed</option>
           </select>
         </div>
-        <div>
-          <label>HITS ATINGIDOS</label>
-          <input type="number" id="sigHit" min="0" max="11" value="0"/>
-        </div>
+        <div><label>HITS</label><input type="number" id="sigHit" min="0" max="11" value="0"/></div>
       </div>
     </div>
-
     <div class="err-msg" id="sigError"></div>
     <div class="modal-actions">
       <button class="btn neutral" onclick="closeModal('signalModal')">Cancelar</button>
@@ -302,7 +310,7 @@ tr:hover td{background:rgba(0,255,136,.02);}
     <h3>+ Novo Assinante</h3>
     <label>EMAIL</label><input type="email" id="newEmail" placeholder="email@cliente.com"/>
     <label>SENHA</label><input type="text" id="newPassword" placeholder="senha temporária"/>
-    <label>NOME</label><input type="text" id="newName" placeholder="nome completo (opcional)"/>
+    <label>NOME</label><input type="text" id="newName" placeholder="nome completo"/>
     <label>PLANO</label><input type="text" id="newPlan" placeholder="ex: Mensal VIP"/>
     <div class="err-msg" id="createUserError"></div>
     <div class="modal-actions">
@@ -317,14 +325,11 @@ tr:hover td{background:rgba(0,255,136,.02);}
   <div class="modal-box">
     <h3>Editar Assinante</h3>
     <input type="hidden" id="editUserId"/>
-    <label>NOME</label><input type="text" id="editName" placeholder="nome"/>
-    <label>PLANO</label><input type="text" id="editPlan" placeholder="plano"/>
+    <label>NOME</label><input type="text" id="editName"/>
+    <label>PLANO</label><input type="text" id="editPlan"/>
     <label>STATUS</label>
-    <select id="editStatus">
-      <option value="active">active</option>
-      <option value="inactive">inactive</option>
-    </select>
-    <label>NOVA SENHA (deixe vazio p/ não alterar)</label>
+    <select id="editStatus"><option value="active">active</option><option value="inactive">inactive</option></select>
+    <label>NOVA SENHA (vazio = não altera)</label>
     <input type="text" id="editNewPassword" placeholder="nova senha..."/>
     <div class="modal-actions">
       <button class="btn neutral" onclick="closeModal('editUserModal')">Cancelar</button>
@@ -334,12 +339,13 @@ tr:hover td{background:rgba(0,255,136,.02);}
 </div>
 
 <script>
-let ADMIN_KEY  = localStorage.getItem("alfa_admin_key") || "";
+let ADMIN_KEY  = localStorage.getItem("acs_admin_key") || "";
 let allSignals = [];
 let allUsers   = [];
 let currentTab = "sinais";
+let lastAISuggestion = null;
+let currentPrices    = {};
 
-// Chave na URL
 const urlKey = new URLSearchParams(location.search).get("key");
 if (urlKey) ADMIN_KEY = urlKey;
 if (ADMIN_KEY) tryUnlock();
@@ -349,68 +355,213 @@ function unlock() {
   ADMIN_KEY = document.getElementById("adminKeyInput").value.trim();
   tryUnlock();
 }
-
 async function tryUnlock() {
-  const res = await fetch("/api/admin/users", { headers:{ "x-admin-key": ADMIN_KEY } });
+  const res = await fetch("/api/admin/users", { headers:{"x-admin-key":ADMIN_KEY} });
   if (!res.ok) { document.getElementById("gateError").textContent = "Chave inválida."; return; }
-  localStorage.setItem("alfa_admin_key", ADMIN_KEY);
+  localStorage.setItem("acs_admin_key", ADMIN_KEY);
   document.getElementById("gate").style.display  = "none";
   document.getElementById("panel").style.display = "block";
-  loadSignals();
-  loadUsers();
-  loadPrices();
+  loadSignals(); loadUsers(); loadPricesAdmin();
 }
+function logout() { localStorage.removeItem("acs_admin_key"); location.reload(); }
 
-function logout() {
-  localStorage.removeItem("alfa_admin_key");
-  location.reload();
-}
-
-// ── Tabs ────────────────────────────────────────────────────────────────────
+// ── Tabs ─────────────────────────────────────────────────────────────────────
 function switchTab(tab) {
   currentTab = tab;
-  document.querySelectorAll(".admin-tab").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
-  ["sinais","precos","usuarios","webhook"].forEach(t => {
-    document.getElementById("tab-"+t).style.display = t === tab ? "" : "none";
+  document.querySelectorAll(".admin-tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
+  ["sinais","precos","usuarios","webhook"].forEach(t=>{
+    document.getElementById("tab-"+t).style.display = t===tab?"":"none";
   });
-  if (tab === "webhook") loadWebhookLog();
+  if (tab==="webhook") loadWebhookLog();
 }
 
-// ══════════════════════════════════════════════
-// SINAIS
-// ══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════
+// ANÁLISE IA — RSI + MACD + EMA100/200
+// ══════════════════════════════════════════════════════════════════
+const AI_ANALYSIS_SYSTEM = `Você é um analista técnico sênior de futuros cripto.
+Sua função é analisar o par solicitado e decidir SE existe uma oportunidade de operação com ALTA probabilidade de acerto.
+
+METODOLOGIA OBRIGATÓRIA (analise nessa ordem):
+1. TENDÊNCIA PRINCIPAL: EMA100 vs EMA200 — preço acima/abaixo, cruzamento recente
+2. MOMENTUM: RSI (período 14) — sobrecomprado >70, sobrevendido <30, divergências
+3. CONFIRMAÇÃO: MACD — cruzamento da linha de sinal, histograma crescendo/decrescendo
+4. ESTRUTURA SMC: Order Blocks, FVG (Fair Value Gaps), Break of Structure (BOS)
+5. CONFLUÊNCIA: O sinal só deve ser emitido se pelo menos 3 dos 4 fatores apontam na mesma direção
+
+REGRAS CRÍTICAS:
+- Se não há confluência clara → responda com "SEM_SINAL" e explique o motivo
+- Só emita sinal quando a probabilidade de acerto for alta (>70%)
+- Alavancagem máxima: 10x-20x em futuros perpétuos
+- Sempre defina stop loss específico (nunca vago)
+- Leve em conta o preço REAL fornecido na mensagem
+
+Responda SOMENTE em JSON válido, sem texto fora:
+{
+  "hasSignal": true,
+  "type": "LONG",
+  "entry": "103200",
+  "leverage": "10x-15x",
+  "stoploss": "3%",
+  "confidence": 4,
+  "timeframe": "1H/4H",
+  "setup": "EMA200 + OB Bullish + MACD Cross",
+  "reason": "Preço acima da EMA200 (103.800) e EMA100 (102.400) — tendência bullish confirmada. RSI em 38 (oversold no 1H sem atingir extremo) com divergência bullish no MACD (histograma virando positivo). Order Block bullish em 102.800-103.200 intocado. Confluência de 4/4 fatores para LONG.",
+  "targets": ["3%","20%","40%","60%","80%","100%","120%","140%","160%","180%","200%+"],
+  "noSignalReason": ""
+}
+
+Se não houver sinal:
+{
+  "hasSignal": false,
+  "noSignalReason": "RSI em 68 (neutro), MACD sem cruzamento claro, preço entre EMA100 e EMA200 sem direção definida. Aguardar rompimento da faixa 102.400-103.800 para nova análise.",
+  "type": null, "entry": null, "leverage": null, "stoploss": null, "confidence": 0,
+  "timeframe": null, "setup": null, "reason": null, "targets": null
+}`;
+
+function openAIAnalysis() {
+  lastAISuggestion = null;
+  document.getElementById("aiBox").style.display    = "none";
+  document.getElementById("aiSuggest").style.display= "none";
+  document.getElementById("btnPublishFromAI").style.display = "none";
+  document.getElementById("aiError").textContent    = "";
+  document.getElementById("aiModal").classList.add("open");
+}
+
+async function runAIAnalysis() {
+  const pair = document.getElementById("aiPair").value;
+  const tf   = document.getElementById("aiTF").value;
+  const btn  = document.getElementById("btnRunAI");
+
+  btn.disabled    = true;
+  btn.textContent = "Analisando...";
+  document.getElementById("aiBox").style.display    = "";
+  document.getElementById("aiSuggest").style.display= "none";
+  document.getElementById("btnPublishFromAI").style.display = "none";
+  document.getElementById("aiError").textContent    = "";
+
+  // Pega preço real atual
+  const priceObj = currentPrices[pair];
+  const priceStr = priceObj ? `$${priceObj.price} (${priceObj.change24h >= 0 ? "+" : ""}${parseFloat(priceObj.change24h).toFixed(2)}% 24h)` : "preço desconhecido";
+
+  document.getElementById("aiResult").innerHTML = `
+    <div class="ai-loading">
+      <div class="dot-spin"><span></span><span></span><span></span></div>
+      Analisando ${pair} no ${tf} com preço real ${priceStr}...
+    </div>`;
+
+  try {
+    const res = await fetch("/api/claude", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},
+      body: JSON.stringify({
+        max_tokens: 1500,
+        system: AI_ANALYSIS_SYSTEM,
+        messages: [{ role:"user", content:
+          `Analise ${pair} no timeframe ${tf}.\nPreço atual REAL: ${priceStr}.\nData/hora: ${new Date().toLocaleString("pt-BR")}.\nDecida se há sinal de alta qualidade agora.`
+        }]
+      }),
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const raw  = (data.content || []).map(b => b.text || "").join("");
+    const parsed = parseJSONLocal(raw);
+
+    if (!parsed) throw new Error("Resposta inválida da IA.");
+
+    if (parsed.hasSignal) {
+      lastAISuggestion = parsed;
+      document.getElementById("aiResult").innerHTML = `
+        <div style="color:#00ff88;font-weight:700;margin-bottom:6px">✅ SINAL IDENTIFICADO — ${pair} ${parsed.type}</div>
+        <div style="color:var(--text4);font-size:12px;line-height:1.6">${parsed.reason}</div>`;
+
+      document.getElementById("suggestGrid").innerHTML = [
+        ["PAR", pair], ["TIPO", parsed.type], ["ENTRADA", parsed.entry],
+        ["ALAVANCAGEM", parsed.leverage], ["STOP LOSS", parsed.stoploss],
+        ["CONFIANÇA", "★".repeat(parsed.confidence||3)], ["TIMEFRAME", parsed.timeframe||tf],
+        ["SETUP", parsed.setup||"—"],
+      ].map(([l,v]) => `<div class="suggest-field">${l}: <span>${v}</span></div>`).join("");
+
+      document.getElementById("suggestReason").textContent = parsed.reason || "";
+      document.getElementById("aiSuggest").style.display   = "";
+      document.getElementById("btnPublishFromAI").style.display = "";
+
+    } else {
+      document.getElementById("aiResult").innerHTML = `
+        <div style="color:#ffaa00;font-weight:700;margin-bottom:6px">⚠️ SEM SINAL NO MOMENTO</div>
+        <div style="color:var(--text4);font-size:12px;line-height:1.6">${parsed.noSignalReason || "Aguardando confluência técnica adequada."}</div>`;
+    }
+
+  } catch (err) {
+    document.getElementById("aiResult").innerHTML = `<div style="color:var(--red)">Erro: ${err.message}</div>`;
+    document.getElementById("aiError").textContent = err.message;
+  }
+
+  btn.disabled    = false;
+  btn.textContent = "🔍 ANALISAR NOVAMENTE";
+}
+
+function publishSignalFromAI() {
+  if (!lastAISuggestion || !lastAISuggestion.hasSignal) return;
+  const s = lastAISuggestion;
+  const pair = document.getElementById("aiPair").value;
+  closeModal("aiModal");
+
+  // Pré-preenche o modal de criação de sinal com os dados da IA
+  document.getElementById("signalModalTitle").textContent = "Publicar Sinal (Sugerido pela IA)";
+  document.getElementById("sigId").value        = "";
+  document.getElementById("sigPair").value      = pair;
+  document.getElementById("sigType").value      = s.type || "LONG";
+  document.getElementById("sigEntry").value     = s.entry || "";
+  document.getElementById("sigLeverage").value  = s.leverage || "10x-20x";
+  document.getElementById("sigSL").value        = s.stoploss || "Hold";
+  document.getElementById("sigConf").value      = String(s.confidence || 3);
+  document.getElementById("sigTF").value        = s.timeframe || "";
+  document.getElementById("sigSetup").value     = s.setup || "";
+  document.getElementById("sigReason").value    = s.reason || "";
+  document.getElementById("sigTargets").value   = (s.targets || ["3%","20%","40%","60%","80%","100%","120%","140%","160%","180%","200%+"]).join(",");
+  document.getElementById("sigError").textContent = "";
+  document.getElementById("sigEditExtra").style.display = "none";
+  document.getElementById("sigSubmitBtn").textContent   = "PUBLICAR SINAL DA IA";
+  document.getElementById("signalModal").classList.add("open");
+}
+
+function parseJSONLocal(raw) {
+  try {
+    const clean = raw.replace(/```json|```/g,"").trim();
+    const s = clean.indexOf("{"), e = clean.lastIndexOf("}");
+    if (s===-1) return null;
+    return JSON.parse(clean.slice(s,e+1));
+  } catch { return null; }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SINAIS CRUD
+// ══════════════════════════════════════════════════════════════════
 async function loadSignals() {
-  const res = await fetch("/api/admin/signals", { headers:{ "x-admin-key": ADMIN_KEY } });
+  const res = await fetch("/api/admin/signals",{headers:{"x-admin-key":ADMIN_KEY}});
   if (!res.ok) return;
   const data = await res.json();
-  allSignals = data.signals || [];
-  updateSignalStats();
-  renderSignalsTable();
+  allSignals = data.signals||[];
+  updateSignalStats(); renderSignalsTable();
+  document.getElementById("adminSub").textContent = `${allUsers.length} assinantes · ${allSignals.length} sinais`;
 }
-
 function updateSignalStats() {
   document.getElementById("sigTotal").textContent  = allSignals.length;
   document.getElementById("sigActive").textContent = allSignals.filter(s=>s.status==="active").length;
   document.getElementById("sigProfit").textContent = allSignals.filter(s=>s.status==="profit").length;
   document.getElementById("sigClosed").textContent = allSignals.filter(s=>s.status==="loss"||s.status==="closed").length;
 }
-
 function renderSignalsTable() {
   const search = document.getElementById("sigSearch").value.toLowerCase();
   const status = document.getElementById("sigFilterStatus").value;
   const body   = document.getElementById("signalsBody");
-
   let filtered = allSignals;
-  if (search) filtered = filtered.filter(s => s.pair.toLowerCase().includes(search));
-  if (status) filtered = filtered.filter(s => s.status === status);
-  filtered.sort((a,b) => b.id - a.id);
-
-  if (filtered.length === 0) {
-    body.innerHTML = `<tr><td colspan="11"><div class="empty-state">Nenhum sinal encontrado.</div></td></tr>`;
-    return;
-  }
-
-  body.innerHTML = filtered.map(s => `
+  if (search) filtered = filtered.filter(s=>s.pair.toLowerCase().includes(search));
+  if (status) filtered = filtered.filter(s=>s.status===status);
+  filtered = filtered.sort((a,b)=>b.id-a.id);
+  if (!filtered.length) { body.innerHTML=`<tr><td colspan="10"><div class="empty-state">Nenhum sinal.</div></td></tr>`; return; }
+  body.innerHTML = filtered.map(s=>`
     <tr>
       <td class="mono">#${s.id}</td>
       <td><b>${s.pair}</b></td>
@@ -418,300 +569,218 @@ function renderSignalsTable() {
       <td class="mono">${s.entry}</td>
       <td class="mono">${s.leverage}</td>
       <td class="mono">${s.stoploss}</td>
-      <td class="mono">${s.hit}/${s.targets?.length||11}</td>
+      <td class="mono">${s.hit||0}/${(s.targets||[]).length}</td>
       <td><span class="badge ${s.status}">${s.status}</span></td>
-      <td class="mono" style="font-size:10px">${s.source||"admin"}</td>
       <td class="mono" style="font-size:10px">${new Date(s.created_at).toLocaleString("pt-BR")}</td>
       <td>
         <div class="actions-col">
           <button class="btn neutral sm" onclick='openEditSignal(${JSON.stringify(s).replace(/'/g,"&apos;")})'>Editar</button>
-          <button class="btn danger sm" onclick="deleteSignal(${s.id})">Excluir</button>
-          ${s.status==="active"?`<button class="btn yellow sm" onclick="closeSignal(${s.id})">Fechar</button>`:""}
+          <button class="btn danger sm"  onclick="deleteSignal(${s.id})">Excluir</button>
+          ${s.status==="active"?`<button class="btn sm" style="background:#555;color:#aaa" onclick="closeSignal(${s.id})">Fechar</button>`:""}
         </div>
       </td>
-    </tr>
-  `).join("");
+    </tr>`).join("");
 }
 
 function openCreateSignal() {
-  document.getElementById("signalModalTitle").textContent = "Novo Sinal";
-  document.getElementById("sigId").value        = "";
-  document.getElementById("sigPair").value      = "BTC/USDT";
-  document.getElementById("sigType").value      = "LONG";
-  document.getElementById("sigEntry").value     = "";
-  document.getElementById("sigLeverage").value  = "10x-20x";
-  document.getElementById("sigSL").value        = "Hold";
-  document.getElementById("sigConf").value      = "3";
-  document.getElementById("sigTF").value        = "";
-  document.getElementById("sigSetup").value     = "";
-  document.getElementById("sigReason").value    = "";
-  document.getElementById("sigTargets").value   = "3%,20%,40%,60%,80%,100%,120%,140%,160%,180%,200%+";
+  document.getElementById("signalModalTitle").textContent = "Novo Sinal Manual";
+  document.getElementById("sigId").value      = "";
+  document.getElementById("sigPair").value    = "BTC/USDT";
+  document.getElementById("sigType").value    = "LONG";
+  document.getElementById("sigEntry").value   = "";
+  document.getElementById("sigLeverage").value= "10x-20x";
+  document.getElementById("sigSL").value      = "Hold";
+  document.getElementById("sigConf").value    = "3";
+  document.getElementById("sigTF").value      = "";
+  document.getElementById("sigSetup").value   = "";
+  document.getElementById("sigReason").value  = "";
+  document.getElementById("sigTargets").value = "3%,20%,40%,60%,80%,100%,120%,140%,160%,180%,200%+";
   document.getElementById("sigError").textContent = "";
   document.getElementById("sigEditExtra").style.display = "none";
-  document.getElementById("sigSubmitBtn").textContent = "PUBLICAR SINAL";
+  document.getElementById("sigSubmitBtn").textContent   = "PUBLICAR SINAL";
   document.getElementById("signalModal").classList.add("open");
 }
 
 function openEditSignal(sig) {
   document.getElementById("signalModalTitle").textContent = `Editar Sinal #${sig.id}`;
-  document.getElementById("sigId").value        = sig.id;
-  document.getElementById("sigPair").value      = sig.pair;
-  document.getElementById("sigType").value      = sig.type;
-  document.getElementById("sigEntry").value     = sig.entry;
-  document.getElementById("sigLeverage").value  = sig.leverage;
-  document.getElementById("sigSL").value        = sig.stoploss;
-  document.getElementById("sigConf").value      = sig.confidence || 3;
-  document.getElementById("sigTF").value        = sig.timeframe || "";
-  document.getElementById("sigSetup").value     = sig.setup || "";
-  document.getElementById("sigReason").value    = sig.reason || "";
-  document.getElementById("sigTargets").value   = (sig.targets||[]).join(",");
+  document.getElementById("sigId").value      = sig.id;
+  document.getElementById("sigPair").value    = sig.pair;
+  document.getElementById("sigType").value    = sig.type;
+  document.getElementById("sigEntry").value   = sig.entry;
+  document.getElementById("sigLeverage").value= sig.leverage;
+  document.getElementById("sigSL").value      = sig.stoploss;
+  document.getElementById("sigConf").value    = String(sig.confidence||3);
+  document.getElementById("sigTF").value      = sig.timeframe||"";
+  document.getElementById("sigSetup").value   = sig.setup||"";
+  document.getElementById("sigReason").value  = sig.reason||"";
+  document.getElementById("sigTargets").value = (sig.targets||[]).join(",");
   document.getElementById("sigError").textContent = "";
   document.getElementById("sigEditExtra").style.display = "";
-  document.getElementById("sigStatus").value    = sig.status;
-  document.getElementById("sigHit").value       = sig.hit || 0;
+  document.getElementById("sigStatus").value  = sig.status;
+  document.getElementById("sigHit").value     = sig.hit||0;
   document.getElementById("sigSubmitBtn").textContent = "SALVAR ALTERAÇÕES";
   document.getElementById("signalModal").classList.add("open");
 }
 
 async function submitSignal() {
-  const id     = document.getElementById("sigId").value;
-  const entry  = document.getElementById("sigEntry").value.trim();
-  const pair   = document.getElementById("sigPair").value;
-  if (!entry)  { document.getElementById("sigError").textContent = "Informe o preço de entrada."; return; }
-
-  const targetsRaw = document.getElementById("sigTargets").value;
-  const targets    = targetsRaw.split(",").map(t=>t.trim()).filter(Boolean);
-
-  const body = {
+  const id    = document.getElementById("sigId").value;
+  const entry = document.getElementById("sigEntry").value.trim();
+  const pair  = document.getElementById("sigPair").value;
+  if (!entry) { document.getElementById("sigError").textContent = "Informe o preço de entrada."; return; }
+  const targets = document.getElementById("sigTargets").value.split(",").map(t=>t.trim()).filter(Boolean);
+  const body  = {
     pair, entry,
     type:      document.getElementById("sigType").value,
     leverage:  document.getElementById("sigLeverage").value,
-    stoploss:  document.getElementById("sigSL").value || "Hold",
+    stoploss:  document.getElementById("sigSL").value||"Hold",
     confidence:Number(document.getElementById("sigConf").value),
-    timeframe: document.getElementById("sigTF").value || "—",
-    setup:     document.getElementById("sigSetup").value || "MANUAL",
+    timeframe: document.getElementById("sigTF").value||"—",
+    setup:     document.getElementById("sigSetup").value||"MANUAL",
     reason:    document.getElementById("sigReason").value,
-    targets,
-    source:    "admin",
+    targets, source:"admin",
   };
-
-  if (id) {
-    // Editar
-    body.status = document.getElementById("sigStatus").value;
-    body.hit    = Number(document.getElementById("sigHit").value);
-  }
-
+  if (id) { body.status = document.getElementById("sigStatus").value; body.hit = Number(document.getElementById("sigHit").value); }
   const url    = id ? `/api/admin/signals/${id}` : "/api/admin/signals";
   const method = id ? "PATCH" : "POST";
-
-  const res  = await fetch(url, { method, headers:{ "Content-Type":"application/json","x-admin-key":ADMIN_KEY }, body:JSON.stringify(body) });
-  const data = await res.json();
-  if (!res.ok) { document.getElementById("sigError").textContent = data.message || "Erro ao salvar."; return; }
-
-  closeModal("signalModal");
-  loadSignals();
+  const res    = await fetch(url,{method,headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},body:JSON.stringify(body)});
+  const data   = await res.json();
+  if (!res.ok) { document.getElementById("sigError").textContent = data.message||"Erro ao salvar."; return; }
+  closeModal("signalModal"); loadSignals();
 }
 
 async function deleteSignal(id) {
   if (!confirm(`Excluir sinal #${id}?`)) return;
-  await fetch(`/api/admin/signals/${id}`, { method:"DELETE", headers:{"x-admin-key":ADMIN_KEY} });
+  await fetch(`/api/admin/signals/${id}`,{method:"DELETE",headers:{"x-admin-key":ADMIN_KEY}});
   loadSignals();
 }
 
 async function closeSignal(id) {
-  if (!confirm(`Fechar sinal #${id} como encerrado?`)) return;
-  await fetch(`/api/admin/signals/${id}`, {
-    method:"PATCH",
-    headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},
-    body:JSON.stringify({ status:"closed" }),
-  });
+  if (!confirm(`Fechar sinal #${id}?`)) return;
+  await fetch(`/api/admin/signals/${id}`,{method:"PATCH",headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},body:JSON.stringify({status:"closed"})});
   loadSignals();
 }
 
 async function checkTargetsNow() {
-  const btn = event.target;
-  btn.disabled = true; btn.textContent = "Verificando...";
-  const res = await fetch("/api/admin/signals/check-targets", { method:"POST", headers:{"x-admin-key":ADMIN_KEY} });
-  const data = await res.json();
-  btn.disabled = false; btn.textContent = "⚡ CHECAR TARGETS AGORA";
+  const btn = event.target; btn.disabled=true; btn.textContent="Verificando...";
+  await fetch("/api/admin/signals/check-targets",{method:"POST",headers:{"x-admin-key":ADMIN_KEY}});
+  btn.disabled=false; btn.textContent="⚡ CHECAR TARGETS";
   loadSignals();
-  alert(`✅ Targets verificados para ${data.checked} sinal(is) ativo(s).`);
 }
 
-// ══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════
 // PREÇOS
-// ══════════════════════════════════════════════
-async function loadPrices() {
-  const res = await fetch("/api/prices", { headers:{"x-admin-key":ADMIN_KEY} });
-  if (!res.ok) {
-    // Tenta via admin auth
-    const res2 = await fetch("/api/prices");
-    if (!res2.ok) return;
-    renderPrices(await res2.json());
-    return;
-  }
-  renderPrices(await res.json());
-}
-
-function renderPrices(data) {
-  const grid = document.getElementById("pricesGrid");
-  const at   = document.getElementById("pricesAt");
-  at.textContent = `Atualizado: ${new Date(data.fetchedAt).toLocaleTimeString("pt-BR")}`;
-
-  const prices = data.prices || {};
-  const pairs  = Object.keys(prices);
-  if (pairs.length === 0) { grid.innerHTML = '<div class="empty-state">Preços indisponíveis</div>'; return; }
-
-  grid.innerHTML = pairs.map(pair => {
-    const d   = prices[pair];
-    const chg = parseFloat(d.change24h);
-    const up  = chg >= 0;
-    const fmtPrice = p => {
-      if (p < 0.0001) return p.toExponential(4);
-      if (p < 1)      return p.toFixed(6);
-      if (p < 100)    return p.toFixed(4);
-      if (p < 10000)  return p.toFixed(2);
-      return p.toLocaleString("en-US",{maximumFractionDigits:0});
-    };
+// ══════════════════════════════════════════════════════════════════
+async function loadPricesAdmin() {
+  const res = await fetch("/api/prices");
+  if (!res.ok) return;
+  const data = await res.json();
+  currentPrices = data.prices||{};
+  document.getElementById("pricesAt").textContent = `Atualizado: ${new Date(data.fetchedAt).toLocaleTimeString("pt-BR")}`;
+  const grid  = document.getElementById("pricesGrid");
+  const pairs = Object.keys(currentPrices);
+  if (!pairs.length) { grid.innerHTML="<div class='empty-state'>Indisponível</div>"; return; }
+  const fmtP = p => {
+    if(p<0.0001)return p.toExponential(4); if(p<1)return p.toFixed(6);
+    if(p<100)return p.toFixed(4); if(p<10000)return p.toFixed(2);
+    return p.toLocaleString("en-US",{maximumFractionDigits:0});
+  };
+  grid.innerHTML = pairs.map(pair=>{
+    const d=currentPrices[pair]; const chg=parseFloat(d.change24h); const up=chg>=0;
     return `<div class="price-card">
       <div class="price-pair">${pair}</div>
-      <div class="price-val">$${fmtPrice(d.price)}</div>
+      <div class="price-val">$${fmtP(d.price)}</div>
       <div class="price-chg ${up?"up":"dn"}">${up?"+":""}${chg.toFixed(2)}%</div>
     </div>`;
   }).join("");
 }
 
-// ══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════
 // USUÁRIOS
-// ══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════
 async function loadUsers() {
-  const res = await fetch("/api/admin/users", { headers:{"x-admin-key":ADMIN_KEY} });
+  const res = await fetch("/api/admin/users",{headers:{"x-admin-key":ADMIN_KEY}});
   if (!res.ok) return;
   const data = await res.json();
-  allUsers = data.users || [];
+  allUsers = data.users||[];
   document.getElementById("userTotal").textContent  = allUsers.length;
   document.getElementById("userActive").textContent = allUsers.filter(u=>u.status==="active").length;
-  document.getElementById("adminSub").textContent   = `${allUsers.length} assinante(s) · ${allSignals.length} sinal(is)`;
+  document.getElementById("adminSub").textContent   = `${allUsers.length} assinantes · ${allSignals.length} sinais`;
   renderUsersTable();
 }
-
 function renderUsersTable() {
-  const search  = document.getElementById("searchBox").value.toLowerCase();
-  const filtered = allUsers.filter(u => u.email.toLowerCase().includes(search));
+  const search   = document.getElementById("searchBox").value.toLowerCase();
+  const filtered = allUsers.filter(u=>u.email.toLowerCase().includes(search));
   const body     = document.getElementById("usersBody");
-
-  if (filtered.length === 0) {
-    body.innerHTML = `<tr><td colspan="6"><div class="empty-state">Nenhum assinante encontrado.</div></td></tr>`;
-    return;
-  }
-
-  body.innerHTML = filtered.map(u => `
+  if (!filtered.length) { body.innerHTML=`<tr><td colspan="6"><div class="empty-state">Nenhum assinante.</div></td></tr>`; return; }
+  body.innerHTML = filtered.map(u=>`
     <tr>
-      <td>${u.email}</td>
-      <td>${u.name || "—"}</td>
+      <td>${u.email}</td><td>${u.name||"—"}</td>
       <td><span class="badge ${u.status}">${u.status}</span></td>
-      <td>${u.plan || "—"}</td>
+      <td>${u.plan||"—"}</td>
       <td class="mono" style="font-size:10px">${new Date(u.created_at).toLocaleDateString("pt-BR")}</td>
       <td>
         <div class="actions-col">
           <button class="btn neutral sm" onclick='openEditUser(${JSON.stringify(u).replace(/'/g,"&apos;")})'>Editar</button>
           ${u.status==="active"
-            ? `<button class="btn danger sm" onclick="quickToggleUser(${u.id},'inactive')">Bloquear</button>`
-            : `<button class="btn sm" onclick="quickToggleUser(${u.id},'active')">Ativar</button>`}
+            ?`<button class="btn danger sm" onclick="quickToggle(${u.id},'inactive')">Bloquear</button>`
+            :`<button class="btn sm"        onclick="quickToggle(${u.id},'active')">Ativar</button>`}
         </div>
       </td>
-    </tr>
-  `).join("");
+    </tr>`).join("");
 }
-
 function openCreateUser() {
-  document.getElementById("newEmail").value = document.getElementById("newPassword").value =
-  document.getElementById("newName").value  = document.getElementById("newPlan").value = "";
-  document.getElementById("createUserError").textContent = "";
+  ["newEmail","newPassword","newName","newPlan"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("createUserError").textContent="";
   document.getElementById("createUserModal").classList.add("open");
 }
-
 async function submitCreateUser() {
-  const email    = document.getElementById("newEmail").value.trim();
-  const password = document.getElementById("newPassword").value.trim();
-  const name     = document.getElementById("newName").value.trim();
-  const plan     = document.getElementById("newPlan").value.trim();
-  if (!email || !password) { document.getElementById("createUserError").textContent = "Email e senha são obrigatórios."; return; }
-  const res  = await fetch("/api/admin/users", {
-    method:"POST",
-    headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},
-    body: JSON.stringify({ email, password, name, plan }),
-  });
-  const data = await res.json();
-  if (!res.ok) { document.getElementById("createUserError").textContent = data.message || "Erro ao criar."; return; }
-  closeModal("createUserModal");
-  loadUsers();
+  const email=document.getElementById("newEmail").value.trim(), password=document.getElementById("newPassword").value.trim();
+  const name=document.getElementById("newName").value.trim(),   plan=document.getElementById("newPlan").value.trim();
+  if(!email||!password){document.getElementById("createUserError").textContent="Email e senha obrigatórios.";return;}
+  const res=await fetch("/api/admin/users",{method:"POST",headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},body:JSON.stringify({email,password,name,plan})});
+  const data=await res.json();
+  if(!res.ok){document.getElementById("createUserError").textContent=data.message||"Erro.";return;}
+  closeModal("createUserModal"); loadUsers();
 }
-
 function openEditUser(user) {
   document.getElementById("editUserId").value     = user.id;
-  document.getElementById("editName").value       = user.name || "";
-  document.getElementById("editPlan").value       = user.plan || "";
+  document.getElementById("editName").value       = user.name||"";
+  document.getElementById("editPlan").value       = user.plan||"";
   document.getElementById("editStatus").value     = user.status;
   document.getElementById("editNewPassword").value= "";
   document.getElementById("editUserModal").classList.add("open");
 }
-
 async function submitEditUser() {
-  const id          = document.getElementById("editUserId").value;
-  const name        = document.getElementById("editName").value.trim();
-  const plan        = document.getElementById("editPlan").value.trim();
-  const status      = document.getElementById("editStatus").value;
-  const newPassword = document.getElementById("editNewPassword").value.trim();
-  const body = { name, plan, status };
-  if (newPassword) body.newPassword = newPassword;
-  await fetch(`/api/admin/users/${id}`, {
-    method:"PATCH",
-    headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},
-    body: JSON.stringify(body),
-  });
-  closeModal("editUserModal");
+  const id=document.getElementById("editUserId").value, name=document.getElementById("editName").value.trim();
+  const plan=document.getElementById("editPlan").value.trim(), status=document.getElementById("editStatus").value;
+  const newPassword=document.getElementById("editNewPassword").value.trim();
+  const body={name,plan,status}; if(newPassword) body.newPassword=newPassword;
+  await fetch(`/api/admin/users/${id}`,{method:"PATCH",headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},body:JSON.stringify(body)});
+  closeModal("editUserModal"); loadUsers();
+}
+async function quickToggle(id,status) {
+  await fetch(`/api/admin/users/${id}`,{method:"PATCH",headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},body:JSON.stringify({status})});
   loadUsers();
 }
 
-async function quickToggleUser(id, status) {
-  await fetch(`/api/admin/users/${id}`, {
-    method:"PATCH",
-    headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},
-    body: JSON.stringify({ status }),
-  });
-  loadUsers();
-}
-
-// ══════════════════════════════════════════════
-// WEBHOOK LOG
-// ══════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════
+// WEBHOOK
+// ══════════════════════════════════════════════════════════════════
 async function loadWebhookLog() {
-  const res  = await fetch("/api/admin/webhook-log", { headers:{"x-admin-key":ADMIN_KEY} });
-  const data = await res.json();
-  const body = document.getElementById("webhookBody");
-  const logs = data.logs || [];
-  if (!logs.length) { body.innerHTML = `<tr><td colspan="5"><div class="empty-state">Nenhum evento registrado.</div></td></tr>`; return; }
-  body.innerHTML = logs.map(l => `
+  const res=await fetch("/api/admin/webhook-log",{headers:{"x-admin-key":ADMIN_KEY}});
+  const data=await res.json(); const body=document.getElementById("webhookBody");
+  const logs=data.logs||[];
+  if(!logs.length){body.innerHTML=`<tr><td colspan="5"><div class="empty-state">Nenhum evento.</div></td></tr>`;return;}
+  body.innerHTML=logs.map(l=>`
     <tr>
-      <td class="mono">#${l.id}</td>
-      <td>${l.source}</td>
-      <td>${l.event}</td>
+      <td class="mono">#${l.id}</td><td>${l.source}</td><td>${l.event}</td>
       <td class="mono" style="font-size:10px">${new Date(l.created_at).toLocaleString("pt-BR")}</td>
-      <td class="mono" style="font-size:10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.payload||""}</td>
-    </tr>
-  `).join("");
+      <td class="mono" style="font-size:10px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.payload||""}</td>
+    </tr>`).join("");
 }
 
-// ── Utils ────────────────────────────────────────────────────────────────────
-function closeModal(id) {
-  document.getElementById(id).classList.remove("open");
-}
-
-// Fecha modal ao clicar fora
-document.querySelectorAll(".modal").forEach(m => {
-  m.addEventListener("click", e => { if(e.target===m) closeModal(m.id); });
-});
+function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)closeModal(m.id);}));
 </script>
 </body>
 </html>
