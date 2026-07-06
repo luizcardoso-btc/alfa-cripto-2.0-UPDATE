@@ -87,6 +87,29 @@ tr:hover td{background:rgba(0,255,136,.02);}
 .suggest-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:8px;}
 .suggest-field{color:var(--text4);}
 .suggest-field span{color:#fff;font-family:"Share Tech Mono",monospace;}
+
+/* ── Assinantes tab ── */
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Share Tech Mono',monospace;}
+.status-pill.active  {background:rgba(34,197,94,.1);color:#86EFAC;border:1px solid rgba(34,197,94,.2);}
+.status-pill.inactive{background:rgba(239,68,68,.1);color:#FCA5A5;border:1px solid rgba(239,68,68,.2);}
+.status-pill.pending {background:rgba(234,179,8,.1);color:#FDE68A;border:1px solid rgba(234,179,8,.2);}
+.status-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.status-dot.active  {background:#22C55E;box-shadow:0 0 4px #22C55E;}
+.status-dot.inactive{background:#EF4444;box-shadow:0 0 4px #EF4444;}
+.status-dot.pending {background:#EAB308;box-shadow:0 0 4px #EAB308;}
+.filter-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.fp{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:5px 14px;font-size:12px;cursor:pointer;color:#94A3B8;transition:.15s;font-family:'Share Tech Mono',monospace;}
+.fp:hover,.fp.active{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.3);color:#60A5FA;}
+.user-email{font-size:13px;color:#fff;font-weight:500;}
+.user-name{font-size:11px;color:#64748B;margin-top:2px;}
+.user-plan{font-size:11px;color:#94A3B8;font-family:'Share Tech Mono',monospace;}
+.user-date{font-size:10px;color:#334155;font-family:'Share Tech Mono',monospace;}
+.mcp-badge{display:inline-block;background:rgba(251,191,36,.08);color:#FCD34D;border:1px solid rgba(251,191,36,.15);border-radius:4px;font-size:9px;padding:1px 6px;font-family:'Share Tech Mono',monospace;margin-left:6px;vertical-align:middle;}
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.ss-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;text-align:center;}
+.ss-val{font-size:22px;font-weight:700;color:#fff;font-family:'Share Tech Mono',monospace;display:block;}
+.ss-lbl{font-size:10px;color:#475569;margin-top:3px;display:block;letter-spacing:.5px;}
+
 </style>
 </head>
 <body>
@@ -158,22 +181,47 @@ tr:hover td{background:rgba(0,255,136,.02);}
     <div class="prices-grid" id="pricesGrid"><div class="empty-state">Clique em Atualizar</div></div>
   </div>
 
-  <!-- ══ USUÁRIOS ══ -->
-  <div id="tab-usuarios" style="display:none">
-    <div class="stat-row">
-      <div class="stat-box"><div class="stat-val" id="userTotal">0</div><div class="stat-lbl">TOTAL</div></div>
-      <div class="stat-box"><div class="stat-val" id="userActive">0</div><div class="stat-lbl">ATIVOS</div></div>
+  
+  <!-- ══ ASSINANTES ══ -->
+  <div id="tab-assinantes" style="display:none">
+
+    <!-- Stats strip -->
+    <div class="stats-strip" id="subStatsStrip">
+      <div class="ss-box"><span class="ss-val" id="ss-total">0</span><span class="ss-lbl">TOTAL</span></div>
+      <div class="ss-box"><span class="ss-val" id="ss-active" style="color:#86EFAC">0</span><span class="ss-lbl">ATIVOS</span></div>
+      <div class="ss-box"><span class="ss-val" id="ss-inactive" style="color:#FCA5A5">0</span><span class="ss-lbl">INATIVOS</span></div>
+      <div class="ss-box"><span class="ss-val" id="ss-pending" style="color:#FDE68A">0</span><span class="ss-lbl">PENDENTES</span></div>
     </div>
+
+    <!-- Filtros de status -->
+    <div class="filter-pills">
+      <button class="fp active" onclick="filterUsers('all',this)">Todos</button>
+      <button class="fp" onclick="filterUsers('active',this)">Ativos</button>
+      <button class="fp" onclick="filterUsers('inactive',this)">Inativos</button>
+      <button class="fp" onclick="filterUsers('pending',this)">Pendentes</button>
+    </div>
+
+    <!-- Toolbar -->
     <div class="toolbar">
-      <input type="text" id="searchBox" placeholder="Buscar email..." oninput="renderUsersTable()"/>
+      <input type="text" id="userSearch" placeholder="Buscar por email ou nome..." oninput="loadUsers()"/>
       <button class="btn" onclick="openCreateUser()">+ NOVO ASSINANTE</button>
       <button class="btn neutral sm" onclick="loadUsers()">↻</button>
     </div>
+
     <table>
-      <thead><tr><th>EMAIL</th><th>NOME</th><th>STATUS</th><th>PLANO</th><th>CRIADO</th><th>AÇÕES</th></tr></thead>
+      <thead>
+        <tr>
+          <th>ASSINANTE</th>
+          <th>STATUS</th>
+          <th>PLANO</th>
+          <th>CADASTRO</th>
+          <th>AÇÕES</th>
+        </tr>
+      </thead>
       <tbody id="usersBody"></tbody>
     </table>
   </div>
+
 
   <!-- ══ WEBHOOK ══ -->
   <div id="tab-webhook" style="display:none">
@@ -308,14 +356,27 @@ tr:hover td{background:rgba(0,255,136,.02);}
 <div class="modal" id="createUserModal">
   <div class="modal-box">
     <h3>+ Novo Assinante</h3>
-    <label>EMAIL</label><input type="email" id="newEmail" placeholder="email@cliente.com"/>
-    <label>SENHA</label><input type="text" id="newPassword" placeholder="senha temporária"/>
-    <label>NOME</label><input type="text" id="newName" placeholder="nome completo"/>
-    <label>PLANO</label><input type="text" id="newPlan" placeholder="ex: Mensal VIP"/>
+    <label>EMAIL <span style="color:#475569;font-size:10px">(obrigatório)</span></label>
+    <input type="email" id="newEmail" placeholder="email@cliente.com"/>
+
+    <label>SENHA <span style="color:#475569;font-size:10px">(deixe vazio para gerar automaticamente)</span></label>
+    <input type="text" id="newPassword" placeholder="deixe vazio para senha aleatória"/>
+
+    <label>NOME</label>
+    <input type="text" id="newName" placeholder="nome completo (opcional)"/>
+
+    <label>PLANO</label>
+    <input type="text" id="newPlan" placeholder="ex: Anual · Semestral · VIP"/>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-top:14px;padding:12px 14px;background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.15);border-radius:8px">
+      <input type="checkbox" id="sendEmailCheck" checked style="width:16px;height:16px;cursor:pointer;accent-color:#3B82F6"/>
+      <label for="sendEmailCheck" style="font-size:13px;color:#94A3B8;cursor:pointer;letter-spacing:normal;margin:0">Enviar email de boas-vindas com senha temporária</label>
+    </div>
+
     <div class="err-msg" id="createUserError"></div>
     <div class="modal-actions">
       <button class="btn neutral" onclick="closeModal('createUserModal')">Cancelar</button>
-      <button class="btn" onclick="submitCreateUser()">Criar</button>
+      <button class="btn" onclick="submitCreateUser()">Criar Assinante</button>
     </div>
   </div>
 </div>
@@ -369,7 +430,7 @@ function logout() { localStorage.removeItem("acs_admin_key"); location.reload();
 function switchTab(tab) {
   currentTab = tab;
   document.querySelectorAll(".admin-tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
-  ["sinais","precos","usuarios","webhook"].forEach(t=>{
+  ["sinais","precos","assinantes","webhook"].forEach(t=>{
     document.getElementById("tab-"+t).style.display = t===tab?"":"none";
   });
   if (tab==="webhook") loadWebhookLog();
@@ -623,6 +684,9 @@ function openEditSignal(sig) {
 }
 
 async function submitSignal() {
+  const btn = document.getElementById("sigSubmitBtn");
+  btn.disabled = true;
+  btn.textContent = "Publicando...";
   const id    = document.getElementById("sigId").value;
   const entry = document.getElementById("sigEntry").value.trim();
   const pair  = document.getElementById("sigPair").value;
@@ -642,9 +706,22 @@ async function submitSignal() {
   if (id) { body.status = document.getElementById("sigStatus").value; body.hit = Number(document.getElementById("sigHit").value); }
   const url    = id ? `/api/admin/signals/${id}` : "/api/admin/signals";
   const method = id ? "PATCH" : "POST";
-  const res    = await fetch(url,{method,headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},body:JSON.stringify(body)});
-  const data   = await res.json();
-  if (!res.ok) { document.getElementById("sigError").textContent = data.message||"Erro ao salvar."; return; }
+  let res2, data2;
+  try {
+    res2  = await fetch(url,{method,headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},body:JSON.stringify(body)});
+    data2 = await res2.json().catch(()=>({}));
+  } catch(e) {
+    document.getElementById("sigError").textContent = "Erro de rede: " + e.message;
+    document.getElementById("sigSubmitBtn").disabled = false;
+    document.getElementById("sigSubmitBtn").textContent = "PUBLICAR SINAL";
+    return;
+  }
+  if (!res2.ok) {
+    document.getElementById("sigError").textContent = `Erro ${res2.status}: ${data2.message||data2.error||"Rota não encontrada — atualize o server.js no GitHub"}`;
+    document.getElementById("sigSubmitBtn").disabled = false;
+    document.getElementById("sigSubmitBtn").textContent = "PUBLICAR SINAL";
+    return;
+  }
   closeModal("signalModal"); loadSignals();
 }
 
@@ -777,6 +854,143 @@ async function loadWebhookLog() {
       <td class="mono" style="font-size:10px">${new Date(l.created_at).toLocaleString("pt-BR")}</td>
       <td class="mono" style="font-size:10px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.payload||""}</td>
     </tr>`).join("");
+}
+
+
+// ══════════════════════════════════════════════
+// ASSINANTES — Gestão completa
+// ══════════════════════════════════════════════
+let currentStatusFilter = "all";
+
+function filterUsers(status, btn) {
+  currentStatusFilter = status;
+  document.querySelectorAll(".fp").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  loadUsers();
+}
+
+async function loadUsers() {
+  const search = document.getElementById("userSearch")?.value?.trim() || "";
+  const params = new URLSearchParams({ status: currentStatusFilter });
+  if (search) params.set("search", search);
+
+  const res  = await fetch(`/api/admin/users?${params}`, { headers:{"x-admin-key":ADMIN_KEY} });
+  if (!res.ok) return;
+  const data = await res.json();
+  allUsers   = data.users || [];
+  const stats= data.stats || {};
+
+  // Stats strip
+  document.getElementById("ss-total")?.   textContent !== undefined && (document.getElementById("ss-total").textContent    = stats.total    || 0);
+  document.getElementById("ss-active")?.  textContent !== undefined && (document.getElementById("ss-active").textContent   = stats.active   || 0);
+  document.getElementById("ss-inactive")?.textContent !== undefined && (document.getElementById("ss-inactive").textContent = stats.inactive || 0);
+  document.getElementById("ss-pending")?.textContent !== undefined  && (document.getElementById("ss-pending").textContent  = stats.pending  || 0);
+
+  // Header admin
+  document.getElementById("adminSub").textContent = `${stats.active||0} ativos · ${stats.total||0} total · ${allSignals.length} sinais`;
+
+  renderUsersTable();
+}
+
+function renderUsersTable() {
+  const body = document.getElementById("usersBody");
+  if (!body) return;
+  if (!allUsers.length) {
+    body.innerHTML = `<tr><td colspan="5"><div class="empty-state">Nenhum assinante encontrado.</div></td></tr>`;
+    return;
+  }
+
+  body.innerHTML = allUsers.map(u => {
+    const statusLabels = { active:"Ativo", inactive:"Inativo", pending:"Pendente" };
+    const slabel = statusLabels[u.status] || u.status;
+    const created = new Date(u.created_at).toLocaleDateString("pt-BR");
+    const mcp = u.must_change_password ? '<span class="mcp-badge">1º ACESSO</span>' : "";
+
+    return `
+      <tr>
+        <td>
+          <div class="user-email">${u.email}${mcp}</div>
+          <div class="user-name">${u.name || "—"}</div>
+        </td>
+        <td>
+          <span class="status-pill ${u.status}">
+            <span class="status-dot ${u.status}"></span>
+            ${slabel}
+          </span>
+        </td>
+        <td><span class="user-plan">${u.plan || "—"}</span></td>
+        <td><span class="user-date">${created}</span></td>
+        <td>
+          <div class="actions-col">
+            <button class="btn neutral sm" onclick='openEditUser(${JSON.stringify(u).replace(/'/g,"&apos;")})'>Editar</button>
+            ${u.status === "active"
+              ? `<button class="btn danger sm" onclick="quickStatus(${u.id},'inactive')">Bloquear</button>`
+              : `<button class="btn sm" onclick="quickStatus(${u.id},'active')">Ativar</button>`}
+            <button class="btn blue sm" onclick="resendEmail(${u.id},'${u.email}')">📧 Reenviar</button>
+            <button class="btn danger sm" style="background:#1a1a2e" onclick="deleteUser(${u.id},'${u.email}')">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join("");
+}
+
+async function quickStatus(id, status) {
+  await fetch(`/api/admin/users/${id}`, {
+    method:"PATCH",
+    headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},
+    body:JSON.stringify({ status }),
+  });
+  loadUsers();
+}
+
+async function deleteUser(id, email) {
+  if (!confirm(`Excluir permanentemente "${email}"? Esta ação não pode ser desfeita.`)) return;
+  const res = await fetch(`/api/admin/users/${id}`, { method:"DELETE", headers:{"x-admin-key":ADMIN_KEY} });
+  if (res.ok) loadUsers();
+  else alert("Erro ao excluir usuário.");
+}
+
+async function resendEmail(id, email) {
+  if (!confirm(`Reenviar email de acesso para ${email}?\n\nIsso vai gerar uma nova senha temporária.`)) return;
+  const res  = await fetch(`/api/admin/users/${id}/resend-email`, { method:"POST", headers:{"x-admin-key":ADMIN_KEY} });
+  const data = await res.json();
+  alert(res.ok ? `✅ ${data.message}` : `❌ Erro ao reenviar email.`);
+}
+
+function openCreateUser() {
+  ["newEmail","newPassword","newName","newPlan"].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value = "";
+  });
+  document.getElementById("createUserError").textContent = "";
+  // Reset checkbox
+  const cb = document.getElementById("sendEmailCheck");
+  if (cb) cb.checked = true;
+  document.getElementById("createUserModal").classList.add("open");
+}
+
+async function submitCreateUser() {
+  const email    = document.getElementById("newEmail")?.value?.trim();
+  const password = document.getElementById("newPassword")?.value?.trim();
+  const name     = document.getElementById("newName")?.value?.trim();
+  const plan     = document.getElementById("newPlan")?.value?.trim();
+  const sendEmail= document.getElementById("sendEmailCheck")?.checked !== false;
+
+  if (!email) { document.getElementById("createUserError").textContent = "Email é obrigatório."; return; }
+
+  const res  = await fetch("/api/admin/users", {
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},
+    body:JSON.stringify({ email, password: password||undefined, name, plan, sendEmail }),
+  });
+  const data = await res.json();
+  if (!res.ok) { document.getElementById("createUserError").textContent = data.message||"Erro ao criar."; return; }
+
+  if (data.tempPassword && !sendEmail) {
+    alert(`✅ Usuário criado!\n\nSenha temporária: ${data.tempPassword}\n\nGuarde ou envie manualmente para ${email}.`);
+  }
+
+  closeModal("createUserModal");
+  loadUsers();
 }
 
 function closeModal(id) { document.getElementById(id).classList.remove("open"); }
