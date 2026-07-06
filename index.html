@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>ACS SYSTEM — Sinais Inteligentes</title>
+  <title>Alfa Cripto Sinais</title>
   <link rel="stylesheet" href="style.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Barlow:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
@@ -16,9 +16,9 @@
     <header id="header">
       <div class="header-top">
         <div class="brand">
-          <div class="brand-icon"><svg width="32" height="32" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="100" r="80" stroke="#00ff88" stroke-width="10" fill="none"/><rect x="72" y="12" width="12" height="24" rx="6" fill="#00ff88"/><rect x="116" y="12" width="12" height="24" rx="6" fill="#00ff88"/><rect x="72" y="164" width="12" height="24" rx="6" fill="#00ff88"/><rect x="116" y="164" width="12" height="24" rx="6" fill="#00ff88"/><path d="M100 52 L148 140 H52 Z" stroke="#00ff88" stroke-width="10" stroke-linejoin="round" fill="none"/></svg></div>
+          <div class="brand-icon">α</div>
           <div class="brand-text">
-            <span class="brand-name">ACS SYSTEM</span>
+            <span class="brand-name">ALFA CRIPTO</span>
             <span class="brand-sub">SINAIS INTELIGENTES</span>
           </div>
         </div>
@@ -37,7 +37,7 @@
       <!-- Scan Progress (hidden by default) -->
       <div class="scan-wrap" id="scanWrap" style="display:none">
         <div class="scan-header">
-          <span class="scan-label">⚡ ACS SYSTEM ANALISANDO...</span>
+          <span class="scan-label">⚡ ALFA TRADER ANALISANDO...</span>
           <span class="scan-pct" id="scanPct">0%</span>
         </div>
         <div class="scan-track"><div class="scan-bar" id="scanBar"></div></div>
@@ -93,9 +93,6 @@
 
       <!-- ── ALERTAS ── -->
       <section class="panel active" id="panel-alerts">
-        <button class="add-manual-btn" id="btnOpenManual">
-          <span class="plus-icon">+</span> ADICIONAR SINAL MANUAL
-        </button>
         <div id="alertsFeed"></div>
         <div class="market-note-box" id="marketNoteBox" style="display:none">
           <div class="note-label">📡 NOTA DE MERCADO</div>
@@ -171,7 +168,7 @@
     </nav>
 
     <!-- ══ CHAT BUTTON ══ -->
-    <button class="chat-fab" id="chatFab" title="ACS AI">🤖</button>
+    <button class="chat-fab" id="chatFab" title="ALFA AI">🤖</button>
 
     <!-- ══ CHAT PANEL ══ -->
     <div class="chat-panel" id="chatPanel" style="display:none">
@@ -179,7 +176,7 @@
         <div class="chat-brand">
           <div class="chat-icon">🤖</div>
           <div>
-            <div class="chat-name">ACS AI</div>
+            <div class="chat-name">ALFA AI</div>
             <div class="chat-sub">SMC · Order Blocks · Futuros</div>
           </div>
         </div>
@@ -187,7 +184,7 @@
       </div>
       <div class="chat-messages" id="chatMessages">
         <div class="msg msg-ai">
-          <div class="bubble bubble-ai">👋 Sou a <strong>ACS AI</strong>! Sinais IA + suporte a manuais ativos. Posso analisar qualquer par cripto. Como posso ajudar?</div>
+          <div class="bubble bubble-ai">👋 Sou a <strong>ALFA AI</strong>! Sinais IA + suporte a manuais ativos. Posso analisar qualquer par cripto. Como posso ajudar?</div>
         </div>
       </div>
       <div class="chat-input-row">
@@ -196,56 +193,6 @@
       </div>
     </div>
 
-    <!-- ══ MANUAL SIGNAL MODAL ══ -->
-    <div class="modal-overlay" id="modalOverlay" style="display:none">
-      <div class="modal">
-        <div class="modal-header">
-          <span class="modal-title">✍️ SINAL MANUAL</span>
-          <button class="modal-close" id="modalClose">✕</button>
-        </div>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>PAR</label>
-            <select id="fPair">
-              <option>BTC/USDT</option><option>ETH/USDT</option><option>BNB/USDT</option>
-              <option>SOL/USDT</option><option>XRP/USDT</option><option>ADA/USDT</option>
-              <option>AVAX/USDT</option><option>LINK/USDT</option><option>DOGE/USDT</option>
-              <option>ARB/USDT</option><option>OP/USDT</option><option>INJ/USDT</option>
-              <option>TON/USDT</option><option>SUI/USDT</option><option>PEPE/USDT</option>
-              <option>WLD/USDT</option><option>TIA/USDT</option><option>ORDI/USDT</option>
-              <option>NEAR/USDT</option><option>FTM/USDT</option><option>APT/USDT</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>TIPO</label>
-            <select id="fType">
-              <option value="LONG">LONG (COMPRA)</option>
-              <option value="SHORT">SHORT (VENDA)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>ENTRADA</label>
-            <input type="text" id="fEntry" placeholder="ex: 103450"/>
-          </div>
-          <div class="form-group">
-            <label>ALAVANCAGEM</label>
-            <select id="fLeverage">
-              <option>10x</option><option>10x-15x</option><option selected>10x-20x</option>
-              <option>15x</option><option>15x-20x</option><option>20x</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group full">
-          <label>STOPLOSS</label>
-          <input type="text" id="fSL" placeholder="Hold ou ex: 3%"/>
-        </div>
-        <div class="form-group full">
-          <label>NOTA / ANÁLISE (opcional)</label>
-          <textarea id="fNote" rows="2" placeholder="Descrição do setup..."></textarea>
-        </div>
-        <button class="submit-btn" id="submitManual">PUBLICAR SINAL</button>
-      </div>
-    </div>
 
   </div><!-- /#app -->
 
