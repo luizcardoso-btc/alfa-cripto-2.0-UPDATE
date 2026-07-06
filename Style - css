@@ -308,59 +308,17 @@ input, select, textarea {
 .sc-reason.manual { border-left-color: rgba(255,255,255,.15); }
 
 /* Targets */
-/* ── TARGETS — visual grande estilo segunda imagem ── */
-.sc-targets-label {
+.sc-targets-label { font-family:var(--font-mono); font-size:10px; color:var(--text4); margin-bottom:5px; }
+.targets-wrap { display:flex; flex-wrap:wrap; gap:3px; }
+.pill {
+  padding: 3px 7px; border-radius: 20px;
   font-family: var(--font-mono); font-size: 10px;
-  color: var(--text4); margin-bottom: 8px;
-  display: flex; align-items: center; justify-content: space-between;
+  transition: background .2s;
 }
-.targets-grid {
-  display: flex; flex-wrap: wrap; gap: 6px;
-  margin: 8px 0 6px;
-}
-
-/* Alvo atingido — destaque verde/vermelho */
-.tg-hit {
-  display: flex; align-items: center; gap: 5px;
-  padding: 5px 12px; border-radius: 8px;
-  border: 1px solid;
-  transition: all .2s;
-}
-.tg-pct {
-  font-family: var(--font-mono); font-size: 15px;
-  font-weight: 700; line-height: 1;
-}
-.tg-check { font-size: 11px; font-weight: 700; }
-
-/* Próximo alvo — pulsando */
-.tg-next {
-  display: flex; align-items: center; gap: 5px;
-  padding: 5px 12px; border-radius: 8px;
-  background: rgba(255,200,0,.08);
-  border: 1px solid rgba(255,200,0,.3);
-  animation: tg-pulse 1.5s ease-in-out infinite;
-}
-.tg-pct-next {
-  font-family: var(--font-mono); font-size: 13px;
-  font-weight: 700; color: #ffcc00; line-height: 1;
-}
-.tg-arrow { font-size: 11px; color: #ffcc00; }
-@keyframes tg-pulse {
-  0%,100% { border-color: rgba(255,200,0,.3); box-shadow: none; }
-  50%      { border-color: rgba(255,200,0,.7); box-shadow: 0 0 8px rgba(255,200,0,.25); }
-}
-
-/* Alvos futuros — discretos */
-.tg-miss {
-  display: flex; align-items: center;
-  padding: 5px 10px; border-radius: 8px;
-  background: rgba(255,255,255,.02);
-  border: 1px solid rgba(255,255,255,.06);
-}
-.tg-pct-miss {
-  font-family: var(--font-mono); font-size: 11px;
-  color: #2a3a2a; line-height: 1;
-}
+.pill-hit   { background:var(--green); color:#000; font-weight:700; }
+.pill-hit-s { background:var(--red); color:#fff; font-weight:700; }
+.pill-active{ background:var(--green-dim); color:var(--green); border:1px solid var(--green-bd); }
+.pill-miss  { background:#111d11; color:#2a3a2a; border:1px solid #1a2a1a; }
 
 /* SL / progress footer */
 .sc-footer { font-family:var(--font-mono); font-size:10px; color:var(--text5); margin-top:8px; }
