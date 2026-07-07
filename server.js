@@ -272,10 +272,14 @@ app.post("/api/admin/signals", requireAdmin, (req, res) => {
 // Editar sinal
 app.patch("/api/admin/signals/:id", requireAdmin, (req, res) => {
   const id = Number(req.params.id);
-  const allowed = ["pair","type","entry","leverage","stoploss","targets","reason","timeframe","setup","confidence","status","hit","profit_pct","time_to_hit"];
+  const allowed = ["pair","type","entry","leverage","stoploss","targets","reason","timeframe","setup","confidence","status","hit","profit_pct","result_pct","time_to_hit","closed_at"];
   const patch = {};
   for (const k of allowed) {
     if (req.body[k] !== undefined) patch[k] = req.body[k];
+  }
+  // Grava closed_at automaticamente se status muda para fechado
+  if (patch.status && ["profit","loss","closed"].includes(patch.status) && !patch.closed_at) {
+    patch.closed_at = new Date().toISOString();
   }
   const sig = db.signals.update(id, patch);
   if (!sig) return res.status(404).json({ error:"not_found" });
@@ -362,17 +366,17 @@ app.post("/api/claude", auth.requireAuth, async (req, res) => {
 // PÁGINAS
 // ══════════════════════════════════════════════
 app.get("/admin.html", (req, res) => {
-  res.sendFile(path.join(__dirname, "admin.html"));
+  res.sendFile(path.join(__dirname, "admin-pages", "admin.html"));
 });
 
-const ROOT = path.join(__dirname);
+const PUBLIC_DIR = path.join(__dirname, "public");
 
-app.get("/",           auth.requirePageAuth, (req, res) => res.sendFile(path.join(ROOT, "index.html")));
-app.get("/index.html", auth.requirePageAuth, (req, res) => res.sendFile(path.join(ROOT, "index.html")));
-app.get("/app.js",     auth.requirePageAuth, (req, res) => res.sendFile(path.join(ROOT, "app.js")));
-app.get("/style.css",  auth.requirePageAuth, (req, res) => res.sendFile(path.join(ROOT, "style.css")));
+app.get("/",           auth.requirePageAuth, (req, res) => res.sendFile(path.join(PUBLIC_DIR, "index.html")));
+app.get("/index.html", auth.requirePageAuth, (req, res) => res.sendFile(path.join(PUBLIC_DIR, "index.html")));
+app.get("/app.js",     auth.requirePageAuth, (req, res) => res.sendFile(path.join(PUBLIC_DIR, "app.js")));
+app.get("/style.css",  auth.requirePageAuth, (req, res) => res.sendFile(path.join(PUBLIC_DIR, "style.css")));
 
-app.use(express.static(ROOT));
+app.use(express.static(PUBLIC_DIR));
 
 // ══════════════════════════════════════════════
 app.listen(PORT, () => {
