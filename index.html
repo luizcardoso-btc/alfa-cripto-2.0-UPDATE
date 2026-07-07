@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Alfa Cripto Sinais</title>
+  <title>ACS SYSTEM</title>
   <link rel="stylesheet" href="style.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Barlow:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
@@ -16,9 +16,28 @@
     <header id="header">
       <div class="header-top">
         <div class="brand">
-          <div class="brand-icon">α</div>
+          <div class="brand-icon">
+            <svg width="32" height="32" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#00ff88"/>
+                  <stop offset="100%" stop-color="#00cc66"/>
+                </linearGradient>
+              </defs>
+              <!-- Círculo exterior -->
+              <circle cx="100" cy="100" r="77" stroke="url(#lg)" stroke-width="9" fill="none"/>
+              <!-- Pinos superiores -->
+              <rect x="78" y="14" width="11" height="23" rx="5.5" fill="url(#lg)"/>
+              <rect x="111" y="14" width="11" height="23" rx="5.5" fill="url(#lg)"/>
+              <!-- Pinos inferiores -->
+              <rect x="78" y="163" width="11" height="23" rx="5.5" fill="url(#lg)"/>
+              <rect x="111" y="163" width="11" height="23" rx="5.5" fill="url(#lg)"/>
+              <!-- Triângulo interior -->
+              <path d="M100 44 L154 140 H46 Z" stroke="url(#lg)" stroke-width="9" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </div>
           <div class="brand-text">
-            <span class="brand-name">ALFA CRIPTO</span>
+            <span class="brand-name">ACS SYSTEM</span>
             <span class="brand-sub">SINAIS INTELIGENTES</span>
           </div>
         </div>
@@ -37,7 +56,7 @@
       <!-- Scan Progress (hidden by default) -->
       <div class="scan-wrap" id="scanWrap" style="display:none">
         <div class="scan-header">
-          <span class="scan-label">⚡ ALFA TRADER ANALISANDO...</span>
+          <span class="scan-label">⚡ ACS SYSTEM ANALISANDO...</span>
           <span class="scan-pct" id="scanPct">0%</span>
         </div>
         <div class="scan-track"><div class="scan-bar" id="scanBar"></div></div>
@@ -168,7 +187,7 @@
     </nav>
 
     <!-- ══ CHAT BUTTON ══ -->
-    <button class="chat-fab" id="chatFab" title="ALFA AI">🤖</button>
+    <button class="chat-fab" id="chatFab" title="ACS AI">🤖</button>
 
     <!-- ══ CHAT PANEL ══ -->
     <div class="chat-panel" id="chatPanel" style="display:none">
