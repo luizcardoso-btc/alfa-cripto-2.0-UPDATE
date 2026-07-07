@@ -436,63 +436,66 @@ function renderAlerts() {
 
 // ── RENDER SINAIS ─────────────────────────────────────────────────────────────
 function renderSinais() {
-  const feed = document.getElementById("sinaisFeed");
+  const feed      = document.getElementById("sinaisFeed");
+  const perfGrid  = document.getElementById("perfGrid");
+  const histPanel = document.getElementById("histPanel");
   if (!feed) return;
 
   const f = state.signalFilter;
 
-  // Histórico completo: ativos + lucros + fechados
-  let all = [ ...state.signals, ...state.profits, ...(state.closed||[]) ];
-
-  // Aplica filtro
-  if (f === "profit") {
-    all = all.filter(s => s.status === "profit");
-  } else if (f === "LONG" || f === "SHORT") {
-    all = all.filter(s => s.type === f);
+  // ── ABA HISTÓRICO ────────────────────────────────────────────────
+  if (f === "HISTORICO") {
+    if (perfGrid)  perfGrid.style.display  = "none";
+    if (histPanel) histPanel.style.display = "";
+    feed.innerHTML = "";
+    renderHistorico();
+    return;
   }
-  all = all.sort((a,b) => (b.id||0)-(a.id||0));
+
+  // ── ABAS NORMAIS ─────────────────────────────────────────────────
+  if (perfGrid)  perfGrid.style.display  = "";
+  if (histPanel) histPanel.style.display = "none";
 
   // Métricas do mês atual
   const now = new Date();
-  const thisMonth = all.filter(s => {
+  const allSigs = [...state.signals, ...state.profits, ...(state.closed||[])];
+  const thisMon = allSigs.filter(s => {
     const d = new Date(s.created_at || Date.now());
     return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
   });
-  const mWins   = thisMonth.filter(s => s.status === "profit").length;
-  const mLosses = thisMonth.filter(s => s.status === "loss").length;
-  const mTotal  = mWins + mLosses;
-  const mWR     = mTotal > 0 ? Math.round(mWins/mTotal*100) : null;
-  const mPcts   = thisMonth.filter(s=>s.status==="profit")
-    .map(s => parseFloat((s.profit_pct||s.profitPct||"0").replace(/[^0-9.-]/g,""))||0)
+  const mW = thisMon.filter(s => s.status === "profit").length;
+  const mL = thisMon.filter(s => s.status === "loss").length;
+  const mT = mW + mL;
+  const mWR = mT > 0 ? Math.round(mW/mT*100) : null;
+  const mPcts = thisMon.filter(s=>s.status==="profit")
+    .map(s=>parseFloat((s.profit_pct||s.profitPct||"0").replace(/[^0-9.-]/g,""))||0)
     .filter(v=>v>0);
-  const mAvg = mPcts.length > 0 ? Math.round(mPcts.reduce((a,b)=>a+b,0)/mPcts.length) : null;
+  const mAvg = mPcts.length > 0 ? "+"+Math.round(mPcts.reduce((a,b)=>a+b,0)/mPcts.length)+"%" : "—";
 
-  // Exibe métricas mensais
-  const metricsEl = document.getElementById("histMetrics");
-  if (metricsEl) {
-    const mName = now.toLocaleDateString("pt-BR",{month:"long"}).toUpperCase();
-    metricsEl.innerHTML = [
-      { val: mTotal||0,                              lbl: mName,           col:"#fff"    },
-      { val: mWR !== null ? mWR+"%" : "—",           lbl: "ASSERTIVIDADE", col: mWR>=70?"#00ff88":mWR>=50?"#ffcc00":"#ff4466" },
-      { val: mAvg !== null ? "+"+mAvg+"%" : "—",     lbl: "LUCRO MÉDIO",   col:"#00c8ff" },
-    ].map(m => `
-      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px;text-align:center">
-        <div style="font-family:var(--font-mono);font-size:18px;font-weight:700;color:${m.col};line-height:1">${m.val}</div>
-        <div style="font-size:9px;color:var(--text4);margin-top:4px;letter-spacing:.5px">${m.lbl}</div>
-      </div>`).join("");
-  }
+  const set = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  set("perfOps", mT||0);
+  set("perfWL",  mT>0?`${mW}W/${mL}L`:"—");
+  set("perfAcerto", mWR!==null?mWR+"%":"—");
+  set("perfAcertoSub", mT>0?`${mW}/${mT}`:"—");
+  set("perfValorizacao", mAvg);
 
-  if (!all.length) {
+  // Filtra lista
+  let list = allSigs;
+  if (f === "LONG")  list = list.filter(s => s.type === "LONG");
+  if (f === "SHORT") list = list.filter(s => s.type === "SHORT");
+  list = list.sort((a,b) => (b.id||0)-(a.id||0));
+
+  if (!list.length) {
     feed.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Nenhuma operação registrada</div></div>`;
     return;
   }
 
-  const statusColor = { profit:"var(--green)", loss:"var(--red)", closed:"#445544", active:"#00c8ff" };
-  const statusLabel = { profit:"LUCRO", loss:"LOSS", closed:"FECHADO", active:"ATIVO" };
+  const sColor = { profit:"var(--green)", loss:"var(--red)", closed:"#445544", active:"#00c8ff" };
+  const sLabel = { profit:"LUCRO", loss:"LOSS", closed:"FECHADO", active:"ATIVO" };
 
-  feed.innerHTML = all.map(s => {
-    const sc  = statusColor[s.status] || "#fff";
-    const sl  = statusLabel[s.status] || s.status;
+  feed.innerHTML = list.map(s => {
+    const sc  = sColor[s.status] || "#fff";
+    const sl  = sLabel[s.status] || s.status;
     const pct = s.profit_pct || s.profitPct || null;
     return `
       <div class="signal-row${s.status==="profit"?" profit":s.status==="loss"?" loss":""}">
@@ -511,6 +514,85 @@ function renderSinais() {
       </div>`;
   }).join("");
 }
+
+// ── HISTÓRICO MENSAL ─────────────────────────────────────────────
+function renderHistorico() {
+  const histPanel = document.getElementById("histPanel");
+  const feed      = document.getElementById("sinaisFeed");
+  if (!histPanel) return;
+
+  const now     = new Date();
+  const mes     = now.toLocaleDateString("pt-BR",{month:"long",year:"numeric"});
+  const proxMes = String(now.getMonth()+2).padStart(2,"0");
+  const allSigs = [...state.signals, ...state.profits, ...(state.closed||[])];
+
+  // Filtra mês atual
+  const hist = allSigs.filter(s => {
+    const d = new Date(s.created_at || Date.now());
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  }).sort((a,b) => new Date(b.closed_at||b.created_at||0) - new Date(a.closed_at||a.created_at||0));
+
+  const encerrados = hist.filter(s => s.status === "profit" || s.status === "loss");
+  const wins   = encerrados.filter(s => s.status === "profit");
+  const losses = encerrados.filter(s => s.status === "loss");
+  const wr     = encerrados.length > 0 ? Math.round(wins.length/encerrados.length*100) : null;
+  const pcts   = wins.map(s=>parseFloat((s.profit_pct||s.profitPct||"0").replace(/[^0-9.-]/g,""))||0).filter(v=>v>0);
+  const avg    = pcts.length > 0 ? Math.round(pcts.reduce((a,b)=>a+b,0)/pcts.length) : null;
+
+  histPanel.innerHTML = `
+    <div style="margin-bottom:12px">
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text4);letter-spacing:1px;margin-bottom:8px">
+        ${mes.toUpperCase()} · Reseta dia 01/${proxMes}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+        <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-family:var(--font-mono);font-size:18px;font-weight:700;color:#fff">${encerrados.length}</div>
+          <div style="font-size:9px;color:var(--text4);margin-top:3px">OPERAÇÕES</div>
+          <div style="font-size:9px;color:var(--text4);margin-top:1px">${wins.length}W / ${losses.length}L</div>
+        </div>
+        <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-family:var(--font-mono);font-size:18px;font-weight:700;color:${wr!==null&&wr>=70?"var(--green)":wr!==null&&wr>=50?"#ffcc00":"var(--red)"}">${wr!==null?wr+"%":"—"}</div>
+          <div style="font-size:9px;color:var(--text4);margin-top:3px">ASSERTIVIDADE</div>
+        </div>
+        <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-family:var(--font-mono);font-size:18px;font-weight:700;color:#00c8ff">${avg!==null?"+"+avg+"%":"—"}</div>
+          <div style="font-size:9px;color:var(--text4);margin-top:3px">LUCRO MÉDIO</div>
+        </div>
+      </div>
+    </div>`;
+
+  if (!encerrados.length) {
+    feed.innerHTML = `<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-title">Nenhuma operação encerrada este mês</div><div style="font-size:12px;color:var(--text4);margin-top:6px">O histórico reseta no dia 1 de cada mês</div></div>`;
+    return;
+  }
+
+  feed.innerHTML = encerrados.map(s => {
+    const isWin     = s.status === "profit";
+    const pct       = s.profit_pct || s.profitPct || null;
+    const abertura  = s.created_at ? new Date(s.created_at).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}) : "—";
+    const fechamento= s.closed_at  ? new Date(s.closed_at).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}) : "—";
+    const dur       = s.time_to_hit || s.timeToHit || "—";
+    return `
+      <div class="signal-row${isWin?" profit":" loss"}" style="border-left:3px solid ${isWin?"var(--green)":"var(--red)"}">
+        <div class="signal-row-left" style="flex:1">
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="row-pair">${s.pair}</div>
+            ${typeBadgeHTML(s.type)}
+          </div>
+          <div class="row-meta" style="margin-top:3px"><span style="color:var(--text4)">Aberto:</span> ${abertura}</div>
+          <div class="row-meta"><span style="color:var(--text4)">Fechado:</span> ${fechamento}</div>
+          ${dur!=="—"?`<div style="font-size:9px;color:var(--text4);font-family:var(--font-mono)">⏱ ${dur}</div>`:""}
+        </div>
+        <div class="signal-row-right" style="align-items:flex-end">
+          <div style="font-family:var(--font-mono);font-size:16px;font-weight:700;color:${isWin?"var(--green)":"var(--red)"}">
+            ${isWin && pct ? pct : isWin ? "+?" : "LOSS"}
+          </div>
+          <div style="font-size:9px;color:var(--text4);font-family:var(--font-mono);margin-top:2px">${s.hit||0}/${(s.targets||[]).length} alvos</div>
+        </div>
+      </div>`;
+  }).join("");
+}
+
 
 // ── RENDER EDUCATION ──────────────────────────────────────────────────────────
 function renderEducation() {
