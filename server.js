@@ -463,6 +463,10 @@ function serveFile(filename, res) {
   res.sendFile(filePath);
 }
 
+// PWA — arquivos públicos (sem autenticação)
+app.get("/manifest.json",        (req, res) => { res.setHeader("Content-Type","application/manifest+json"); serveFile("manifest.json", res); });
+app.get("/icon-192.png",         (req, res) => serveFile("icon-192.png", res));
+app.get("/icon-512.png",         (req, res) => serveFile("icon-512.png", res));
 app.get("/OneSignalSDKWorker.js", (req, res) => {
   // Service Worker deve ser público e servido como JS
   const filePath = findFile("OneSignalSDKWorker.js");
