@@ -32,8 +32,6 @@
       });
     });
   </script>
-  <!-- OneSignal Web Push SDK -->
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function(OneSignal) {
@@ -70,6 +68,46 @@
         if (me?.email) {
           await OneSignal.login(me.email);
           await OneSignal.User.addTags({ plano: me.plan || "ativo" });
+        }
+      } catch(e) { /* silencioso */ }
+    });
+  </script>
+  <!-- OneSignal Web Push SDK -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId:          "c76816ad-e68e-4842-bf90-ac84c98cfd6a",
+        safari_web_id:  "web.onesignal.auto.2c53d929-118c-4db5-ba77-650d97dbe49e",
+        serviceWorkerPath: "/OneSignalSDKWorker.js",
+        notifyButton:   { enable: false },
+        promptOptions: {
+          slidedown: {
+            prompts: [{
+              type:       "push",
+              autoPrompt: true,
+              text: {
+                actionMessage: "Ative os alertas e receba sinais cripto em tempo real, direto no seu celular.",
+                acceptButton:  "✅ Ativar Alertas",
+                cancelButton:  "Agora não",
+              },
+              delay: { pageViews: 1, timeDelay: 4 },
+            }]
+          }
+        },
+        welcomeNotification: {
+          title:   "ACS SYSTEM",
+          message: "Alertas ativados! Você receberá sinais em tempo real. 📡",
+        },
+      });
+
+      // Identifica o usuário logado para segmentação
+      try {
+        const me = await fetch("/api/auth/me").then(r => r.ok ? r.json() : null);
+        if (me?.email) {
+          await OneSignal.login(me.email);
+          if (me.plan) await OneSignal.User.addTags({ plano: me.plan });
         }
       } catch(e) { /* silencioso */ }
     });
