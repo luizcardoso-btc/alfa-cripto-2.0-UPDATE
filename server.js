@@ -272,6 +272,18 @@ app.post("/api/auth/change-password", auth.requireAuth, (req, res) => {
 // ══════════════════════════════════════════════
 // ADMIN — Usuários
 // ══════════════════════════════════════════════
+
+// Rota pública que valida admin key — sem requireAdmin middleware
+app.get("/api/admin/ping", (req, res) => {
+  const key = req.headers["x-admin-key"] || req.query.key || "";
+  const ok  = key && key === process.env.ADMIN_KEY;
+  res.json({ ok, ts: Date.now() });
+});
+
+// Rota pública de health check
+app.get("/health", (req, res) => res.json({ status:"ok", ts: Date.now() }));
+
+
 app.get("/api/admin/users", requireAdmin, (req, res) => {
   res.json({ users: db.users.all().map(sanitizeUser) });
 });
@@ -402,6 +414,74 @@ app.get("/api/admin/reports", requireAdmin, (req, res) => {
   const metrics = db.reports ? db.reports.metrics(all) : {};
   const months  = db.reports ? db.reports.availableMonths() : [];
   res.json({ metrics, months, total: all.length });
+});
+
+
+// ══════════════════════════════════════════════
+// BYBIT API PROXY (privado — só admin)
+// ══════════════════════════════════════════════
+const crypto_mod = require("crypto");
+
+function bybitSign(queryString, secret, timestamp, recvWindow = "5000") {
+  // Bybit v5: timestamp + apiKey + recvWindow + queryString
+  const paramStr = timestamp + (process.env.BYBIT_API_KEY||"") + recvWindow + queryString;
+  return require("crypto").createHmac("sha256", secret).update(paramStr).digest("hex");
+}
+
+app.get("/api/bybit/proxy", requireAdmin, async (req, res) => {
+  const BYBIT_KEY    = process.env.BYBIT_API_KEY;
+  const BYBIT_SECRET = process.env.BYBIT_API_SECRET;
+
+  if (!BYBIT_KEY || !BYBIT_SECRET) {
+    return res.status(503).json({ error: "Credenciais Bybit não configuradas no Railway" });
+  }
+
+  const { endpoint, ...params } = req.query;
+  if (!endpoint) return res.status(400).json({ error: "endpoint obrigatório" });
+
+  const timestamp  = String(Date.now());
+  const recvWindow = "5000";
+
+  // Monta query string preservando ordem original
+  const queryString = Object.keys(params).length
+    ? Object.keys(params).map(k => k + "=" + encodeURIComponent(params[k])).join("&")
+    : "";
+
+  const signature = bybitSign(queryString, BYBIT_SECRET, timestamp, recvWindow);
+  const url = "https://api.bybit.com" + endpoint + (queryString ? "?" + queryString : "");
+
+  try {
+    const r = await fetch(url, {
+      headers: {
+        "X-BAPI-API-KEY":     BYBIT_KEY,
+        "X-BAPI-SIGN":        signature,
+        "X-BAPI-TIMESTAMP":   timestamp,
+        "X-BAPI-RECV-WINDOW": recvWindow,
+        "Content-Type":       "application/json",
+      },
+      signal: AbortSignal.timeout(12000),
+    });
+    const data = await r.json();
+    // Log de debug em caso de erro da Bybit
+    if (data.retCode && data.retCode !== 0) {
+      console.warn("Bybit API erro:", data.retCode, data.retMsg, "| endpoint:", endpoint);
+    }
+    res.json(data);
+  } catch(err) {
+    console.error("Bybit proxy erro:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Serve a página de análise Bybit
+
+app.get("/acs-bybit.html", (req, res) => serveFile("acs-bybit.html", res));
+
+app.get("/bybit-analise.html", (req, res) => {
+  // Serve acs-bybit.html (versão nova com scanner + login JS)
+  const f = findFile("acs-bybit.html") || findFile("bybit-analise.html");
+  if (!f) return res.status(404).send("Arquivo não encontrado");
+  res.sendFile(f);
 });
 
 // ══════════════════════════════════════════════
