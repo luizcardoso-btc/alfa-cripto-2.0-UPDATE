@@ -504,10 +504,22 @@ function calcScore(wy, rsi, macd, mtfData, candles, closes) {
 
 // ── Busca candles ─────────────────────────────────────────────────
 async function fetchCandles(symbol, interval, limit=220) {
-  const data = await bybitAPI("/v5/market/kline", { category:"linear", symbol, interval, limit:String(limit) });
-  return (data.result?.list || []).reverse().map(c=>({
-    t:parseInt(c[0]),o:parseFloat(c[1]),h:parseFloat(c[2]),l:parseFloat(c[3]),c:parseFloat(c[4]),v:parseFloat(c[5])
-  }));
+  // Dados de mercado são públicos — chama Bybit diretamente (mais rápido, sem auth)
+  const url = `https://api.bybit.com/v5/market/kline?category=linear&symbol=${symbol}&interval=${interval}&limit=${limit}`;
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    const data = await res.json();
+    if (data.retCode !== 0) throw new Error(data.retMsg);
+    return (data.result?.list || []).reverse().map(c=>({
+      t:parseInt(c[0]),o:parseFloat(c[1]),h:parseFloat(c[2]),l:parseFloat(c[3]),c:parseFloat(c[4]),v:parseFloat(c[5])
+    }));
+  } catch(e) {
+    // Fallback: tenta via proxy
+    const data = await bybitAPI("/v5/market/kline", { category:"linear", symbol, interval, limit:String(limit) });
+    return (data.result?.list || []).reverse().map(c=>({
+      t:parseInt(c[0]),o:parseFloat(c[1]),h:parseFloat(c[2]),l:parseFloat(c[3]),c:parseFloat(c[4]),v:parseFloat(c[5])
+    }));
+  }
 }
 
 // ── MTF rápido ────────────────────────────────────────────────────
