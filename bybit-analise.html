@@ -324,20 +324,51 @@ let currentModal = null;
 // ── Gate ─────────────────────────────────────────────────────────
 async function unlock() {
   const key = document.getElementById("keyInput").value.trim();
-  const res = await fetch("/api/admin/users", { headers:{"x-admin-key": key} });
-  if (!res.ok) { document.getElementById("gateErr").textContent = "Chave inválida."; return; }
-  ADMIN_KEY = key;
-  localStorage.setItem("bybit_key", key);
+  if (!key) { document.getElementById("gateErr").textContent = "Digite a Admin Key."; return; }
+  
+  const errEl = document.getElementById("gateErr");
+  errEl.textContent = "Verificando...";
+  
+  try {
+    const res = await fetch("/api/admin/users", { headers:{"x-admin-key": key} });
+    if (!res.ok) {
+      errEl.textContent = "Chave inválida. Verifique e tente novamente.";
+      return;
+    }
+    ADMIN_KEY = key;
+    // Salva com as duas chaves para compatibilidade
+    localStorage.setItem("bybit_key", key);
+    localStorage.setItem("acs_admin_key", key);
+    showApp();
+  } catch(e) {
+    errEl.textContent = "Erro de conexão: " + e.message;
+  }
+}
+
+function showApp() {
   document.getElementById("gate").style.display = "none";
   document.getElementById("app").style.display  = "block";
   loadAccount();
   loadPositions();
 }
-function logout() { localStorage.removeItem("bybit_key"); location.reload(); }
-if (ADMIN_KEY) {
-  document.getElementById("gate").style.display = "none";
-  document.getElementById("app").style.display  = "block";
-  loadAccount(); loadPositions();
+
+function logout() {
+  localStorage.removeItem("bybit_key");
+  localStorage.removeItem("acs_admin_key");
+  location.reload();
+}
+
+// Auto-login se já tem chave salva
+const savedKey = localStorage.getItem("bybit_key") || localStorage.getItem("acs_admin_key") || "";
+if (savedKey) {
+  ADMIN_KEY = savedKey;
+  // Valida a chave antes de mostrar o app
+  fetch("/api/admin/users", { headers:{"x-admin-key": savedKey} })
+    .then(r => {
+      if (r.ok) showApp();
+      else { localStorage.removeItem("bybit_key"); localStorage.removeItem("acs_admin_key"); }
+    })
+    .catch(() => {});
 }
 
 // Custom pairs toggle
