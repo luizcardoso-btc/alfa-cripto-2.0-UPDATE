@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ACS · Análise Bybit</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ── TOKENS ── */
+:root {
+  --bg:     #04060C;
+  --bg2:    #080C16;
+  --bg3:    #0C1120;
+  --bg4:    #101828;
+  --line:   rgba(255,255,255,.07);
+  --line2:  rgba(99,179,237,.2);
+  --green:  #00E676;
+  --red:    #FF3D6B;
+  --gold:   #FFD166;
+  --blue:   #60A5FA;
+  --purple: #A78BFA;
+  --text:   #C8D6E5;
+  --dim:    #4A5568;
+  --mono:   'JetBrains Mono', monospace;
+  --sans:   'Inter', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── GATE ── */
+#gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 0;
+  padding: 24px;
+}
+.gate-card {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 36px 32px;
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.gate-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.gate-logo svg { flex-shrink: 0; }
+.gate-logo-text { font-family: var(--mono); font-size: 13px; color: var(--text); }
+.gate-logo-text span { color: var(--green); display: block; font-size: 9px; letter-spacing: 2px; margin-top: 1px; }
+.gate-title { font-size: 18px; font-weight: 700; color: #fff; }
+.gate-sub { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 1px; }
+.gate-input {
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 11px 14px;
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 13px;
+  outline: none;
+  width: 100%;
+  transition: border-color .2s;
+}
+.gate-input:focus { border-color: var(--line2); }
+.gate-btn {
+  background: var(--green);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 700;
+  font-family: var(--sans);
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity .15s;
+  width: 100%;
+}
+.gate-btn:hover { opacity: .85; }
+.gate-btn:disabled { opacity: .4; cursor: not-allowed; }
+.gate-err { font-family: var(--mono); font-size: 11px; color: var(--red); min-height: 14px; }
+
+/* ── APP ── */
+#app { display: none; }
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: rgba(4,6,12,.92);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+}
+.topbar-brand { display: flex; align-items: center; gap: 10px; }
+.topbar-name { font-family: var(--mono); font-size: 13px; color: #fff; font-weight: 700; }
+.topbar-sub { font-family: var(--mono); font-size: 9px; color: var(--dim); letter-spacing: 1.5px; margin-top: 2px; }
+.dot-live { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── MAIN LAYOUT ── */
+.main { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+
+/* ── CONTROL BAR ── */
+.ctrl {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.ctrl-group { display: flex; flex-direction: column; gap: 5px; }
+.ctrl-label { font-family: var(--mono); font-size: 9px; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; }
+.ctrl-input, .ctrl-select {
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 12px;
+  outline: none;
+  transition: border-color .2s;
+  min-width: 110px;
+}
+.ctrl-input:focus, .ctrl-select:focus { border-color: var(--line2); }
+.ctrl-input { min-width: 140px; text-transform: uppercase; }
+.btn-analyze {
+  background: var(--blue);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 22px;
+  font-weight: 700;
+  font-family: var(--sans);
+  font-size: 13px;
+  cursor: pointer;
+  transition: .15s;
+  white-space: nowrap;
+  align-self: flex-end;
+}
+.btn-analyze:hover { filter: brightness(1.1); }
+.btn-analyze:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── GRID LAYOUT ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.card-title { font-family: var(--mono); font-size: 9px; color: var(--dim); letter-spacing: 1.5px; text-transform: uppercase; }
+.card-body { padding: 14px 16px; }
+
+/* ── STAT BOXES ── */
+.stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
+.stat {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+}
+.stat-val { font-family: var(--mono); font-size: 20px; font-weight: 700; color: #fff; display: block; line-height: 1; }
+.stat-lbl { font-size: 10px; color: var(--dim); margin-top: 5px; display: block; }
+
+/* ── CANVAS CHART ── */
+#chartWrap {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.chart-title { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 1px; }
+.chart-legend { display: flex; gap: 12px; }
+.legend-item { font-family: var(--mono); font-size: 9px; color: var(--dim); display: flex; align-items: center; gap: 4px; }
+.legend-line { width: 16px; height: 2px; border-radius: 1px; }
+canvas#chart { width: 100%; display: block; border-radius: 6px; }
+
+/* ── MTF TABLE ── */
+.mtf-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+}
+.mtf-row:last-child { border: none; }
+.mtf-tf { font-family: var(--mono); font-size: 11px; font-weight: 700; color: #fff; min-width: 36px; }
+.mtf-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: .5px;
+}
+.bull { background: rgba(0,230,118,.1); color: var(--green); border: 1px solid rgba(0,230,118,.2); }
+.bear { background: rgba(255,61,107,.1); color: var(--red);   border: 1px solid rgba(255,61,107,.2); }
+.mtf-diff { font-family: var(--mono); font-size: 10px; min-width: 56px; text-align: right; }
+.mtf-rsi  { font-family: var(--mono); font-size: 10px; min-width: 48px; text-align: right; }
+
+/* ── INDICADORES ── */
+.ind-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ind-item {
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.ind-label { font-family: var(--mono); font-size: 9px; color: var(--dim); letter-spacing: 1px; margin-bottom: 4px; }
+.ind-val { font-family: var(--mono); font-size: 13px; font-weight: 700; }
+
+/* ── S/R LEVELS ── */
+.sr-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.sr-item:last-child { border: none; }
+
+/* ── NÍVEIS OPERACIONAIS ── */
+.levels-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; margin-bottom: 16px; }
+.level-box {
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  border: 1px solid var(--line);
+}
+.level-lbl { font-family: var(--mono); font-size: 9px; color: var(--dim); letter-spacing: 1px; margin-bottom: 6px; display: block; }
+.level-val { font-family: var(--mono); font-size: 13px; font-weight: 700; display: block; }
+.level-pct { font-family: var(--mono); font-size: 10px; display: block; margin-top: 3px; }
+
+/* ── IA RESULT ── */
+.ia-box {
+  background: var(--bg2);
+  border: 1px solid rgba(167,139,250,.2);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.ia-head { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.ia-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--purple);
+  background: rgba(167,139,250,.08);
+  border: 1px solid rgba(167,139,250,.2);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.ia-text {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+.ia-text strong { color: #fff; }
+
+/* ── LOADING ── */
+.loading { display: flex; align-items: center; gap: 8px; color: var(--purple); font-family: var(--mono); font-size: 11px; }
+.dots span {
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--purple);
+  animation: dd .8s infinite;
+}
+.dots span:nth-child(2){animation-delay:.15s}
+.dots span:nth-child(3){animation-delay:.3s}
+@keyframes dd{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1);opacity:1}}
+
+/* ── MTF SCORE BAR ── */
+.score-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.score-num { font-family: var(--mono); font-size: 28px; font-weight: 700; min-width: 44px; }
+.score-track { flex: 1; height: 6px; background: rgba(255,255,255,.06); border-radius: 3px; overflow: hidden; }
+.score-fill { height: 100%; border-radius: 3px; transition: width .4s ease; }
+.score-label { font-family: var(--mono); font-size: 10px; color: var(--dim); min-width: 48px; text-align: right; }
+
+/* ── EMPTY ── */
+.empty { text-align: center; padding: 48px 24px; color: var(--dim); }
+.empty-icon { font-size: 36px; margin-bottom: 12px; }
+.empty-title { font-size: 16px; color: var(--text); margin-bottom: 6px; }
+.empty-sub { font-size: 13px; font-family: var(--mono); }
+
+/* ── UTIL ── */
+.green { color: var(--green); }
+.red   { color: var(--red);   }
+.gold  { color: var(--gold);  }
+.blue  { color: var(--blue);  }
+.dim   { color: var(--dim);   }
+.mono  { font-family: var(--mono); }
+.tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: .5px;
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  .stat-row    { grid-template-columns: 1fr 1fr; }
+  .grid-2      { grid-template-columns: 1fr; }
+  .levels-grid { grid-template-columns: repeat(3,1fr); }
+  .main        { padding: 16px 12px; }
+  .topbar      { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ GATE ══ -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-logo">
+      <svg width="36" height="36" viewBox="0 0 200 200" fill="none">
+        <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00E676"/><stop offset="100%" stop-color="#00B0FF"/></linearGradient></defs>
+        <circle cx="100" cy="100" r="77" stroke="url(#lg)" stroke-width="9" fill="none"/>
+        <rect x="78" y="14" width="11" height="23" rx="5.5" fill="url(#lg)"/>
+        <rect x="111" y="14" width="11" height="23" rx="5.5" fill="url(#lg)"/>
+        <rect x="78" y="163" width="11" height="23" rx="5.5" fill="url(#lg)"/>
+        <rect x="111" y="163" width="11" height="23" rx="5.5" fill="url(#lg)"/>
+        <polyline points="55,148 100,52 145,148" stroke="url(#lg)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div class="gate-logo-text">ACS SYSTEM<span>ANÁLISE · BYBIT · IA</span></div>
+    </div>
+    <div>
+      <div class="gate-title">Ferramenta de Análise</div>
+      <div class="gate-sub" style="margin-top:4px">WYCKOFF · MTF · EMA200 · CLAUDE AI</div>
+    </div>
+    <input class="gate-input" id="gKey" type="password" placeholder="Admin Key..." onkeydown="if(event.key==='Enter')login()"/>
+    <button class="gate-btn" id="gBtn" onclick="login()">ENTRAR</button>
+    <div class="gate-err" id="gErr"></div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="dot-live"></div>
+      <div>
+        <div class="topbar-name">ACS · Análise Bybit</div>
+        <div class="topbar-sub">WYCKOFF + MTF + IA</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--dim)" id="lastUpd"></span>
+      <button onclick="doLogout()" style="background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:6px;padding:5px 12px;color:var(--dim);font-size:12px;cursor:pointer;font-family:var(--mono)">sair</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- Controles -->
+    <div class="ctrl">
+      <div class="ctrl-group">
+        <div class="ctrl-label">Par</div>
+        <input class="ctrl-input" id="cPar" value="BTCUSDT" placeholder="Ex: BTCUSDT"/>
+      </div>
+      <div class="ctrl-group">
+        <div class="ctrl-label">Timeframe principal</div>
+        <select class="ctrl-select" id="cTF">
+          <option value="15">15 Minutos</option>
+          <option value="60" selected>1 Hora</option>
+          <option value="120">2 Horas</option>
+          <option value="240">4 Horas</option>
+          <option value="360">6 Horas</option>
+          <option value="720">12 Horas</option>
+          <option value="D">1 Dia</option>
+          <option value="W">Semanal</option>
+          <option value="M">Mensal</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <div class="ctrl-label">Método</div>
+        <select class="ctrl-select" id="cMetodo">
+          <option value="wyckoff">Wyckoff + SMC</option>
+          <option value="scalp">Scalp 15M/1H</option>
+          <option value="swing">Swing 4H/1D</option>
+          <option value="position">Position 1D/1W</option>
+        </select>
+      </div>
+      <button class="btn-analyze" id="btnAn" onclick="runAnalysis()">⚡ Analisar com IA</button>
+    </div>
+
+    <!-- Estado vazio -->
+    <div id="emptyState" class="empty">
+      <div class="empty-icon">📡</div>
+      <div class="empty-title">Pronto para analisar</div>
+      <div class="empty-sub">Escolha o par, timeframe e clique em Analisar com IA</div>
+    </div>
+
+    <!-- Resultados -->
+    <div id="results" style="display:none">
+
+      <!-- Stats do par -->
+      <div class="stat-row" id="statRow"></div>
+
+      <!-- Gráfico de velas -->
+      <div id="chartWrap">
+        <div class="chart-header">
+          <div class="chart-title" id="chartTitle">GRÁFICO DE VELAS</div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-line" style="background:var(--gold)"></div>EMA200</div>
+            <div class="legend-item"><div class="legend-line" style="background:var(--blue)"></div>EMA50</div>
+            <div class="legend-item"><div class="legend-line" style="background:var(--purple)"></div>EMA21</div>
+          </div>
+        </div>
+        <canvas id="chart"></canvas>
+        <div id="chartLegend" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"></div>
+      </div>
+
+      <!-- Níveis operacionais -->
+      <div id="levelsWrap" style="margin-bottom:16px"></div>
+
+      <!-- Grid: MTF + Indicadores + S/R -->
+      <div class="grid-2" style="margin-bottom:16px">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">MULTI-TIMEFRAME EMA200</div>
+            <div id="mtfScore" style="font-family:var(--mono);font-size:11px"></div>
+          </div>
+          <div class="card-body" id="mtfBody"></div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:12px">
+            <div class="card-head"><div class="card-title">INDICADORES</div></div>
+            <div class="card-body" id="indsBody"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">SUPORTE &amp; RESISTÊNCIA</div></div>
+            <div class="card-body" id="srBody"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Análise IA -->
+      <div class="ia-box" id="iaBox">
+        <div class="ia-head">
+          <span class="ia-badge">🤖 ANÁLISE IA — WYCKOFF + SMC</span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--dim)" id="iaTime"></span>
+        </div>
+        <div id="iaText"><div class="loading"><div class="dots"><span></span><span></span><span></span></div> Analisando com Claude...</div></div>
+      </div>
+
+    </div><!-- /results -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ══ CONFIG ════════════════════════════════════════════════════════
+const ADMIN_KEY_LOCAL = 'acs_bybit_key';
+const MTF_LIST = [
+  {tf:'15',  lbl:'15M'},
+  {tf:'60',  lbl:'1H'},
+  {tf:'120', lbl:'2H'},
+  {tf:'240', lbl:'4H'},
+  {tf:'360', lbl:'6H'},
+  {tf:'720', lbl:'12H'},
+  {tf:'D',   lbl:'1D'},
+  {tf:'3D',  lbl:'3D'},
+  {tf:'W',   lbl:'Semanal'},
+  {tf:'M',   lbl:'Mensal'},
+];
+
+let KEY = '';
+let lastLevels = {};
+let lastCandles = [];
+let lastCloses  = [];
+
+// ══ GATE ═════════════════════════════════════════════════════════
+async function login() {
+  const key = document.getElementById('gKey').value.trim();
+  const err = document.getElementById('gErr');
+  const btn = document.getElementById('gBtn');
+  if (!key) { err.textContent = 'Digite a Admin Key.'; return; }
+  err.textContent = '';
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+  try {
+    // Valida com rota protegida usando query param (funciona mesmo sem header CORS)
+    const res = await fetch('/api/admin/signals?key=' + encodeURIComponent(key));
+    if (res.status === 200) {
+      KEY = key;
+      localStorage.setItem(ADMIN_KEY_LOCAL, key);
+      enterApp();
+    } else if (res.status === 401 || res.status === 403) {
+      err.textContent = 'Chave inválida.';
+    } else {
+      // Qualquer outra resposta — tenta com header
+      const res2 = await fetch('/api/admin/signals', { headers: {'x-admin-key': key} });
+      if (res2.ok) {
+        KEY = key;
+        localStorage.setItem(ADMIN_KEY_LOCAL, key);
+        enterApp();
+      } else {
+        err.textContent = `Erro ${res2.status}. Verifique a chave.`;
+      }
+    }
+  } catch(e) {
+    err.textContent = 'Erro de conexão: ' + e.message;
+  }
+  btn.disabled = false;
+  btn.textContent = 'ENTRAR';
+}
+
+function enterApp() {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display  = 'block';
+}
+function doLogout() {
+  localStorage.removeItem(ADMIN_KEY_LOCAL);
+  KEY = '';
+  location.reload();
+}
+
+// Auto-login
+(async () => {
+  const saved = localStorage.getItem(ADMIN_KEY_LOCAL);
+  if (!saved) return;
+  try {
+    const r = await fetch('/api/admin/signals', { headers: {'x-admin-key': saved} });
+    if (r.ok) { KEY = saved; enterApp(); }
+    else localStorage.removeItem(ADMIN_KEY_LOCAL);
+  } catch {}
+})();
+
+// ══ INDICADORES ══════════════════════════════════════════════════
+const calcEMA = (arr, p) => {
+  const k = 2/(p+1); let e = arr[0];
+  return arr.map(v => (e = v*k + e*(1-k)));
+};
+const calcRSI = (c, p=14) => {
+  let g=0,l=0;
+  for(let i=1;i<=p;i++){const d=c[i]-c[i-1];d>0?g+=d:l-=d;}
+  let ag=g/p,al=l/p;
+  for(let i=p+1;i<c.length;i++){const d=c[i]-c[i-1];ag=(ag*(p-1)+(d>0?d:0))/p;al=(al*(p-1)+(d<0?-d:0))/p;}
+  return al===0?100:100-100/(1+ag/al);
+};
+const calcMACD = c => {
+  const m = calcEMA(c,12).map((v,i)=>v-calcEMA(c,26)[i]);
+  const s = calcEMA(m,9);
+  const h = m.map((v,i)=>v-s[i]);
+  return {macd:m.at(-1),signal:s.at(-1),hist:h.at(-1),histPrev:h.at(-2)};
+};
+const calcATR = (candles, p=14) => {
+  const trs = candles.slice(1).map((c,i) => Math.max(
+    c.h-c.l, Math.abs(c.h-candles[i].c), Math.abs(c.l-candles[i].c)
+  ));
+  return trs.slice(-p).reduce((a,b)=>a+b,0)/p;
+};
+const findSR = (candles, lb=20) => {
+  const H=candles.map(c=>c.h), L=candles.map(c=>c.l);
+  const sup=[], res=[];
+  for(let i=lb;i<candles.length-lb;i++){
+    if(L[i]===Math.min(...L.slice(i-lb,i+lb)) && !sup.find(s=>Math.abs(s-L[i])/L[i]<0.004)) sup.push(L[i]);
+    if(H[i]===Math.max(...H.slice(i-lb,i+lb)) && !res.find(r=>Math.abs(r-H[i])/H[i]<0.004)) res.push(H[i]);
+  }
+  return { sup:sup.slice(-4).sort((a,b)=>b-a), res:res.slice(-4).sort((a,b)=>a-b) };
+};
+
+// Wyckoff
+const detectWyckoff = (candles, closes, rsi) => {
+  const ema50  = calcEMA(closes,50).at(-1);
+  const ema200 = calcEMA(closes,200).at(-1);
+  const rHigh  = Math.max(...candles.slice(-50).map(c=>c.h));
+  const rLow   = Math.min(...candles.slice(-50).map(c=>c.l));
+  const cur    = closes.at(-1);
+  const pos    = (cur-rLow)/(rHigh-rLow||1);
+  const vols   = candles.map(c=>c.v);
+  const vAvg   = vols.slice(-20).reduce((a,b)=>a+b,0)/20;
+  const vTrend = vols.slice(-5).reduce((a,b)=>a+b,0)/5 < vAvg*.85;
+  const spring = candles.slice(-10).some((c,i,a)=>i>0&&c.l<a[i-1].l&&c.c>a[i-1].l&&pos<.3);
+  const upthrust=candles.slice(-10).some((c,i,a)=>i>0&&c.h>a[i-1].h&&c.c<a[i-1].h&&pos>.7);
+  let fase='INDEFINIDA';
+  if(pos<.3&&rsi<45&&vTrend)     fase='ACUMULAÇÃO';
+  else if(cur>ema200&&cur>ema50&&pos>.5&&rsi>50) fase='MARKUP';
+  else if(pos>.7&&rsi>55&&vTrend) fase='DISTRIBUIÇÃO';
+  else if(cur<ema200&&cur<ema50&&pos<.5&&rsi<50) fase='MARKDOWN';
+  return {fase,spring,upthrust,pos,ema50,ema200};
+};
+
+// ══ FETCH CANDLES ════════════════════════════════════════════════
+const fetchCandles = async (sym, tf, limit=250) => {
+  const url = `https://api.bybit.com/v5/market/kline?category=linear&symbol=${sym}&interval=${tf}&limit=${limit}`;
+  const r   = await fetch(url, {signal:AbortSignal.timeout(10000)});
+  const d   = await r.json();
+  if(d.retCode!==0) throw new Error(d.retMsg||'Bybit API error');
+  return (d.result?.list||[]).reverse().map(c=>({
+    t:+c[0],o:+c[1],h:+c[2],l:+c[3],c:+c[4],v:+c[5]
+  }));
+};
+
+// ══ CANVAS CHART ═════════════════════════════════════════════════
+function drawChart(candles, closes, levels) {
+  const canvas = document.getElementById('chart');
+  const W = canvas.parentElement.clientWidth - 28;
+  const H = 360;
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const last70 = candles.slice(-70);
+  const cur    = closes.at(-1);
+
+  // Expande range para incluir todos os níveis
+  const allVals = [
+    ...last70.map(c=>c.h), ...last70.map(c=>c.l),
+    ...Object.values(levels).filter(v=>typeof v==='number'&&v>0)
+  ];
+  const minP = Math.min(...allVals)*.997;
+  const maxP = Math.max(...allVals)*1.003;
+  const rng  = maxP - minP || 1;
+
+  const PL=10, PR=78, PT=14, PB=26;
+  const cW = W-PL-PR, cH = H-PT-PB;
+  const toY = p => PT + cH - ((p-minP)/rng)*cH;
+  const bW  = Math.max(2, Math.floor(cW/last70.length)-1);
+
+  // Fundo
+  ctx.fillStyle = '#070E1C';
+  ctx.fillRect(0,0,W,H);
+
+  // Grade
+  for(let i=0;i<=5;i++){
+    const y = PT + (cH/5)*i;
+    const p = maxP - (rng/5)*i;
+    ctx.strokeStyle = 'rgba(255,255,255,.04)';
+    ctx.lineWidth   = 1;
+    ctx.beginPath(); ctx.moveTo(PL,y); ctx.lineTo(W-PR,y); ctx.stroke();
+    ctx.fillStyle = 'rgba(100,116,139,.7)';
+    ctx.font = `9px 'JetBrains Mono'`;
+    ctx.fillText('$'+(p<1?p.toFixed(4):p.toFixed(2)), W-PR+4, y+3);
+  }
+
+  // EMAs
+  const e21  = calcEMA(closes,21);
+  const e50  = calcEMA(closes,50);
+  const e200 = calcEMA(closes,200);
+  const si   = closes.length - 70;
+  const drawEMA = (arr, col) => {
+    ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.setLineDash([]);
+    ctx.beginPath();
+    last70.forEach((_,i)=>{
+      const v = arr[si+i]; if(!v) return;
+      const x = PL+(i/(last70.length-1))*cW;
+      const y = toY(v);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  };
+  drawEMA(e21,  'rgba(167,139,250,.7)');
+  drawEMA(e50,  'rgba(96,165,250,.7)');
+  drawEMA(e200, 'rgba(255,209,102,.9)');
+
+  // Velas
+  last70.forEach((c,i)=>{
+    const x    = PL + (i/(last70.length-1))*cW - bW/2;
+    const bull = c.c >= c.o;
+    const col  = bull ? '#00E676' : '#FF3D6B';
+    ctx.strokeStyle = col; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x+bW/2, toY(c.h));
+    ctx.lineTo(x+bW/2, toY(c.l));
+    ctx.stroke();
+    ctx.fillStyle = bull ? 'rgba(0,230,118,.85)' : 'rgba(255,61,107,.85)';
+    const bT = Math.min(toY(c.o),toY(c.c));
+    ctx.fillRect(x, bT, bW, Math.max(1, Math.abs(toY(c.c)-toY(c.o))));
+  });
+
+  // Níveis
+  const drawLevel = (price, col, lbl, dash=[5,3]) => {
+    if(!price||price<=0) return;
+    const y = toY(price);
+    if(y<PT-5||y>H-PB+5) return;
+    ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.setLineDash(dash);
+    ctx.beginPath(); ctx.moveTo(PL,y); ctx.lineTo(W-PR,y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=col; ctx.font=`bold 9px 'JetBrains Mono'`;
+    ctx.fillText(lbl, W-PR+4, y-2);
+    ctx.fillStyle='rgba(255,255,255,.45)'; ctx.font=`8px 'JetBrains Mono'`;
+    ctx.fillText('$'+(price<1?price.toFixed(4):price.toFixed(2)), W-PR+4, y+9);
+  };
+
+  (levels.sup||[]).forEach(s=>drawLevel(s,'rgba(96,165,250,.5)','SUP',[3,5]));
+  (levels.res||[]).forEach(r=>drawLevel(r,'rgba(255,107,53,.5)','RES',[3,5]));
+  drawLevel(levels.sl,   '#FF3D6B',           'STOP',[6,3]);
+  drawLevel(levels.tp3,  'rgba(0,230,118,.5)','TP3', [5,3]);
+  drawLevel(levels.tp2,  'rgba(0,230,118,.7)','TP2', [5,3]);
+  drawLevel(levels.tp1,  'rgba(0,230,118,.9)','TP1', [5,3]);
+  if(levels.entry){
+    ctx.strokeStyle='rgba(255,255,255,.9)'; ctx.lineWidth=2; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(PL,toY(levels.entry)); ctx.lineTo(W-PR,toY(levels.entry)); ctx.stroke();
+    ctx.fillStyle='#fff'; ctx.font=`bold 9px 'JetBrains Mono'`;
+    ctx.fillText('ENTRADA', W-PR+4, toY(levels.entry)-2);
+    ctx.fillStyle='rgba(255,255,255,.45)'; ctx.font=`8px 'JetBrains Mono'`;
+    ctx.fillText('$'+(levels.entry<1?levels.entry.toFixed(4):levels.entry.toFixed(2)), W-PR+4, toY(levels.entry)+9);
+  }
+
+  // Preço atual
+  ctx.strokeStyle='rgba(255,255,255,.2)'; ctx.lineWidth=1; ctx.setLineDash([2,4]);
+  ctx.beginPath(); ctx.moveTo(PL,toY(cur)); ctx.lineTo(W-PR,toY(cur)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Eixo X
+  ctx.fillStyle='rgba(100,116,139,.6)'; ctx.font=`8px 'JetBrains Mono'`;
+  [0, Math.floor(last70.length/3), Math.floor(last70.length*2/3), last70.length-1].forEach(i=>{
+    const c2 = last70[i]; if(!c2) return;
+    const x = PL + (i/(last70.length-1))*cW;
+    const dt = new Date(c2.t).toLocaleString('pt-BR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    ctx.fillText(dt, x-18, H-8);
+  });
+}
+
+// Extrai níveis da IA
+function extractLevels(text, cur, dir) {
+  const L = {entry:null,sl:null,tp1:null,tp2:null,tp3:null};
+  const fn = rx => { const m=text.match(rx); return m?parseFloat(m[1].replace(/,/g,'.')):null; };
+  L.entry = fn(/[Ee]ntrada[^$\d]*\$?\s*([\d.,]+)/);
+  L.sl    = fn(/[Ss]top[^$\d]*\$?\s*([\d.,]+)/);
+  L.tp1   = fn(/TP1[^$\d]*\$?\s*([\d.,]+)/);
+  L.tp2   = fn(/TP2[^$\d]*\$?\s*([\d.,]+)/);
+  L.tp3   = fn(/TP3[^$\d]*\$?\s*([\d.,]+)/);
+  const isL = dir==='LONG';
+  if(!L.entry) L.entry = cur;
+  if(!L.sl)  L.sl  = isL ? cur*.98 : cur*1.02;
+  if(!L.tp1) L.tp1 = isL ? cur*1.03 : cur*.97;
+  if(!L.tp2) L.tp2 = isL ? cur*1.20 : cur*.80;
+  if(!L.tp3) L.tp3 = isL ? cur*1.40 : cur*.60;
+  return L;
+}
+
+// ══ ANÁLISE PRINCIPAL ════════════════════════════════════════════
+async function runAnalysis() {
+  const sym    = document.getElementById('cPar').value.trim().toUpperCase().replace('/','');
+  const tf     = document.getElementById('cTF').value;
+  const metodo = document.getElementById('cMetodo').value;
+  if(!sym) return;
+
+  const btn = document.getElementById('btnAn');
+  btn.disabled = true; btn.textContent = '⏳ Analisando...';
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('results').style.display    = '';
+  document.getElementById('iaText').innerHTML = '<div class="loading"><div class="dots"><span></span><span></span><span></span></div> Buscando dados da Bybit...</div>';
+
+  try {
+    // 1. Busca candles principal + MTF em paralelo
+    const [candles, ...mtfResults] = await Promise.all([
+      fetchCandles(sym, tf, 250),
+      ...MTF_LIST.map(({tf:t}) => fetchCandles(sym, t, 210).then(c=>{
+        const cl = c.map(x=>x.c);
+        const e  = calcEMA(cl,200).at(-1);
+        const r  = calcRSI(cl);
+        return {tf:t, lbl:MTF_LIST.find(x=>x.tf===t)?.lbl||t, ema200:e, rsi:r, above:cl.at(-1)>e, cur:cl.at(-1)};
+      }).catch(()=>null),
+    ]);
+
+    const closes = candles.map(c=>c.c);
+    const cur    = closes.at(-1);
+    const pF     = v => v<0.0001?v.toExponential(4):v<1?v.toFixed(6):v<100?v.toFixed(4):v<10000?v.toFixed(2):v.toLocaleString('en-US',{maximumFractionDigits:0});
+    const ema21  = calcEMA(closes,21).at(-1);
+    const ema50  = calcEMA(closes,50).at(-1);
+    const ema200 = calcEMA(closes,200).at(-1);
+    const rsi    = calcRSI(closes);
+    const macd   = calcMACD(closes);
+    const atr    = calcATR(candles);
+    const sr     = findSR(candles);
+    const wy     = detectWyckoff(candles, closes, rsi);
+    const mtfOk  = mtfResults.filter(Boolean);
+    const bullTFs= mtfOk.filter(t=>t.above).length;
+    const dir    = (cur>ema200&&rsi>50&&macd.hist>0)?'LONG':(cur<ema200&&rsi<50&&macd.hist<0)?'SHORT':'NEUTRO';
+
+    lastCandles = candles; lastCloses = closes;
+
+    // Stats
+    const chg24 = ((cur - candles[0].c)/candles[0].c*100);
+    const dirCol = dir==='LONG'?'var(--green)':dir==='SHORT'?'var(--red)':'var(--dim)';
+    document.getElementById('statRow').innerHTML = [
+      {v:`$${pF(cur)}`,          l:'PREÇO ATUAL',     c:'#fff'},
+      {v:`${chg24>=0?'+':''}${chg24.toFixed(2)}%`, l:`VARIAÇÃO (${MTF_LIST.find(x=>x.tf===tf)?.lbl||tf})`, c:chg24>=0?'var(--green)':'var(--red)'},
+      {v:dir,                    l:'DIREÇÃO',         c:dirCol},
+      {v:`${wy.fase}`,           l:'FASE WYCKOFF',    c:wy.fase==='ACUMULAÇÃO'||wy.fase==='MARKUP'?'var(--green)':wy.fase==='INDEFINIDA'?'var(--dim)':'var(--red)'},
+    ].map(s=>`<div class="stat"><span class="stat-val" style="color:${s.c}">${s.v}</span><span class="stat-lbl">${s.l}</span></div>`).join('');
+
+    // Indicadores
+    document.getElementById('indsBody').innerHTML = `
+      <div class="ind-grid">
+        ${[
+          {l:'RSI (14)',  v:rsi.toFixed(1),    c:rsi>70?'var(--red)':rsi<30?'var(--green)':'var(--text)'},
+          {l:'MACD',     v:macd.hist>0?'BULL ↑':'BEAR ↓', c:macd.hist>0?'var(--green)':'var(--red)'},
+          {l:'EMA21',    v:'$'+pF(ema21),  c:cur>ema21?'var(--green)':'var(--red)'},
+          {l:'EMA50',    v:'$'+pF(ema50),  c:cur>ema50?'var(--green)':'var(--red)'},
+          {l:'EMA200',   v:'$'+pF(ema200), c:cur>ema200?'var(--green)':'var(--red)'},
+          {l:'ATR (14)', v:'$'+pF(atr),    c:'var(--text)'},
+          {l:'SPRING',   v:wy.spring?'SIM ⚡':'—', c:wy.spring?'var(--green)':'var(--dim)'},
+          {l:'UPTHRUST', v:wy.upthrust?'SIM ⚠️':'—', c:wy.upthrust?'var(--red)':'var(--dim)'},
+        ].map(x=>`<div class="ind-item"><div class="ind-label">${x.l}</div><div class="ind-val" style="color:${x.c}">${x.v}</div></div>`).join('')}
+      </div>`;
+
+    // S/R
+    const allSR = [
+      ...sr.res.map(r=>({v:r,t:'RES',c:'var(--red)'})),
+      ...sr.sup.map(s=>({v:s,t:'SUP',c:'var(--blue)'})),
+    ].sort((a,b)=>b.v-a.v);
+    document.getElementById('srBody').innerHTML = allSR.map(n=>`
+      <div class="sr-item">
+        <span class="tag ${n.t==='RES'?'bear':'bull'}">${n.t}</span>
+        <span class="mono" style="color:#fff">$${pF(n.v)}</span>
+        <span class="mono dim">${((n.v-cur)/cur*100).toFixed(2)}%</span>
+      </div>`).join('');
+
+    // MTF
+    const score = bullTFs;
+    const sCol  = score>=7?'var(--green)':score>=5?'var(--gold)':'var(--red)';
+    document.getElementById('mtfScore').innerHTML = `<span style="color:${sCol};font-weight:700">${score}/${mtfOk.length}</span>`;
+    document.getElementById('mtfBody').innerHTML = `
+      <div class="score-wrap">
+        <div class="score-num" style="color:${sCol}">${score}</div>
+        <div class="score-track"><div class="score-fill" style="width:${(score/mtfOk.length*100).toFixed(0)}%;background:${sCol}"></div></div>
+        <div class="score-label">${score>=7?'FORTE':score>=5?'MÉDIO':'FRACO'}</div>
+      </div>
+      ${mtfOk.map(t=>{
+        const diff = ((cur-t.ema200)/t.ema200*100).toFixed(1);
+        const rCol = t.rsi>70?'var(--red)':t.rsi<30?'var(--green)':'var(--dim)';
+        return `<div class="mtf-row">
+          <span class="mtf-tf">${t.lbl}</span>
+          <span class="mtf-badge ${t.above?'bull':'bear'}">${t.above?'▲ BULL':'▼ BEAR'}</span>
+          <span class="mtf-diff" style="color:${t.above?'var(--green)':'var(--red)'}">${t.above?'+':''}${diff}%</span>
+          <span class="mtf-rsi" style="color:${rCol}">RSI ${t.rsi.toFixed(0)}</span>
+        </div>`;
+      }).join('')}`;
+
+    // Gráfico inicial com níveis estimados
+    const initLevels = {
+      entry: cur,
+      sl:    dir==='LONG'?cur*(1-atr/cur*2):cur*(1+atr/cur*2),
+      tp1:   dir==='LONG'?cur*1.03:cur*.97,
+      tp2:   dir==='LONG'?cur*1.20:cur*.80,
+      tp3:   dir==='LONG'?cur*1.40:cur*.60,
+      sup: sr.sup, res: sr.res,
+    };
+    document.getElementById('chartTitle').textContent = `GRÁFICO DE VELAS · ${sym} · ${MTF_LIST.find(x=>x.tf===tf)?.lbl||tf} · ÚLTIMAS 70 VELAS`;
+    setTimeout(()=>drawChart(candles, closes, initLevels), 30);
+    renderLevels(initLevels, cur, dir, pF, true);
+
+    // Contexto para Claude
+    const ctx2 = `ANÁLISE TÉCNICA — ${sym} | ${MTF_LIST.find(x=>x.tf===tf)?.lbl||tf} | ${new Date().toLocaleString('pt-BR')}
+Método: ${metodo.toUpperCase()}
+
+PREÇO ATUAL: $${pF(cur)}
+EMA21:  $${pF(ema21)} — ${cur>ema21?'ACIMA':'ABAIXO'}
+EMA50:  $${pF(ema50)} — ${cur>ema50?'ACIMA':'ABAIXO'}
+EMA200: $${pF(ema200)} — ${cur>ema200?'ACIMA ✅':'ABAIXO ⛔'}
+
+RSI(14): ${rsi.toFixed(2)} — ${rsi>70?'SOBRECOMPRADO ⚠️':rsi<30?'SOBREVENDIDO ⚠️':'NEUTRO'}
+MACD Histograma: ${macd.hist>0?'+':''}${macd.hist.toFixed(8)} ${macd.hist>macd.histPrev?'↑ crescendo':'↓ caindo'}
+ATR(14): $${pF(atr)} (${(atr/cur*100).toFixed(2)}% do preço)
+
+WYCKOFF:
+- Fase: ${wy.fase}
+- Posição no range 50 candles: ${(wy.pos*100).toFixed(0)}% (0=fundo, 100=topo)
+- Spring detectado: ${wy.spring?'SIM ⚡':'NÃO'}
+- Upthrust detectado: ${wy.upthrust?'SIM ⚠️':'NÃO'}
+
+MTF EMA200 — ${bullTFs}/${mtfOk.length} timeframes acima:
+${mtfOk.map(t=>`  ${t.lbl}: ${t.above?'ACIMA':'ABAIXO'} EMA200 (${((t.cur-t.ema200)/t.ema200*100).toFixed(1)}%) | RSI ${t.rsi.toFixed(0)}`).join('\n')}
+
+SUPORTES: ${sr.sup.map(s=>'$'+pF(s)).join(' | ')||'—'}
+RESISTÊNCIAS: ${sr.res.map(r=>'$'+pF(r)).join(' | ')||'—'}`;
+
+    // Chama Claude
+    document.getElementById('iaText').innerHTML = '<div class="loading"><div class="dots"><span></span><span></span><span></span></div> Claude analisando Wyckoff + SMC...</div>';
+
+    const iaRes = await fetch('/api/claude', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-admin-key': KEY},
+      body: JSON.stringify({
+        max_tokens: 2000,
+        system: `Você é um analista técnico sênior especializado em Wyckoff + SMC para futuros cripto na Bybit.
+
+RETORNE SEMPRE os níveis numéricos neste formato exato no início da resposta:
+
+NÍVEIS OPERACIONAIS:
+Entrada ideal: $VALOR
+Stop Loss: $VALOR
+TP1: $VALOR
+TP2: $VALOR
+TP3: $VALOR
+R/R: X:1
+
+Em seguida, analise com profundidade:
+
+📊 LEITURA WYCKOFF
+[Fase exata, estrutura de preço, Spring/Upthrust, o que o volume indica]
+
+🎯 CONTEXTO TÉCNICO
+[RSI, MACD, EMAs — confluências e divergências entre indicadores]
+
+⚡ CONFLUÊNCIA MTF
+[Quais timeframes confirmam? Quais divergem? Qual o peso de cada um?]
+
+📍 GESTÃO DA OPERAÇÃO
+[Como entrar, onde colocar SL, estratégia de saída parcial nos TPs]
+
+⚠️ INVALIDAÇÕES
+[O que invalida o setup? Níveis críticos que não podem ser rompidos]
+
+✅ VEREDICTO
+Operação: LONG / SHORT / AGUARDAR
+Confiança: X/10
+[Justificativa em 1-2 linhas objetivas]`,
+        messages: [{role:'user', content: ctx2}],
+      }),
+    });
+
+    const iaData = await iaRes.json();
+    const iaText = (iaData.content||[]).map(b=>b.text||'').join('');
+
+    // Extrai níveis e atualiza gráfico
+    const lvls = extractLevels(iaText, cur, dir);
+    lvls.sup = sr.sup; lvls.res = sr.res;
+    lastLevels = lvls;
+    setTimeout(()=>drawChart(candles, closes, lvls), 30);
+    renderLevels(lvls, cur, dir, pF, false);
+
+    // Renderiza texto IA
+    document.getElementById('iaTime').textContent = new Date().toLocaleTimeString('pt-BR');
+    const formatted = iaText
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br/>');
+    document.getElementById('iaText').innerHTML = `<div class="ia-text">${formatted}</div>`;
+
+  } catch(e) {
+    document.getElementById('iaText').innerHTML = `<div class="mono" style="color:var(--red)">Erro: ${e.message}</div>`;
+  }
+
+  btn.disabled = false; btn.textContent = '⚡ Analisar com IA';
+  document.getElementById('lastUpd').textContent = new Date().toLocaleTimeString('pt-BR');
+}
+
+// Renderiza caixas de níveis
+function renderLevels(lvls, cur, dir, pF, isPending) {
+  const boxes = [
+    {l:'STOP LOSS', v:lvls.sl,    c:'var(--red)'},
+    {l:'ENTRADA',   v:lvls.entry, c:'#fff'},
+    {l:'TP1',       v:lvls.tp1,   c:'rgba(0,230,118,.7)'},
+    {l:'TP2',       v:lvls.tp2,   c:'rgba(0,230,118,.9)'},
+    {l:'TP3',       v:lvls.tp3,   c:'var(--green)'},
+  ].map(n=>{
+    const pct = n.v&&cur?((n.v-cur)/cur*100):0;
+    const fmt = n.v?'$'+(n.v<1?n.v.toFixed(6):n.v.toFixed(2)):'—';
+    return `<div class="level-box" style="background:${n.l==='STOP LOSS'?'rgba(255,61,107,.06)':n.l==='ENTRADA'?'var(--bg3)':'rgba(0,230,118,.04)'}">
+      <span class="level-lbl">${n.l}</span>
+      <span class="level-val" style="color:${n.c}">${fmt}</span>
+      ${n.v&&n.l!=='ENTRADA'?`<span class="level-pct" style="color:${pct>=0?'var(--green)':'var(--red)'}">${pct>=0?'+':''}${pct.toFixed(2)}%</span>`:''}
+    </div>`;
+  }).join('');
+
+  document.getElementById('levelsWrap').innerHTML = `
+    <div style="background:${isPending?'rgba(167,139,250,.04)':'rgba(0,230,118,.03)'};border:1px solid ${isPending?'rgba(167,139,250,.2)':'rgba(0,230,118,.15)'};border-radius:12px;padding:14px">
+      <div style="font-family:var(--mono);font-size:9px;color:${isPending?'var(--purple)':'var(--green)'};letter-spacing:1.5px;margin-bottom:10px">
+        ${isPending?'⏳ NÍVEIS ESTIMADOS (IA calculando...)':'📍 NÍVEIS OPERACIONAIS — MARCADOS NO GRÁFICO'}
+      </div>
+      <div class="levels-grid">${boxes}</div>
+    </div>`;
+
+  // Legenda abaixo do gráfico
+  document.getElementById('chartLegend').innerHTML = [
+    lvls.sl    ? {t:'STOP $'   +(lvls.sl<1?lvls.sl.toFixed(4):lvls.sl.toFixed(2)),   c:'var(--red)'}   : null,
+    lvls.entry ? {t:'ENTRADA $'+(lvls.entry<1?lvls.entry.toFixed(4):lvls.entry.toFixed(2)), c:'#fff'}  : null,
+    lvls.tp1   ? {t:'TP1 $'   +(lvls.tp1<1?lvls.tp1.toFixed(4):lvls.tp1.toFixed(2)),   c:'rgba(0,230,118,.7)'}: null,
+    lvls.tp2   ? {t:'TP2 $'   +(lvls.tp2<1?lvls.tp2.toFixed(4):lvls.tp2.toFixed(2)),   c:'rgba(0,230,118,.9)'}: null,
+    lvls.tp3   ? {t:'TP3 $'   +(lvls.tp3<1?lvls.tp3.toFixed(4):lvls.tp3.toFixed(2)),   c:'var(--green)'}      : null,
+  ].filter(Boolean).map(n=>
+    `<span style="font-family:var(--mono);font-size:10px;color:${n.c};background:rgba(255,255,255,.04);padding:3px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.06)">${n.t}</span>`
+  ).join('');
+}
+
+// Enter para analisar
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && document.getElementById('app').style.display!=='none' && document.activeElement?.id==='cPar') runAnalysis();
+});
+</script>
+</body>
+</html>
