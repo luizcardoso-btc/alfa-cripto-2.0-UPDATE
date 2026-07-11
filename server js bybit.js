@@ -410,10 +410,10 @@ app.get("/api/admin/reports", requireAdmin, (req, res) => {
 // ══════════════════════════════════════════════
 const crypto_mod = require("crypto");
 
-function bybitSign(params, secret, timestamp, recvWindow = "5000") {
-  const paramStr = timestamp + (process.env.BYBIT_API_KEY||"") + recvWindow +
-    Object.keys(params).sort().map(k => k+"="+params[k]).join("&");
-  return crypto_mod.createHmac("sha256", secret).update(paramStr).digest("hex");
+function bybitSign(queryString, secret, timestamp, recvWindow = "5000") {
+  // Bybit v5: timestamp + apiKey + recvWindow + queryString
+  const paramStr = timestamp + (process.env.BYBIT_API_KEY||"") + recvWindow + queryString;
+  return require("crypto").createHmac("sha256", secret).update(paramStr).digest("hex");
 }
 
 app.get("/api/bybit/proxy", requireAdmin, async (req, res) => {
@@ -429,15 +429,17 @@ app.get("/api/bybit/proxy", requireAdmin, async (req, res) => {
 
   const timestamp  = String(Date.now());
   const recvWindow = "5000";
-  const signature  = bybitSign(params, BYBIT_SECRET, timestamp, recvWindow);
 
-  // Monta query string
-  const qs = Object.keys(params).length
-    ? "?" + Object.keys(params).map(k => k+"="+encodeURIComponent(params[k])).join("&")
+  // Monta query string preservando ordem original
+  const queryString = Object.keys(params).length
+    ? Object.keys(params).map(k => k + "=" + encodeURIComponent(params[k])).join("&")
     : "";
 
+  const signature = bybitSign(queryString, BYBIT_SECRET, timestamp, recvWindow);
+  const url = "https://api.bybit.com" + endpoint + (queryString ? "?" + queryString : "");
+
   try {
-    const r = await fetch("https://api.bybit.com" + endpoint + qs, {
+    const r = await fetch(url, {
       headers: {
         "X-BAPI-API-KEY":     BYBIT_KEY,
         "X-BAPI-SIGN":        signature,
@@ -445,11 +447,16 @@ app.get("/api/bybit/proxy", requireAdmin, async (req, res) => {
         "X-BAPI-RECV-WINDOW": recvWindow,
         "Content-Type":       "application/json",
       },
-      signal: AbortSignal.timeout(10000),
+      signal: AbortSignal.timeout(12000),
     });
     const data = await r.json();
+    // Log de debug em caso de erro da Bybit
+    if (data.retCode && data.retCode !== 0) {
+      console.warn("Bybit API erro:", data.retCode, data.retMsg, "| endpoint:", endpoint);
+    }
     res.json(data);
   } catch(err) {
+    console.error("Bybit proxy erro:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
