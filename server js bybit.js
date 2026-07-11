@@ -272,6 +272,13 @@ app.post("/api/auth/change-password", auth.requireAuth, (req, res) => {
 // ══════════════════════════════════════════════
 // ADMIN — Usuários
 // ══════════════════════════════════════════════
+
+// Rota de ping para validar admin key (usada pelo bybit-analise.html)
+app.get("/api/admin/ping", requireAdmin, (req, res) => {
+  res.json({ ok: true, ts: Date.now() });
+});
+
+
 app.get("/api/admin/users", requireAdmin, (req, res) => {
   res.json({ users: db.users.all().map(sanitizeUser) });
 });
@@ -462,7 +469,7 @@ app.get("/api/bybit/proxy", requireAdmin, async (req, res) => {
 });
 
 // Serve a página de análise Bybit
-app.get("/bybit-analise.html", requireAdmin, (req, res) => serveFile("bybit-analise.html", res));
+app.get("/bybit-analise.html", (req, res) => serveFile("bybit-analise.html", res)); // auth feita via JS interno
 
 // ══════════════════════════════════════════════
 // PROXY CLAUDE (protegido por sessão)
