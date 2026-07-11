@@ -702,36 +702,49 @@ async function closeSignal(id) {
   const sig = allSignals.find(s => s.id === id);
   if (!sig) return;
 
-  // Pergunta o resultado
+  // Sugestão baseada no alvo atingido
+  const suggestion = sig.hit > 0 && sig.targets?.[sig.hit-1]
+    ? String(parseFloat((sig.targets[sig.hit-1]||"0").replace(/[^0-9.-]/g,"")))
+    : "";
+
   const resultado = prompt(
-    `Fechar sinal #${id} — ${sig.pair}\n\n` +
-    `Qual foi o resultado?\n\n` +
-    `Digite:\n` +
-    `  • Um número positivo para LUCRO  (ex: 40 para +40%)\n` +
-    `  • Um número negativo para LOSS   (ex: -3 para -3%)\n` +
-    `  • 0 para BREAKEVEN\n` +
-    `  • Deixe vazio para cancelar`,
-    sig.hit > 0 ? String(parseFloat((sig.targets?.[sig.hit-1]||"0").replace(/[^0-9.-]/g,""))) : ""
+    `Fechar sinal #${id} — ${sig.pair}\n` +
+    `Alvos atingidos: ${sig.hit}/${(sig.targets||[]).length}\n\n` +
+    `Digite o resultado (obrigatório):\n` +
+    `  • Positivo = LUCRO  (ex: 40 → +40%)\n` +
+    `  • Negativo = LOSS   (ex: -3 → -3%)\n` +
+    `  • 0 = BREAKEVEN`,
+    suggestion
   );
-  if (resultado === null) return; // cancelou
 
-  const pct    = parseFloat(resultado);
-  const isLoss = pct < 0;
-  const status = isLoss ? "loss" : "profit";
-  const profitPct = isLoss ? resultado+"%" : "+"+Math.abs(pct)+"%";
-  const now    = new Date().toISOString();
+  if (resultado === null || resultado.trim() === "") return; // cancelou
 
-  await fetch(`/api/admin/signals/${id}`, {
+  const pct       = parseFloat(resultado);
+  if (isNaN(pct)) { alert("Valor inválido. Digite um número."); return; }
+
+  const isLoss    = pct < 0;
+  const isBE      = pct === 0;
+  const status    = isLoss ? "loss" : "profit";
+  const profitPct = isLoss ? pct+"%" : isBE ? "0%" : "+"+Math.abs(pct).toFixed(1)+"%";
+  const now       = new Date().toISOString();
+  const duration  = calcDuration(sig.created_at, now);
+
+  const res = await fetch(`/api/admin/signals/${id}`, {
     method:"PATCH",
     headers:{"Content-Type":"application/json","x-admin-key":ADMIN_KEY},
     body: JSON.stringify({
       status,
-      profit_pct:  isLoss ? null : profitPct,
+      profit_pct:  profitPct,
       result_pct:  pct,
       closed_at:   now,
-      time_to_hit: calcDuration(sig.created_at, now),
+      time_to_hit: duration,
     }),
   });
+
+  if (!res.ok) {
+    alert("Erro ao fechar sinal.");
+    return;
+  }
   loadSignals();
 }
 
