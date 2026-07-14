@@ -475,9 +475,16 @@ app.get("/api/bybit/proxy", requireAdmin, async (req, res) => {
 
 // Serve a página de análise Bybit
 
+app.get('/acs-scanner-pro.html', (req, res) => serveFile('acs-scanner-pro.html', res));
+
 app.get("/acs-bybit.html", (req, res) => serveFile("acs-bybit.html", res));
 
-app.get("/bybit-analise.html", (req, res) => serveFile("bybit-analise.html", res)); // auth feita via JS interno
+app.get("/bybit-analise.html", (req, res) => {
+  // Serve acs-bybit.html (versão nova com scanner + login JS)
+  const f = findFile("acs-bybit.html") || findFile("bybit-analise.html");
+  if (!f) return res.status(404).send("Arquivo não encontrado");
+  res.sendFile(f);
+});
 
 // ══════════════════════════════════════════════
 // PROXY CLAUDE (protegido por sessão)
