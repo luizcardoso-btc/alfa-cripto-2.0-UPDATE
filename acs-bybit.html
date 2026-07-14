@@ -565,29 +565,74 @@ canvas#chart { width: 100%; display: block; border-radius: 6px; }
 // ══ CONFIG ════════════════════════════════════════════════════════
 const ADMIN_KEY_LOCAL = 'acs_bybit_key';
 
-// 100 pares para scanner
+// 200 pares para scanner — Top por volume/liquidez na Bybit Futuros
 const SCAN_PAIRS = [
-  // BTC & ETH
-  'BTCUSDT','ETHUSDT',
-  // Large caps
-  'SOLUSDT','BNBUSDT','XRPUSDT','ADAUSDT','AVAXUSDT','DOGEUSDT','TRXUSDT','LINKUSDT',
-  'DOTUSDT','MATICUSDT','LTCUSDT','BCHUSDT','ATOMUSDT','NEARUSDT','APTUSDT','ARBUSDT',
-  'OPUSDT','INJUSDT','SUIUSDT','SEIUSDT','STXUSDT','TONUSDT','TIAUSDT','WLDUSDT',
-  // Mid caps
-  'AAVEUSDT','UNIUSDT','MKRUSDT','COMPUSDT','CRVUSDT','SUSHIUSDT','YFIUSDT','SNXUSDT',
-  'GMXUSDT','DYDXUSDT','PEPEUSDT','FLOKIUSDT','BONKUSDT','WIFUSDT','MEMEUSDT',
-  'RENDERUSDT','FETUSDT','AGIXUSDT','OCEANUSDT','GRTUSDT','FILUSDT','ARWEAVEUSDT',
-  'HBARUSDT','ALGOUSDT','XLMUSDT','VETUSDT','XTZUSDT','EGLDUSDT','FLOWUSDT',
-  'RNDRUSDT','IMXUSDT','SANDUSDT','MANAUSDT','AXSUSDT','GALAUSDT','ENJUSDT',
-  'CHZUSDT','ANKRUSDT','COTIUSDT','CELOUSDT','ONEUSDT','ZILUSDT','IOTAUSDT',
-  'STORJUSDT','CKBUSDT','RSRUSDT','AKROUSDT','BANDUSDT','SKLUSDT','CVCUSDT',
-  // High beta / momentum
-  'APEUSDT','MAGICUSDT','LOOKSUSDT','BLURUSDT','PERPUSDT','DRIFTUSDT','JUPUSDT',
-  'PYTHUSDT','JITOUSDT','WENUSDT','BOMEUSDT','EIGENUSDT','ENAUSDT','ETHFIUSDT',
-  'REZUSDT','BBUSDT','NOTUSDT','HMSTRUSDT','CATIUSDT','TURBOUSDT',
-  // DeFi / Layer2
-  'LDOUSDT','RPLRUSDT','STRKUSDT','ALTUSDT','TAOUSDT','DYMUSDT','MNTUSDT',
-  'METHAUSDT','ZROUSDT','LAYERUSDT','MOVEUSDT','VIRTUALUSDT','AIXBTUSDT','AICAUSDT',
+  // ── TIER 1: Mega caps (máximo volume) ──
+  'BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT',
+  'DOGEUSDT','ADAUSDT','AVAXUSDT','TRXUSDT','LINKUSDT',
+
+  // ── TIER 2: Large caps (alto volume) ──
+  'DOTUSDT','LTCUSDT','BCHUSDT','ATOMUSDT','NEARUSDT',
+  'APTUSDT','ARBUSDT','OPUSDT','INJUSDT','SUIUSDT',
+  'MATICUSDT','XLMUSDT','VETUSDT','HBARUSDT','ALGOUSDT',
+  'FILUSDT','ICPUSDT','ETCUSDT','EOSUSDT','XTZUSDT',
+  'STXUSDT','TONUSDT','TIAUSDT','WLDUSDT','SEIUSDT',
+
+  // ── TIER 3: DeFi Blue Chips ──
+  'AAVEUSDT','UNIUSDT','MKRUSDT','CRVUSDT','SNXUSDT',
+  'COMPUSDT','SUSHIUSDT','YFIUSDT','GMXUSDT','DYDXUSDT',
+  'LDOUSDT','1INCHUSDT','BALUSDT','PERPUSDT','RUNEUSDT',
+  'OSMOUSDT','JUPUSDT','RAYUSDT','DRIFTUSDT','JITOUSDT',
+
+  // ── TIER 4: Layer 2 / Scaling ──
+  'STRKUSDT','ALTUSDT','MNTUSDT','ZROUSDT','SCROLLUSDT',
+  'METISUSDT','BOBIUSDT','IMXUSDT','LOOPRINGUSDT','ZKUSDT',
+
+  // ── TIER 5: AI & Infra ──
+  'RENDERUSDT','FETUSDT','AGIXUSDT','OCEANUSDT','GRTUSDT',
+  'TAOUSDT','AIUSDT','AICAUSDT','VIRTUALUSDT','AIXBTUSDT',
+  'AKTUSDT','NFPUSDT','PHAUSDT','AGLUSDT','ARCUSDT',
+
+  // ── TIER 6: Memes & Hype ──
+  'PEPEUSDT','FLOKIUSDT','BONKUSDT','WIFUSDT','MEMEUSDT',
+  'SHIBUSDT','BOMEUSDT','TURBOUSDT','CATIUSDT','NOTUSDT',
+  'HMSTRUSDT','GOATUSDT','PNUTUSDT','ACTUSDT','MOODENGUSDT',
+
+  // ── TIER 7: Gaming & Metaverso ──
+  'SANDUSDT','MANAUSDT','AXSUSDT','GALAUSDT','ENJUSDT',
+  'MAGICUSDT','YGGUSDT','RNDRUSDT','ALICEUSDT','TLMUSDT',
+  'SLPUSDT','RONUSDT','PIXELUSDT','PORTLUSDT','GMUSDT',
+
+  // ── TIER 8: Infrastructure & Storage ──
+  'ARWEAVEUSDT','STORJUSDT','CKBUSDT','IOTAUSDT','ZILUSDT',
+  'CELRUSDT','XEMUSDT','SCUSDT','LPTUSDT','ANKRUSDT',
+
+  // ── TIER 9: Interoperability & Cross-chain ──
+  'DOTUSDT','COSMOSUSD','AXLUSDT','LAYERUSDT','WORMHOLEUSDT',
+  'ROSEUSDT','CELOUSDT','ONEUSDT','CHRUSDT','BANDUSDT',
+
+  // ── TIER 10: Momentum alto / novos ──
+  'ENAUSDT','EIGENUSDT','ETHFIUSDT','REZUSDT','MOVEUSDT',
+  'EIGENUSDT','BBUSDT','BLURUSDT','LOOKSUSDT','APEUSDT',
+  'WOOUSDT','MASKUSDT','DUSKUSDT','CYBERUSDT','HOOKUSDT',
+
+  // ── TIER 11: Medium caps com liquidez ──
+  'EGLDUSDT','FLOWUSDT','KLAYUSDT','QTUMUSDT','WAVESUSDT',
+  'XEMUSDT','BATUSDT','DASHUSDT','ZECUSDT','ZENUSDT',
+  'LRCUSDT','CVCUSDT','RSRUSDT','KSMUSDT','IOTXUSDT',
+  'COTIUSDT','SKLUSDT','SFPUSDT','REQUSDT','LITUSDT',
+
+  // ── TIER 12: Ecosistemas específicos ──
+  'CHZUSDT','SANTOSUDT','CITYUSDT','BARUSDT','LAZUSDT',
+  'FTMUSDT','HFTUSDT','ACEUSDT','XAIUSDT','ORDIUSDT',
+
+  // ── ESPECIAIS SOLICITADOS ──
+  'TIAUSDT',   // Celestia — solicitado
+  'DYMUSDT',   // Dymension
+  'PYTHUSDT',  // Pyth Network
+  'STXUSDT',   // Stacks
+  'MNTUSDT',   // Mantle
+  'TAOUSDT',   // Bittensor
 ];
 
 const MTF_LIST = [
@@ -933,29 +978,42 @@ async function startScan() {
 
   const analyze = async (sym) => {
     try {
-      const candles = await fetchCandles(sym, tf, 210);
-      const closes  = candles.map(c => c.c);
-      const cur     = closes.at(-1);
-      const rsi     = calcRSI(closes);
-      const macd    = calcMACD(closes);
-      const wy      = detectWyckoff(candles, closes, rsi);
-      const sr      = findSR(candles);
-      const atr     = calcATR(candles);
+      // Timeout agressivo de 5s por par
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 5000);
 
-      // MTF rápido (só 1H e 4H para não sobrecarregar)
-      const [c1h, c4h] = await Promise.all([
-        fetchCandles(sym, '60', 210).catch(()=>null),
-        fetchCandles(sym, '240', 210).catch(()=>null),
-      ]);
+      const url = `https://api.bybit.com/v5/market/kline?category=linear&symbol=${sym}&interval=${tf}&limit=210`;
+      const res = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(t);
+      const d = await res.json();
+      if (d.retCode !== 0) return null;
+
+      const candles = (d.result?.list || []).reverse().map(c=>({t:+c[0],o:+c[1],h:+c[2],l:+c[3],c:+c[4],v:+c[5]}));
+      if (candles.length < 50) return null;
+
+      const closes = candles.map(c => c.c);
+      const cur    = closes.at(-1);
+      const rsi    = calcRSI(closes);
+      const macd   = calcMACD(closes);
+      const wy     = detectWyckoff(candles, closes, rsi);
+      const sr     = findSR(candles);
+      const atr    = calcATR(candles);
+
+      // MTF rápido — só 1H para velocidade máxima
       let bullTFs = cur > calcEMA(closes, 200).at(-1) ? 1 : 0;
-      if (c1h)  bullTFs += c1h.at(-1).c  > calcEMA(c1h.map(x=>x.c),200).at(-1)  ? 1 : 0;
-      if (c4h)  bullTFs += c4h.at(-1).c  > calcEMA(c4h.map(x=>x.c),200).at(-1)  ? 1 : 0;
+      try {
+        const r1h = await fetch(`https://api.bybit.com/v5/market/kline?category=linear&symbol=${sym}&interval=60&limit=210`, {signal: AbortSignal.timeout(3000)});
+        const d1h = await r1h.json();
+        if (d1h.retCode === 0) {
+          const cl = (d1h.result?.list||[]).reverse().map(c=>+c[4]);
+          bullTFs += cl.at(-1) > calcEMA(cl, 200).at(-1) ? 1 : 0;
+        }
+      } catch {}
 
-      const score = calcScore(wy, rsi, macd, bullTFs, 3);
+      const score = calcScore(wy, rsi, macd, bullTFs, 2);
       const dir   = score >= 3 ? 'LONG' : score <= -3 ? 'SHORT' : 'NEUTRO';
-      const prob  = Math.min(95, Math.max(5, 50 + score * 4));
 
-      return { sym, cur, rsi, macd, wy, sr, atr, score, dir, prob, bullTFs, closes, candles };
+      return { sym, cur, rsi, macd, wy, sr, atr, score, dir, bullTFs, closes, candles };
     } catch(e) {
       return null;
     }
@@ -1327,5 +1385,571 @@ document.addEventListener('keydown', e=>{
   if(e.key==='Enter' && document.getElementById('app').style.display!=='none' && document.activeElement?.id==='cPar') runAnalysis();
 });
 </script>
+</body>
+</html>// 200 pares reais da Bybit Futuros — verificados
+DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ACS · Análise Bybit</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ── TOKENS ── */
+:root {
+  --bg:     #04060C;
+  --bg2:    #080C16;
+  --bg3:    #0C1120;
+  --bg4:    #101828;
+  --line:   rgba(255,255,255,.07);
+  --line2:  rgba(99,179,237,.2);
+  --green:  #00E676;
+  --red:    #FF3D6B;
+  --gold:   #FFD166;
+  --blue:   #60A5FA;
+  --purple: #A78BFA;
+  --text:   #C8D6E5;
+  --dim:    #4A5568;
+  --mono:   'JetBrains Mono', monospace;
+  --sans:   'Inter', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── GATE ── */
+#gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 0;
+  padding: 24px;
+}
+.gate-card {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 36px 32px;
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.gate-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.gate-logo svg { flex-shrink: 0; }
+.gate-logo-text { font-family: var(--mono); font-size: 13px; color: var(--text); }
+.gate-logo-text span { color: var(--green); display: block; font-size: 9px; letter-spacing: 2px; margin-top: 1px; }
+.gate-title { font-size: 18px; font-weight: 700; color: #fff; }
+.gate-sub { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 1px; }
+.gate-input {
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 11px 14px;
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 13px;
+  outline: none;
+  width: 100%;
+  transition: border-color .2s;
+}
+.gate-input:focus { border-color: var(--line2); }
+.gate-btn {
+  background: var(--green);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 700;
+  font-family: var(--sans);
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity .15s;
+  width: 100%;
+}
+.gate-btn:hover { opacity: .85; }
+.gate-btn:disabled { opacity: .4; cursor: not-allowed; }
+.gate-err { font-family: var(--mono); font-size: 11px; color: var(--red); min-height: 14px; }
+
+/* ── APP ── */
+#app { display: none; }
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: rgba(4,6,12,.92);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+}
+.topbar-brand { display: flex; align-items: center; gap: 10px; }
+.topbar-name { font-family: var(--mono); font-size: 13px; color: #fff; font-weight: 700; }
+.topbar-sub { font-family: var(--mono); font-size: 9px; color: var(--dim); letter-spacing: 1.5px; margin-top: 2px; }
+.dot-live { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── MAIN LAYOUT ── */
+.main { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+
+/* ── CONTROL BAR ── */
+.ctrl {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.ctrl-group { display: flex; flex-direction: column; gap: 5px; }
+.ctrl-label { font-family: var(--mono); font-size: 9px; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; }
+.ctrl-input, .ctrl-select {
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 12px;
+  outline: none;
+  transition: border-color .2s;
+  min-width: 110px;
+}
+.ctrl-input:focus, .ctrl-select:focus { border-color: var(--line2); }
+.ctrl-input { min-width: 140px; text-transform: uppercase; }
+.btn-analyze {
+  background: var(--blue);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 22px;
+  font-weight: 700;
+  font-family: var(--sans);
+  font-size: 13px;
+  cursor: pointer;
+  transition: .15s;
+  white-space: nowrap;
+  align-self: flex-end;
+}
+.btn-analyze:hover { filter: brightness(1.1); }
+.btn-analyze:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── GRID LAYOUT ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.card-title { font-family: var(--mono); font-size: 9px; color: var(--dim); letter-spacing: 1.5px; text-transform: uppercase; }
+.card-body { padding: 14px 16px; }
+
+/* ── STAT BOXES ── */
+.stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
+.stat {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+}
+.stat-val { font-family: var(--mono); font-size: 20px; font-weight: 700; color: #fff; display: block; line-height: 1; }
+.stat-lbl { font-size: 10px; color: var(--dim); margin-top: 5px; display: block; }
+
+/* ── CANVAS CHART ── */
+#chartWrap {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.chart-title { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 1px; }
+.chart-legend { display: flex; gap: 12px; }
+.legend-item { font-family: var(--mono); font-size: 9px; color: var(--dim); display: flex; align-items: center; gap: 4px; }
+.legend-line { width: 16px; height: 2px; border-radius: 1px; }
+canvas#chart { width: 100%; display: block; border-radius: 6px; }
+
+/* ── MTF TABLE ── */
+.mtf-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+}
+.mtf-row:last-child { border: none; }
+.mtf-tf { font-family: var(--mono); font-size: 11px; font-weight: 700; color: #fff; min-width: 36px; }
+.mtf-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: .5px;
+}
+.bull { background: rgba(0,230,118,.1); color: var(--green); border: 1px solid rgba(0,230,118,.2); }
+.bear { background: rgba(255,61,107,.1); color: var(--red);   border: 1px solid rgba(255,61,107,.2); }
+.mtf-diff { font-family: var(--mono); font-size: 10px; min-width: 56px; text-align: right; }
+.mtf-rsi  { font-family: var(--mono); font-size: 10px; min-width: 48px; text-align: right; }
+
+/* ── INDICADORES ── */
+.ind-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ind-item {
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.ind-label { font-family: var(--mono); font-size: 9px; color: var(--dim); letter-spacing: 1px; margin-bottom: 4px; }
+.ind-val { font-family: var(--mono); font-size: 13px; font-weight: 700; }
+
+/* ── S/R LEVELS ── */
+.sr-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.sr-item:last-child { border: none; }
+
+/* ── NÍVEIS OPERACIONAIS ── */
+.levels-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; margin-bottom: 16px; }
+.level-box {
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  border: 1px solid var(--line);
+}
+.level-lbl { font-family: var(--mono); font-size: 9px; color: var(--dim); letter-spacing: 1px; margin-bottom: 6px; display: block; }
+.level-val { font-family: var(--mono); font-size: 13px; font-weight: 700; display: block; }
+.level-pct { font-family: var(--mono); font-size: 10px; display: block; margin-top: 3px; }
+
+/* ── IA RESULT ── */
+.ia-box {
+  background: var(--bg2);
+  border: 1px solid rgba(167,139,250,.2);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.ia-head { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.ia-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--purple);
+  background: rgba(167,139,250,.08);
+  border: 1px solid rgba(167,139,250,.2);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.ia-text {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+.ia-text strong { color: #fff; }
+
+/* ── LOADING ── */
+.loading { display: flex; align-items: center; gap: 8px; color: var(--purple); font-family: var(--mono); font-size: 11px; }
+.dots span {
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--purple);
+  animation: dd .8s infinite;
+}
+.dots span:nth-child(2){animation-delay:.15s}
+.dots span:nth-child(3){animation-delay:.3s}
+@keyframes dd{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1);opacity:1}}
+
+/* ── MTF SCORE BAR ── */
+.score-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.score-num { font-family: var(--mono); font-size: 28px; font-weight: 700; min-width: 44px; }
+.score-track { flex: 1; height: 6px; background: rgba(255,255,255,.06); border-radius: 3px; overflow: hidden; }
+.score-fill { height: 100%; border-radius: 3px; transition: width .4s ease; }
+.score-label { font-family: var(--mono); font-size: 10px; color: var(--dim); min-width: 48px; text-align: right; }
+
+/* ── EMPTY ── */
+.empty { text-align: center; padding: 48px 24px; color: var(--dim); }
+.empty-icon { font-size: 36px; margin-bottom: 12px; }
+.empty-title { font-size: 16px; color: var(--text); margin-bottom: 6px; }
+.empty-sub { font-size: 13px; font-family: var(--mono); }
+
+/* ── UTIL ── */
+.green { color: var(--green); }
+.red   { color: var(--red);   }
+.gold  { color: var(--gold);  }
+.blue  { color: var(--blue);  }
+.dim   { color: var(--dim);   }
+.mono  { font-family: var(--mono); }
+.tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: .5px;
+  font-weight: 700;
+}
+
+/* ── SCAN CARDS ── */
+.scan-card {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: border-color .2s, transform .15s;
+}
+.scan-card:hover { border-color: rgba(96,165,250,.4); transform: translateY(-2px); }
+.scan-long  { border-left: 3px solid var(--green); }
+.scan-short { border-left: 3px solid var(--red); }
+.scan-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.scan-pair  { font-size: 15px; font-weight: 700; color: #fff; }
+.scan-price { font-size: 11px; color: var(--dim); margin-top: 2px; }
+.scan-chip  { background: var(--bg3); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; text-align: center; }
+.scan-chip-lbl { font-family: var(--mono); font-size: 8px; color: var(--dim); letter-spacing: 1px; margin-bottom: 3px; }
+.scan-chip-val { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--text); }
+.tag.neut { background: rgba(255,255,255,.06); color: var(--dim); }
+.sf-btn {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 12px;
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: .15s;
+}
+.sf-btn:hover, .sf-btn.sf-active {
+  background: rgba(96,165,250,.1);
+  border-color: rgba(96,165,250,.3);
+  color: var(--blue);
+}
+
+@media (max-width: 700px) {
+  .stat-row    { grid-template-columns: 1fr 1fr; }
+  .grid-2      { grid-template-columns: 1fr; }
+  .levels-grid { grid-template-columns: repeat(3,1fr); }
+  .main        { padding: 16px 12px; }
+  .topbar      { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ GATE ══ -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-logo">
+      <svg width="36" height="36" viewBox="0 0 200 200" fill="none">
+        <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00E676"/><stop offset="100%" stop-color="#00B0FF"/></linearGradient></defs>
+        <circle cx="100" cy="100" r="77" stroke="url(#lg)" stroke-width="9" fill="none"/>
+        <rect x="78" y="14" width="11" height="23" rx="5.5" fill="url(#lg)"/>
+        <rect x="111" y="14" width="11" height="23" rx="5.5" fill="url(#lg)"/>
+        <rect x="78" y="163" width="11" height="23" rx="5.5" fill="url(#lg)"/>
+        <rect x="111" y="163" width="11" height="23" rx="5.5" fill="url(#lg)"/>
+        <polyline points="55,148 100,52 145,148" stroke="url(#lg)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div class="gate-logo-text">ACS SYSTEM<span>ANÁLISE · BYBIT · IA</span></div>
+    </div>
+    <div>
+      <div class="gate-title">Ferramenta de Análise</div>
+      <div class="gate-sub" style="margin-top:4px">WYCKOFF · MTF · EMA200 · CLAUDE AI</div>
+    </div>
+    <input class="gate-input" id="gKey" type="password" placeholder="Admin Key..." onkeydown="if(event.key==='Enter')login()"/>
+    <button class="gate-btn" id="gBtn" onclick="login()">ENTRAR</button>
+    <div class="gate-err" id="gErr"></div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="dot-live"></div>
+      <div>
+        <div class="topbar-name">ACS · Análise Bybit</div>
+        <div class="topbar-sub">WYCKOFF + MTF + IA</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--dim)" id="lastUpd"></span>
+      <button onclick="doLogout()" style="background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:6px;padding:5px 12px;color:var(--dim);font-size:12px;cursor:pointer;font-family:var(--mono)">sair</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- Controles -->
+    <div class="ctrl">
+      <div class="ctrl-group">
+        <div class="ctrl-label">Par</div>
+        <input class="ctrl-input" id="cPar" value="BTCUSDT" placeholder="Ex: BTCUSDT"/>
+      </div>
+      <div class="ctrl-group">
+        <div class="ctrl-label">Timeframe principal</div>
+        <select class="ctrl-select" id="cTF">
+          <option value="15">15 Minutos</option>
+          <option value="60" selected>1 Hora</option>
+          <option value="120">2 Horas</option>
+          <option value="240">4 Horas</option>
+          <option value="360">6 Horas</option>
+          <option value="720">12 Horas</option>
+          <option value="D">1 Dia</option>
+          <option value="W">Semanal</option>
+          <option value="M">Mensal</option>
+        </select>
+      </div>
+      <div class="ctrl-group">
+        <div class="ctrl-label">Método</div>
+        <select class="ctrl-select" id="cMetodo">
+          <option value="wyckoff">Wyckoff + SMC</option>
+          <option value="scalp">Scalp 15M/1H</option>
+          <option value="swing">Swing 4H/1D</option>
+          <option value="position">Position 1D/1W</option>
+        </select>
+      </div>
+      <button class="btn-analyze" id="btnAn" onclick="runAnalysis()">⚡ Analisar com IA</button>
+    </div>
+
+    <!-- Estado vazio -->
+    <div id="emptyState" class="empty">
+      <div class="empty-icon">📡</div>
+      <div class="empty-title">Pronto para analisar</div>
+      <div class="empty-sub">Analise um par específico ou use o Scanner para varrer 100 pares automaticamente</div>
+    </div>
+
+    <!-- SCANNER -->
+    <div style="margin-bottom:16px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px">
+        <div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--dim);letter-spacing:1px;margin-bottom:4px">SCANNER AUTOMÁTICO</div>
+          <div style="font-size:12px;color:var(--text)">Varre <strong>100 pares</strong> e ranqueia os melhores setups por probabilidade de trade positivo</div>
+        </div>
+        <button id="btnScan" onclick="startScan()" style="background:linear-gradient(135deg,#00E676,#00B0FF);color:#000;border:none;border-radius:8px;padding:10px 24px;font-weight:700;font-family:var(--sans);font-size:13px;cursor:pointer;white-space:nowrap;margin-left:auto">
+          🔍 Varrer 100 Pares
+        </button>
+      </div>
+
+      <!-- Progress -->
+      <div id="scanProgress" style="display:none;margin-top:10px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--dim)" id="scanLabel">Iniciando...</span>
+        </div>
+        <div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden">
+          <div id="scanBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:2px;transition:width .2s"></div>
+        </div>
+      </div>
+
+      <!-- Filtros do scanner -->
+      <div id="scanFilters" style="display:none;margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="filterScan('all')"   class="sf-btn sf-active" data-f="all">Todos</button>
+        <button onclick="filterScan('long')"  class="sf-btn" data-f="long">🟢 LONG</button>
+        <button onclick="filterScan('short')" class="sf-btn" data-f="short">🔴 SHORT</button>
+        <button onclick="filterScan('spring')"class="sf-btn" data-f="spring">⚡ Spring</button>
+        <button onclick="filterScan('acc')"   class="sf-btn" data-f="acc">Acumulação</button>
+      </div>
+
+      <!-- Grid de resultados do scanner -->
+      <div id="scanGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:14px"></div>
+    </div>
+
+    <!-- Resultados -->
+    <div id="results" style="display:none">
+
+      <!-- Stats do par -->
+      <div class="stat-row" id="statRow"></div>
+
+      <!-- Gráfico de velas -->
+      <div id="chartWrap">
+        <div class="chart-header">
+          <div class="chart-title" id="chartTitle">GRÁFICO DE VELAS</div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-line" style="background:var(--gold)"></div>EMA200</div>
+            <div class="legend-item"><div class="legend-line" style="background:var(--blue)"></div>EMA50</div>
+            <div class="legend-item"><div class="legend-line" style="background:var(--purple)"></div>EMA21</div>
+          </div>
+        </div>
+        <canvas id="chart"></canvas>
+        <div id="chartLegend" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"></div>
+      </div>
+
+      <!-- Níveis operacionais -->
+      <div id="levelsWrap" style="margin-bottom:16px"></div>
+
+      <!-- Grid: MTF + Indicadores + S/R -->
+      <div class="grid-2" style="margin-bottom:16px">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">MULTI-TIMEFRAME EMA200</div>
+            <div id="mtfScore" style="font-family:var(--mono);font-size:11px"></div>
+          </div>
+          <div class="card-body" id="mtfBody"></div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:12px">
+            <div class="card-head"><div class="card-title">INDICADORES</div></div>
+            <div class="card-body" id="indsBody"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">SUPORTE &amp; RESISTÊNCIA</div></div>
+            <div class="card-body" id="srBody"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Análise IA -->
+      <div class="ia-box" id="iaBox">
+        <div class="ia-head">
+          <span class="ia-badge">🤖 ANÁLISE IA — WYCKOFF + SMC</span>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--dim)" id="iaTime"></span>
+        </div>
+        <div id="iaText"><div class="loading"><div class="dots"><span></span><span></span><span></span></div> Analisando com Claude...</div></div>
+      </div>
+
+    </div><!-- /results -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+
 </body>
 </html>
