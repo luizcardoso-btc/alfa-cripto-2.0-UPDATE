@@ -564,6 +564,56 @@ app.get("/api/bybit/proxy", requireAdmin, async (req, res) => {
 
 app.get('/acs-scanner-pro.html', (req, res) => serveFile('acs-scanner-pro.html', res));
 
+// ══════════════════════════════════════════════════════════
+// COMUNIDADE — Posts de imagem com aprovação do admin
+// ══════════════════════════════════════════════════════════
+
+// Lista posts aprovados (usuário autenticado)
+app.get("/api/community/posts", auth.requireAuth, (req, res) => {
+  res.json({ posts: db.communityPosts.approved() });
+});
+
+// Envia novo post — vai para fila de aprovação
+app.post("/api/community/posts", auth.requireAuth, (req, res) => {
+  const user    = res.locals.user;
+  const { image, caption } = req.body || {};
+  if (!image)
+    return res.status(400).json({ error: "missing_image", message: "Envie uma imagem." });
+  if (image.length > 6 * 1024 * 1024)
+    return res.status(413).json({ error: "too_large", message: "Imagem muito grande. Máximo 5MB." });
+
+  const post = db.communityPosts.create({
+    user_id:   user.id,
+    user_name: user.name || user.email.split("@")[0],
+    image,
+    caption,
+  });
+  res.json({ ok: true, post: { id: post.id, status: post.status } });
+});
+
+// ADMIN — lista todos os posts (pending + approved + rejected)
+app.get("/api/admin/community", requireAdmin, (req, res) => {
+  res.json({ posts: db.communityPosts.all() });
+});
+
+// ADMIN — aprova ou rejeita post
+app.patch("/api/admin/community/:id", requireAdmin, (req, res) => {
+  const id     = Number(req.params.id);
+  const { status } = req.body || {};
+  if (!["approved", "rejected"].includes(status))
+    return res.status(400).json({ error: "invalid_status", message: "Status deve ser approved ou rejected." });
+  const post = db.communityPosts.update(id, { status });
+  if (!post) return res.status(404).json({ error: "not_found" });
+  res.json({ ok: true, post });
+});
+
+// ADMIN — deleta post
+app.delete("/api/admin/community/:id", requireAdmin, (req, res) => {
+  const deleted = db.communityPosts.delete(Number(req.params.id));
+  res.json({ ok: deleted });
+});
+
+
 app.get('/acs-meta-ads.html', (req, res) => serveFile('acs-meta-ads.html', res));
 
 app.get("/acs-bybit.html", (req, res) => serveFile("acs-bybit.html", res));
