@@ -29,18 +29,18 @@
 
 /* ── TEMA DIURNO (padrão) ── */
 :root, body.theme-day {
-  --bg:       #F0F4F0;
+  --bg:       #F2F4F2;
   --bg2:      #FFFFFF;
-  --bg3:      #E8F0E8;
-  --bg4:      #DDE8DD;
-  --border:   #C8D8C8;
-  --border2:  #A8C4A8;
-  --text:     #1A2A1A;
-  --text2:    #3A5A3A;
-  --text3:    #5A7A5A;
-  --text4:    #7A9A7A;
-  --text5:    #9ABB9A;
-  --text6:    #C8D8C8;
+  --bg3:      #EAEEEA;
+  --bg4:      #DEE6DE;
+  --border:   #C4D4C4;
+  --border2:  #A0BCA0;
+  --text:     #0A0A0A;
+  --text2:    #1A1A1A;
+  --text3:    #333333;
+  --text4:    #555555;
+  --text5:    #777777;
+  --text6:    #999999;
   --green:    #00a844;
   --green2:   #008833;
   --green-dim:#00a84415;
@@ -1247,3 +1247,506 @@ body.theme-day .upgrade-plan { background: #F8FAF8; border-color: #C8D8C8; }
 body.theme-day .upgrade-plan.featured { background: #F0FFF5; border-color: rgba(0,168,68,.3); }
 body.theme-day .uplan-price { color: #1A2A1A; }
 body.theme-day .upgrade-sub { color: #556655; }
+
+/* ══════════════════════════════════════════════
+   ABA HISTÓRICO COMPLETO
+   ══════════════════════════════════════════════ */
+
+/* Stats topo */
+.hist-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.hist-stat {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 10px;
+  text-align: center;
+}
+.hist-stat-val {
+  display: block;
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+.hist-stat-lbl {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: .5px;
+  margin-top: 4px;
+}
+
+/* Filtros */
+.hist-filter-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.hist-f {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text3);
+  cursor: pointer;
+  transition: .15s;
+  white-space: nowrap;
+}
+.hist-f:hover, .hist-f.active {
+  background: var(--green-dim);
+  border-color: var(--green-bd);
+  color: var(--green);
+}
+.hist-search-wrap { flex: 1; min-width: 120px; }
+.hist-search {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  outline: none;
+}
+.hist-search:focus { border-color: var(--green-bd); }
+
+/* Cards de trade no histórico */
+.trade-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .15s;
+}
+.trade-card:hover { border-color: var(--border2); }
+.trade-card.tc-profit { border-left: 3px solid var(--green); }
+.trade-card.tc-loss   { border-left: 3px solid var(--red);   }
+.trade-card.tc-closed { border-left: 3px solid var(--text4); }
+
+/* Coluna de resultado */
+.tc-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  text-align: center;
+}
+.tc-pct {
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+.tc-pct.green { color: var(--green); }
+.tc-pct.red   { color: var(--red);   }
+.tc-pct.dim   { color: var(--text3); }
+.tc-status-lbl {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: .5px;
+  margin-top: 4px;
+  color: var(--text4);
+}
+
+/* Coluna principal */
+.tc-main { flex: 1; min-width: 0; }
+.tc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+.tc-pair {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.tc-time {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text4);
+  text-align: right;
+}
+.tc-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 6px; }
+.tc-data {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.tc-field {
+  display: flex;
+  flex-direction: column;
+}
+.tc-field label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--text4);
+  letter-spacing: .5px;
+  margin-bottom: 1px;
+}
+.tc-field span {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text2);
+}
+
+/* Alvos */
+.tc-targets {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+/* Duração do trade */
+.tc-duration {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text4);
+  margin-top: 4px;
+}
+
+/* Tema dia */
+body.theme-day .hist-stat      { background: #fff; border-color: #C8D8C8; }
+body.theme-day .hist-f         { background: #F4FAF4; border-color: #C8D8C8; color: #556655; }
+body.theme-day .hist-f.active  { background: rgba(0,168,68,.08); border-color: rgba(0,168,68,.3); color: #007733; }
+body.theme-day .trade-card     { background: #fff; border-color: #C8D8C8; }
+body.theme-day .trade-card:hover { border-color: #90C890; }
+body.theme-day .hist-search    { background: #F4FAF4; border-color: #C8D8C8; color: #1A2A1A; }
+
+/* ═══════════════════════════════════════════════════
+   ABA PLANOS — Pro e Premium
+   ═══════════════════════════════════════════════════ */
+
+.planos-wrap { padding: 4px 0 100px; }
+.planos-header { text-align: center; margin-bottom: 24px; padding: 0 4px; }
+.planos-trial-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  background: var(--green-dim);
+  border: 1px solid var(--green-bd);
+  color: var(--green);
+  letter-spacing: 1px;
+  min-height: 24px;
+}
+.planos-title {
+  font-family: var(--font-head);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  letter-spacing: -.3px;
+}
+.planos-sub { font-size: 13px; color: var(--text3); line-height: 1.6; }
+.planos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.plano-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px 16px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.plano-card.plano-featured {
+  border-color: var(--green-bd);
+  box-shadow: 0 0 24px rgba(0,200,100,.08);
+}
+body.theme-night .plano-card.plano-featured {
+  background: linear-gradient(155deg, rgba(0,255,136,.04), var(--bg2));
+}
+.plano-card.plano-featured::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+}
+.plano-badge-top {
+  position: absolute;
+  top: 0; right: 16px;
+  background: var(--gold);
+  color: #000;
+  font-size: 8px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 0 0 8px 8px;
+  font-family: var(--font-mono);
+  letter-spacing: .5px;
+}
+.plano-tag {
+  font-family: var(--font-head);
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 2px;
+  margin-top: 8px;
+  letter-spacing: -.5px;
+}
+.plano-tag.featured { color: var(--green); }
+.plano-period {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text4);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.plano-desc {
+  font-size: 12px;
+  color: var(--text3);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.plano-features {
+  list-style: none;
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.95;
+  flex: 1;
+  margin-bottom: 18px;
+}
+.plano-features li { padding: 0; }
+.plano-features strong { color: var(--text); font-weight: 600; }
+.plano-btn {
+  display: block;
+  text-align: center;
+  padding: 13px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: .2s;
+  font-family: var(--font-body);
+  margin-bottom: 8px;
+}
+.plano-btn-pro {
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border2);
+}
+.plano-btn-pro:hover {
+  border-color: var(--green-bd);
+  color: var(--green);
+}
+.plano-btn-premium {
+  background: var(--green);
+  color: #000;
+  box-shadow: 0 3px 16px rgba(0,200,100,.25);
+}
+.plano-btn-premium:hover {
+  opacity: .88;
+  transform: translateY(-1px);
+}
+.plano-guarantee {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text4);
+}
+.planos-footer {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text4);
+  padding: 4px 8px;
+  margin-top: 8px;
+}
+.planos-footer strong { color: var(--text2); }
+
+/* Tema dia — planos */
+body.theme-day .plano-card { background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+body.theme-day .plano-card.plano-featured { background: #F4FFF8; border-color: rgba(0,168,68,.3); }
+body.theme-day .plano-btn-pro { background: #F4F4F4; color: #111; border-color: #C4D4C4; }
+body.theme-day .plano-btn-pro:hover { color: #007733; border-color: rgba(0,168,68,.4); }
+
+/* ═══════════════════════════════════════════════════
+   ABA COMUNIDADE
+   ═══════════════════════════════════════════════════ */
+
+.comunidade-wrap { padding: 4px 0 100px; }
+.com-post-btn-wrap { text-align: center; margin-bottom: 16px; }
+.com-post-btn {
+  background: var(--green);
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: .15s;
+  box-shadow: 0 2px 12px rgba(0,200,100,.2);
+}
+.com-post-btn:hover { opacity: .85; }
+.com-form-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.com-form-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+.com-form-group { margin-bottom: 12px; }
+.com-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text4);
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.com-textarea {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  resize: none;
+  min-height: 60px;
+  outline: none;
+}
+.com-textarea:focus { border-color: var(--green-bd); }
+.com-upload-area {
+  background: var(--bg3);
+  border: 2px dashed var(--border2);
+  border-radius: 10px;
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--text3);
+  transition: .2s;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.com-upload-area:hover {
+  border-color: var(--green-bd);
+  background: var(--green-dim);
+}
+.com-form-actions { display: flex; gap: 8px; }
+.com-cancel-btn {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--text3);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+.com-submit-btn {
+  flex: 2;
+  background: var(--green);
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  color: #000;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+.com-submit-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Posts */
+.com-post {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.com-post-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px 8px;
+}
+.com-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--green), var(--purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #000;
+  flex-shrink: 0;
+}
+.com-user-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.com-post-date { font-family: var(--font-mono); font-size: 10px; color: var(--text4); }
+.com-post-img {
+  width: 100%;
+  display: block;
+  max-height: 380px;
+  object-fit: cover;
+  background: var(--bg3);
+}
+.com-post-caption {
+  padding: 10px 14px 14px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+.com-pending-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  background: rgba(255,170,0,.1);
+  color: var(--yellow);
+  border: 1px solid rgba(255,170,0,.2);
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* Tema dia — comunidade */
+body.theme-day .com-form-wrap { background: #fff; border-color: #C4D4C4; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+body.theme-day .com-upload-area { background: #F4F4F4; border-color: #B0C8B0; color: #333; }
+body.theme-day .com-textarea { background: #F8FAF8; color: #0A0A0A; border-color: #C4D4C4; }
+body.theme-day .com-post { background: #fff; border-color: #C4D4C4; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+body.theme-day .com-cancel-btn { color: #333; border-color: #C4D4C4; }
+body.theme-day .com-cancel-btn:hover { background: #F0F0F0; }
