@@ -440,12 +440,58 @@ const reports = {
 };
 
 // ── Constantes exportadas ─────────────────────────────────────────────────────
+
+// ═══════════════════════════════════════════════════════════════════
+// COMMUNITY POSTS — imagens compartilhadas pelos membros
+// ═══════════════════════════════════════════════════════════════════
+const communityPosts = {
+  _list()  { return state.community_posts || (state.community_posts = []); },
+  all()    { return [...communityPosts._list()].sort((a,b) => new Date(b.created_at)-new Date(a.created_at)); },
+  approved(){ return communityPosts.all().filter(p => p.status === "approved"); },
+  pending() { return communityPosts.all().filter(p => p.status === "pending"); },
+  findById(id){ return communityPosts._list().find(p => p.id === id) || null; },
+
+  create({ user_id, user_name, image, caption }) {
+    if (!state._nextPostId) state._nextPostId = 1;
+    const post = {
+      id:         state._nextPostId++,
+      user_id:    user_id || null,
+      user_name:  user_name || "Membro",
+      image,                           // base64 data URL
+      caption:    (caption || "").substring(0, 200),
+      status:     "pending",           // pending | approved | rejected
+      created_at: nowISO(),
+      updated_at: nowISO(),
+    };
+    communityPosts._list().push(post);
+    saveDB(state);
+    return post;
+  },
+
+  update(id, patch) {
+    const p = communityPosts.findById(id);
+    if (!p) return null;
+    Object.assign(p, patch, { updated_at: nowISO() });
+    saveDB(state);
+    return p;
+  },
+
+  delete(id) {
+    const list   = communityPosts._list();
+    const before = list.length;
+    state.community_posts = list.filter(p => p.id !== id);
+    if (state.community_posts.length !== before) { saveDB(state); return true; }
+    return false;
+  },
+};
+
 module.exports = {
   users,
   sessions,
   signals,
   webhookLog,
   reports,
+  communityPosts,
   TRIAL_DAYS,
   TRIAL_SIGNAL_LIMIT,
 };
