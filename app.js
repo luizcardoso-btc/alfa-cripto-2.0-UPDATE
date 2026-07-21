@@ -737,14 +737,17 @@ function renderSinais() {
 
   const f = state.signalFilter;
 
-  // ── ABA HISTÓRICO ────────────────────────────────────────────────
+  // ── ABA HISTÓRICO — abre sub-painel integrado ────────────────────
   if (f === "HISTORICO") {
     if (perfGrid)  perfGrid.style.display  = "none";
-    if (histPanel) histPanel.style.display = "";
+    if (histPanel) histPanel.style.display = "none";
     feed.innerHTML = "";
-    renderHistorico();
+    var hs = document.getElementById("historicoSubPanel");
+    if (hs) { hs.style.display = ""; loadHistorico2(); }
     return;
   }
+  var hs2 = document.getElementById("historicoSubPanel");
+  if (hs2) hs2.style.display = "none";
 
   // ── ABAS NORMAIS ─────────────────────────────────────────────────
   if (perfGrid)  perfGrid.style.display  = "";
@@ -1661,6 +1664,7 @@ function switchTab(tabId) {
   if (tabId === "historico")  setTimeout(loadHistorico,  50);
   if (tabId === "comunidade") setTimeout(loadComunidade, 50);
   if (tabId === "planos")     setTimeout(renderPlanos,   50);
+  if (tabId === "mercado")    setTimeout(initMercado,    80);
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab===tabId));
   document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.tab===tabId));
   document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id===`panel-${tabId}`));
@@ -1721,3 +1725,227 @@ function rotateTicker() { updateTicker(); tickerIdx++; }
 
 window.generateSignals = generateSignals;
 window.loadMarketData  = loadMarketData;
+
+// ═══════════════════════════════════════════════════════════════
+// MERCADO — TradingView + Market Cap + Volume + Long/Short
+// ═══════════════════════════════════════════════════════════════
+var tvWidgetLoaded = false;
+
+function initMercado() {
+  initTradingViewWidget();
+  loadMktStats();
+  loadMarketData();
+}
+
+function initTradingViewWidget() {
+  if (tvWidgetLoaded) return;
+  tvWidgetLoaded = true;
+  var container = document.querySelector(".tradingview-widget-container__widget");
+  if (!container) return;
+
+  // Cria iframe com o widget mini de gráfico do TradingView
+  var script = document.createElement("script");
+  script.src = "https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
+  script.async = true;
+  script.innerHTML = JSON.stringify({
+    "symbol":       "BYBIT:BTCUSDT.P",
+    "width":        "100%",
+    "height":       "280",
+    "locale":       "br",
+    "dateRange":    "1D",
+    "colorTheme":   document.body.classList.contains("theme-day") ? "light" : "dark",
+    "isTransparent": true,
+    "autosize":     true,
+    "largeChartUrl": ""
+  });
+  container.appendChild(script);
+}
+
+async function loadMktStats() {
+  try {
+    // 1. Global stats (Market Cap, Volume, Dominância)
+    var gRes  = await fetch("https://api.coingecko.com/api/v3/global", { signal: AbortSignal.timeout(8000) });
+    var gData = await gRes.json();
+    var g     = gData.data || {};
+    var fmt   = function(n) {
+      if (!n) return "—";
+      if (n >= 1e12) return "$" + (n/1e12).toFixed(2) + "T";
+      if (n >= 1e9)  return "$" + (n/1e9).toFixed(1)  + "B";
+      return "$" + n.toFixed(0);
+    };
+    var capEl = document.getElementById("mktCap");
+    var volEl = document.getElementById("mktVol");
+    var domEl = document.getElementById("mktBtcDom");
+    if (capEl) capEl.textContent = fmt(g.total_market_cap && g.total_market_cap.usd);
+    if (volEl) volEl.textContent = fmt(g.total_volume    && g.total_volume.usd);
+    if (domEl) domEl.textContent = (g.market_cap_percentage && g.market_cap_percentage.btc || 0).toFixed(1) + "%";
+
+    // 2. Long/Short ratio BTC (Bybit open interest proxy)
+    try {
+      var lsRes  = await fetch("https://api.bybit.com/v5/market/account-ratio?category=linear&symbol=BTCUSDT&period=1h&limit=1", { signal: AbortSignal.timeout(5000) });
+      var lsData = await lsRes.json();
+      var ls     = lsData.result && lsData.result.list && lsData.result.list[0];
+      if (ls) {
+        var longPct  = parseFloat(ls.buyRatio  || 0.5) * 100;
+        var shortPct = parseFloat(ls.sellRatio || 0.5) * 100;
+        var lsEl   = document.getElementById("mktLongShort");
+        var fillEl = document.getElementById("mktLongFill");
+        if (lsEl)   lsEl.textContent = "L " + longPct.toFixed(0) + "% / S " + shortPct.toFixed(0) + "%";
+        if (fillEl) fillEl.style.width = longPct.toFixed(0) + "%";
+      }
+    } catch(e) {
+      var lsEl = document.getElementById("mktLongShort");
+      if (lsEl) lsEl.textContent = "—";
+    }
+  } catch(e) {
+    console.warn("mktStats:", e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SINAIS — Sub-histórico completo integrado na aba
+// ═══════════════════════════════════════════════════════════════
+var hist2Data   = [];
+var hist2Filter = "todos";
+var hist2Search = "";
+
+function loadHistorico2() {
+  var feed = document.getElementById("historico2Feed");
+  if (!feed) return;
+  feed.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-sub">Carregando histórico...</div></div>';
+
+  var adminKey = localStorage.getItem("acs_admin_key") || localStorage.getItem("bybit_key") || "";
+  var url = adminKey
+    ? "/api/admin/signals?key=" + encodeURIComponent(adminKey)
+    : "/api/signals";
+
+  fetch(url)
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var sigs = d.signals || (Array.isArray(d) ? d : []);
+      hist2Data = sigs
+        .filter(function(s) { return s.status === "profit" || s.status === "loss" || s.status === "closed"; })
+        .sort(function(a,b) {
+          return new Date(b.closed_at || b.updated_at || b.created_at)
+               - new Date(a.closed_at || a.updated_at || a.created_at);
+        });
+      updateHist2Stats();
+      renderHist2Feed();
+    })
+    .catch(function() {
+      if (feed) feed.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-sub">Erro ao carregar</div></div>';
+    });
+}
+
+function updateHist2Stats() {
+  var profits = hist2Data.filter(function(s){ return s.status === "profit"; });
+  var losses  = hist2Data.filter(function(s){ return s.status === "loss"; });
+  var total   = profits.length + losses.length;
+  var wr      = total > 0 ? Math.round(profits.length / total * 100) : null;
+
+  var pcts = profits.map(function(s){
+    return parseFloat(s.result_pct || (s.profit_pct||"").replace(/[^0-9.-]/g,"")) || 0;
+  }).filter(function(v){ return v > 0; });
+
+  // Lucro mensal — apenas trades do mês atual
+  var now      = new Date();
+  var thisMes  = profits.filter(function(s){
+    var d = new Date(s.closed_at || s.updated_at || s.created_at);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+  var mesPcts = thisMes.map(function(s){
+    return parseFloat(s.result_pct || (s.profit_pct||"").replace(/[^0-9.-]/g,"")) || 0;
+  }).filter(function(v){ return v > 0; });
+  var lucroMes = mesPcts.length
+    ? "+" + mesPcts.reduce(function(a,b){return a+b;},0).toFixed(0) + "%"
+    : "—";
+
+  function set(id, v, cls) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = v;
+    if (cls) el.className = "hist-stat-val " + cls;
+  }
+  set("hsTotalOps2",   hist2Data.length, "");
+  set("hsWinRate2",    wr !== null ? wr + "%" : "—", wr >= 70 ? "green" : wr < 50 ? "red" : "");
+  set("hsMaiorLucro2", pcts.length ? "+" + Math.max.apply(null,pcts).toFixed(0)+"%" : "—", "green");
+  set("hsLucroMes2",   lucroMes, "green");
+}
+
+function renderHist2Feed() {
+  var feed = document.getElementById("historico2Feed");
+  if (!feed) return;
+  var list = hist2Data.slice();
+  if (hist2Filter === "profit") list = list.filter(function(s){ return s.status==="profit"; });
+  if (hist2Filter === "loss")   list = list.filter(function(s){ return s.status==="loss"; });
+  if (hist2Filter === "long")   list = list.filter(function(s){ return s.type==="LONG"; });
+  if (hist2Filter === "short")  list = list.filter(function(s){ return s.type==="SHORT"; });
+  if (hist2Search.trim()) {
+    var q = hist2Search.trim().toUpperCase();
+    list  = list.filter(function(s){ return (s.pair||"").toUpperCase().includes(q); });
+  }
+  if (!list.length) {
+    feed.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Nenhum trade encontrado</div></div>';
+    return;
+  }
+  feed.innerHTML = list.map(function(s) {
+    var isProfit  = s.status === "profit";
+    var isLoss    = s.status === "loss";
+    var pct = s.profit_pct || s.profitPct
+      || (s.result_pct ? (parseFloat(s.result_pct)>0?"+":"") + parseFloat(s.result_pct).toFixed(1) + "%" : null)
+      || (s.hit>0&&s.targets&&s.targets[s.hit-1] ? "+"+s.targets[s.hit-1] : null)
+      || (isLoss ? "STOP" : "+?");
+    var pctClass  = isProfit ? "green" : isLoss ? "red" : "dim";
+    var cardClass = isProfit ? "tc-profit" : isLoss ? "tc-loss" : "tc-closed";
+    var statusLbl = isProfit ? "LUCRO" : isLoss ? "LOSS" : "FECHADO";
+    var dur       = s.time_to_hit || "";
+    var closedAt  = s.closed_at
+      ? new Date(s.closed_at).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})
+      : "—";
+    var openedAt  = s.created_at
+      ? new Date(s.created_at).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})
+      : "—";
+    var targets = (s.targets||[]).slice(0,8).map(function(t,i){
+      return '<span class="pill '+(i<(s.hit||0)?"hit":"")+'">' + t + '</span>';
+    }).join("") + ((s.targets||[]).length>8?'<span class="pill">+'+ ((s.targets.length-8))+'</span>':"");
+
+    return '<div class="trade-card '+cardClass+'">' +
+      '<div class="tc-result">' +
+        '<div class="tc-pct '+pctClass+'">'+pct+'</div>' +
+        '<div class="tc-status-lbl">'+statusLbl+'</div>' +
+        (dur?'<div style="font-size:8px;color:var(--text4);margin-top:4px;font-family:var(--font-mono)">'+dur+'</div>':"") +
+      '</div>' +
+      '<div class="tc-main">' +
+        '<div class="tc-header">' +
+          '<div class="tc-pair">'+s.pair+'</div>' +
+          '<div class="tc-time"><div>⬆ '+openedAt+'</div><div>⬇ '+closedAt+'</div></div>' +
+        '</div>' +
+        '<div class="tc-badges">' +
+          typeBadgeHTML(s.type) +
+          (s.leverage?'<span style="font-family:var(--font-mono);font-size:9px;background:var(--bg3);border:1px solid var(--border);padding:2px 7px;border-radius:4px;color:var(--text3)">'+s.leverage+'</span>':"") +
+          (s.setup&&s.setup!=="MANUAL"?'<span class="setup-badge">'+s.setup+'</span>':"") +
+        '</div>' +
+        '<div class="tc-data">' +
+          '<div class="tc-field"><label>ENTRADA</label><span>'+(s.entry||"—")+'</span></div>' +
+          '<div class="tc-field"><label>STOP</label><span style="color:var(--red)">'+(s.stoploss||"—")+'</span></div>' +
+          (s.timeframe&&s.timeframe!=="—"?'<div class="tc-field"><label>TF</label><span>'+s.timeframe+'</span></div>':"") +
+          '<div class="tc-field"><label>ALVOS</label><span>'+(s.hit||0)+'/'+(s.targets||[]).length+'</span></div>' +
+        '</div>' +
+        '<div class="tc-targets">'+targets+'</div>' +
+      '</div>' +
+    '</div>';
+  }).join("");
+}
+
+function filterHist2(f, el) {
+  hist2Filter = f;
+  document.querySelectorAll(".hist-f").forEach(function(b){ b.classList.remove("active"); });
+  if (el) el.classList.add("active");
+  renderHist2Feed();
+}
+
+function searchHist2(q) {
+  hist2Search = q;
+  renderHist2Feed();
+}
+
