@@ -80,9 +80,9 @@ if (process.env.NODE_ENV !== "production" && db.users.all().length === 0) {
 }
 
 function sanitizeUser(user) {
-  if (!user) return user;
-  const { password_hash, ...safe } = user;
-  return safe;
+  if (!user) return null;
+  const { password_hash, ...rest } = user;
+  return { ...rest, trial: db.users.getTrialInfo(user) };
 }
 
 // ── Body parsing ───────────────────────────────────────────────────────────────
@@ -212,8 +212,29 @@ app.get("/api/prices", auth.requireAuth, async (req, res) => {
 // API: Sinais (leitura — para usuários logados)
 // ══════════════════════════════════════════════
 app.get("/api/signals", auth.requireAuth, (req, res) => {
-  const all = db.signals.all();
-  res.json({ signals: all });
+  const user      = res.locals.user;
+  const trial     = db.users.getTrialInfo(user);
+  const allSignals = db.signals.all();
+
+  // Aplica limite de trial no backend — fonte única da verdade
+  let signals     = allSignals;
+  let limitApplied = false;
+
+  if (trial.isExpired && trial.signalLimit !== null) {
+    // Usuários com trial expirado veem apenas os N mais recentes
+    signals      = allSignals.slice(0, trial.signalLimit);
+    limitApplied = true;
+  }
+
+  res.json({
+    signals,
+    meta: {
+      total:        allSignals.length,
+      shown:        signals.length,
+      limitApplied,
+      trial,
+    },
+  });
 });
 
 // ══════════════════════════════════════════════
@@ -284,6 +305,60 @@ app.get("/api/admin/ping", (req, res) => {
 app.get("/health", (req, res) => res.json({ status:"ok", ts: Date.now() }));
 
 
+// ── PLANOS E TRIAL ────────────────────────────────────────────────
+const PLANS = [
+  {
+    id:       "semestral",
+    name:     "Semestral",
+    price:    497,
+    period:   "6 meses",
+    parcel:   "12x de R$ 41,42",
+    checkout: "https://chk.eduzz.com/Q9N2NOVB01",
+    features: [
+      "Todos os sinais sem limite",
+      "App ACS System completo",
+      "Scanner 200+ pares",
+      "Análise IA ilimitada",
+      "Academia com 8 aulas",
+      "Suporte via WhatsApp",
+    ],
+  },
+  {
+    id:       "anual",
+    name:     "Anual",
+    price:    697,
+    period:   "12 meses",
+    parcel:   "12x de R$ 58,08",
+    checkout: "https://chk.eduzz.com/1488759",
+    badge:    "MAIS ESCOLHIDO",
+    features: [
+      "Tudo do plano Semestral",
+      "12 meses garantidos",
+      "Bônus: Guia de gestão de risco",
+      "Bônus: Planilha de controle de banca",
+      "Prioridade nos sinais manuais",
+      "Suporte prioritário",
+    ],
+  },
+];
+
+// Info dos planos — pública (usada pelo modal de upgrade no app)
+app.get("/api/plans", (req, res) => {
+  res.json({
+    trial: {
+      days:         db.TRIAL_DAYS,
+      signal_limit: db.TRIAL_SIGNAL_LIMIT,
+    },
+    plans: PLANS,
+  });
+});
+
+// Status do trial do usuário logado
+app.get("/api/trial/status", auth.requireAuth, (req, res) => {
+  res.json(db.users.getTrialInfo(res.locals.user));
+});
+
+
 app.get("/api/admin/users", requireAdmin, (req, res) => {
   res.json({ users: db.users.all().map(sanitizeUser) });
 });
@@ -296,7 +371,12 @@ app.post("/api/admin/users", requireAdmin, (req, res) => {
   if (db.users.findByEmail(norm))
     return res.status(409).json({ error:"already_exists", message:"Já existe assinante com este email." });
   const hash = auth.hashPassword(password);
-  const user = db.users.create({ email:norm, password_hash:hash, name, plan });
+  // Admin cria com plano definido — trial não se aplica
+  const user = db.users.create({ email:norm, password_hash:hash, name, plan: plan || "trial" });
+  // Se veio com plano pago, limpa campos de trial
+  if (plan && plan !== "trial") {
+    db.users.update(user.id, { trial_started_at: null, trial_ends_at: null, trial_expired: false });
+  }
   res.json({ ok:true, user:sanitizeUser(user) });
 });
 
@@ -305,7 +385,14 @@ app.patch("/api/admin/users/:id", requireAdmin, (req, res) => {
   const { status, plan, name, expires_at, newPassword } = req.body || {};
   const patch = {};
   if (status      !== undefined) patch.status      = status;
-  if (plan        !== undefined) patch.plan        = plan;
+  if (plan        !== undefined) {
+    patch.plan = plan;
+    // Se admin definindo plano pago, limpa trial
+    if (plan && plan !== "trial") {
+      patch.trial_ends_at  = null;
+      patch.trial_expired  = false;
+    }
+  }
   if (name        !== undefined) patch.name        = name;
   if (expires_at  !== undefined) patch.expires_at  = expires_at;
   if (newPassword)               patch.password_hash = auth.hashPassword(newPassword);
@@ -475,13 +562,17 @@ app.get("/api/bybit/proxy", requireAdmin, async (req, res) => {
 
 // Serve a página de análise Bybit
 
+app.get('/acs-scanner-pro.html', (req, res) => serveFile('acs-scanner-pro.html', res));
+
+app.get('/acs-meta-ads.html', (req, res) => serveFile('acs-meta-ads.html', res));
+
 app.get("/acs-bybit.html", (req, res) => serveFile("acs-bybit.html", res));
 
 app.get("/bybit-analise.html", (req, res) => {
-  // Serve acs-bybit.html (versão nova com scanner + login JS)
-  const f = findFile("acs-bybit.html") || findFile("bybit-analise.html");
-  if (!f) return res.status(404).send("Arquivo não encontrado");
-  res.sendFile(f);
+  // Serve sempre o scanner pro mais recente
+  const f = findFile("acs-scanner-pro.html");
+  if (f) return res.sendFile(f);
+  serveFile("bybit-analise.html", res);
 });
 
 // ══════════════════════════════════════════════
