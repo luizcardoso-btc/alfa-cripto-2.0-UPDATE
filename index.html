@@ -94,6 +94,7 @@
         </div>
         <div class="header-actions">
           <div class="live-badge"><span class="pulse-dot"></span>AO VIVO</div>
+          <button class="refresh-btn" id="btnTheme" title="Alternar tema claro/escuro" onclick="toggleTheme()" style="font-size:14px">🌙</button>
           <button class="refresh-btn" id="btnRefreshSignals" title="Gerar novos sinais">↻</button>
           <button class="refresh-btn" id="btnLogout" title="Sair da conta">⏻</button>
         </div>
@@ -154,6 +155,9 @@
         <button class="tab-btn active" data-tab="alerts">🔔 Alertas</button>
         <button class="tab-btn" data-tab="mercado">📊 Mercado</button>
         <button class="tab-btn" data-tab="sinais">📋 Sinais</button>
+        <button class="tab-btn" data-tab="historico">📈 Histórico</button>
+        <button class="tab-btn" data-tab="comunidade">📸 Comunidade</button>
+        <button class="tab-btn" data-tab="planos">⭐ Planos</button>
         <button class="tab-btn" data-tab="edu">🎓 Edu</button>
       </nav>
     </header>
@@ -213,6 +217,146 @@
       </section>
 
       <!-- ── EDUCAÇÃO ── -->
+      <!-- PAINEL HISTÓRICO COMPLETO -->
+      <section class="panel" id="panel-historico" style="display:none">
+
+        <!-- Stats do histórico -->
+        <div class="hist-stats-grid" id="histStatsGrid">
+          <div class="hist-stat">
+            <span class="hist-stat-val" id="hsTotalOps">—</span>
+            <span class="hist-stat-lbl">Operações</span>
+          </div>
+          <div class="hist-stat">
+            <span class="hist-stat-val green" id="hsWinRate">—</span>
+            <span class="hist-stat-lbl">Win Rate</span>
+          </div>
+          <div class="hist-stat">
+            <span class="hist-stat-val green" id="hsMaiorLucro">—</span>
+            <span class="hist-stat-lbl">Maior lucro</span>
+          </div>
+          <div class="hist-stat">
+            <span class="hist-stat-val" id="hsLucroMedio">—</span>
+            <span class="hist-stat-lbl">Lucro médio</span>
+          </div>
+        </div>
+
+        <!-- Filtros de histórico -->
+        <div class="hist-filter-row">
+          <button class="hist-f active" data-hf="todos" onclick="filterHistorico('todos',this)">Todos</button>
+          <button class="hist-f" data-hf="profit" onclick="filterHistorico('profit',this)">✅ Lucros</button>
+          <button class="hist-f" data-hf="loss"   onclick="filterHistorico('loss',this)">❌ Perdas</button>
+          <button class="hist-f" data-hf="long"   onclick="filterHistorico('long',this)">🟢 LONG</button>
+          <button class="hist-f" data-hf="short"  onclick="filterHistorico('short',this)">🔴 SHORT</button>
+          <div class="hist-search-wrap">
+            <input class="hist-search" id="histSearch" placeholder="Buscar par..." oninput="searchHistorico(this.value)"/>
+          </div>
+        </div>
+
+        <!-- Lista de trades -->
+        <div id="historicoFeed"></div>
+
+        <!-- Carregando / vazio -->
+        <div id="historicoEmpty" style="display:none" class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div class="empty-title">Nenhum trade encontrado</div>
+          <div class="empty-sub">Os trades encerrados aparecerão aqui</div>
+        </div>
+
+      </section>
+
+
+      <!-- ═══ PAINEL PLANOS ═══ -->
+      <section class="panel" id="panel-planos" style="display:none">
+        <div class="planos-wrap">
+          <div class="planos-header">
+            <div class="planos-trial-badge" id="planoTrialBadge"></div>
+            <h2 class="planos-title">Escolha seu plano</h2>
+            <p class="planos-sub">Acesso completo ao ACS System com sinais ilimitados, scanner e análise IA</p>
+          </div>
+          <div class="planos-grid">
+
+            <!-- PRO -->
+            <div class="plano-card">
+              <div class="plano-tag">PRO</div>
+              <div class="plano-period">Acesso Semestral</div>
+              <div class="plano-desc">Ideal para quem quer começar com consistência e testar a plataforma por 6 meses completos.</div>
+              <ul class="plano-features">
+                <li>✓ Sinais ilimitados por dia</li>
+                <li>✓ Scanner de 200+ pares</li>
+                <li>✓ Análise IA completa</li>
+                <li>✓ Academia com 8 aulas</li>
+                <li>✓ Suporte via WhatsApp</li>
+                <li>✓ Acesso à Comunidade</li>
+              </ul>
+              <a href="https://chk.eduzz.com/Q9N2NOVB01" target="_blank" class="plano-btn plano-btn-pro">
+                Assinar Plano Pro →
+              </a>
+              <div class="plano-guarantee">🔒 Garantia de 7 dias</div>
+            </div>
+
+            <!-- PREMIUM -->
+            <div class="plano-card plano-featured">
+              <div class="plano-badge-top">MAIS ESCOLHIDO</div>
+              <div class="plano-tag featured">PREMIUM</div>
+              <div class="plano-period">Acesso Anual</div>
+              <div class="plano-desc">Para traders sérios. 12 meses de acesso com bônus exclusivos e prioridade total nos sinais.</div>
+              <ul class="plano-features">
+                <li>✓ Tudo do plano Pro</li>
+                <li>✓ <strong>12 meses garantidos</strong></li>
+                <li>✓ <strong>Bônus: Guia de risco</strong></li>
+                <li>✓ <strong>Bônus: Planilha de banca</strong></li>
+                <li>✓ <strong>Prioridade nos sinais</strong></li>
+                <li>✓ Suporte prioritário</li>
+              </ul>
+              <a href="https://chk.eduzz.com/1488759" target="_blank" class="plano-btn plano-btn-premium">
+                Assinar Plano Premium →
+              </a>
+              <div class="plano-guarantee">🔒 Garantia de 7 dias</div>
+            </div>
+
+          </div>
+          <div class="planos-footer">Dúvidas? Fale no <strong>WhatsApp</strong> ou acesse a <strong>Central de Ajuda</strong></div>
+        </div>
+      </section>
+
+      <!-- ═══ PAINEL COMUNIDADE ═══ -->
+      <section class="panel" id="panel-comunidade" style="display:none">
+        <div class="comunidade-wrap">
+          <div class="com-post-btn-wrap">
+            <button class="com-post-btn" onclick="abrirNovoPost()">📷 Compartilhar resultado</button>
+            <div style="font-size:11px;color:var(--text3);margin-top:6px;font-family:var(--font-mono)">Posts são revisados antes de aparecer</div>
+          </div>
+          <div class="com-form-wrap" id="comForm" style="display:none">
+            <div class="com-form-title">📷 Novo post</div>
+            <div class="com-form-group">
+              <label class="com-label">LEGENDA (opcional)</label>
+              <textarea class="com-textarea" id="comCaption" placeholder="Descreva seu resultado..." maxlength="200"></textarea>
+            </div>
+            <div class="com-form-group">
+              <label class="com-label">IMAGEM</label>
+              <div class="com-upload-area" onclick="document.getElementById('comFile').click()">
+                <input type="file" id="comFile" accept="image/*" style="display:none" onchange="previewImagem(this)"/>
+                <div id="comPreview">
+                  <div style="font-size:32px">📷</div>
+                  <div style="font-size:12px;margin-top:8px;color:var(--text3)">Toque para selecionar imagem</div>
+                </div>
+              </div>
+            </div>
+            <div class="com-form-actions">
+              <button class="com-cancel-btn" onclick="fecharNovoPost()">Cancelar</button>
+              <button class="com-submit-btn" onclick="enviarPost()" id="comSubmitBtn">Enviar para aprovação</button>
+            </div>
+          </div>
+          <div id="comunidadeFeed">
+            <div class="empty-state">
+              <div class="empty-icon">📸</div>
+              <div class="empty-title">Nenhum post ainda</div>
+              <div class="empty-sub">Seja o primeiro a compartilhar!</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="panel" id="panel-edu">
         <div class="edu-header">CURSO COMPLETO · 8 AULAS</div>
         <div id="lessonList"></div>
@@ -234,6 +378,18 @@
       <button class="nav-btn" data-tab="sinais">
         <span class="nav-icon">📋</span>
         <span class="nav-label">Sinais</span>
+      </button>
+      <button class="nav-btn" data-tab="historico">
+        <span class="nav-icon">📈</span>
+        <span class="nav-label">Histórico</span>
+      </button>
+      <button class="nav-btn" data-tab="comunidade">
+        <span class="nav-icon">📸</span>
+        <span class="nav-label">Comunidade</span>
+      </button>
+      <button class="nav-btn" data-tab="planos">
+        <span class="nav-icon">⭐</span>
+        <span class="nav-label">Planos</span>
       </button>
       <button class="nav-btn" data-tab="edu">
         <span class="nav-icon">🎓</span>
