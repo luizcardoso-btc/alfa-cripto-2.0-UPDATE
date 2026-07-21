@@ -1344,8 +1344,323 @@ function appendChatBubble(role, text) {
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+// ABA HISTÓRICO — trades encerrados, puxados do servidor
+// ═══════════════════════════════════════════════════════════════════
+
+var historicoData   = [];
+var historicoFilter = "todos";
+var historicoSearch = "";
+
+function loadHistorico() {
+  var feed  = document.getElementById("historicoFeed");
+  var empty = document.getElementById("historicoEmpty");
+  if (!feed) return;
+  feed.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-sub">Carregando histórico...</div></div>';
+
+  var adminKey = localStorage.getItem("acs_admin_key") || localStorage.getItem("bybit_key") || "";
+
+  function processSignals(allSig) {
+    historicoData = allSig
+      .filter(function(s) { return s.status === "profit" || s.status === "loss" || s.status === "closed"; })
+      .sort(function(a, b) {
+        var da = new Date(b.closed_at || b.updated_at || b.created_at);
+        var db2 = new Date(a.closed_at || a.updated_at || a.created_at);
+        return da - db2;
+      });
+    updateHistStats();
+    renderHistoricoFeed();
+  }
+
+  // Tenta admin primeiro (dados completos), fallback para usuário
+  var url = adminKey
+    ? "/api/admin/signals?key=" + encodeURIComponent(adminKey)
+    : "/api/signals";
+
+  fetch(url)
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var sigs = d.signals || (Array.isArray(d) ? d : []);
+      if (!sigs.length && adminKey) {
+        // fallback rota user
+        return fetch("/api/signals").then(function(r2){ return r2.json(); }).then(function(d2){
+          processSignals(d2.signals || d2 || []);
+        });
+      }
+      processSignals(sigs);
+    })
+    .catch(function(e) {
+      feed.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Erro ao carregar histórico</div></div>';
+    });
+}
+
+function updateHistStats() {
+  var profits = historicoData.filter(function(s){ return s.status==="profit"; });
+  var losses  = historicoData.filter(function(s){ return s.status==="loss"; });
+  var total   = profits.length + losses.length;
+  var wr      = total > 0 ? Math.round(profits.length / total * 100) : null;
+  var pcts    = profits.map(function(s){
+    return parseFloat(s.result_pct || (s.profit_pct||"").replace(/[^0-9.-]/g,"")) || 0;
+  }).filter(function(v){ return v > 0; });
+
+  var maiorLucro = pcts.length ? "+" + Math.max.apply(null,pcts).toFixed(0) + "%" : "—";
+  var lucroMedio = pcts.length
+    ? "+" + Math.round(pcts.reduce(function(a,b){return a+b;},0)/pcts.length) + "%"
+    : "—";
+
+  function set(id, v, cls) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = v;
+    if (cls !== undefined) el.className = "hist-stat-val " + cls;
+  }
+  set("hsTotalOps",   historicoData.length, "");
+  set("hsWinRate",    wr !== null ? wr + "%" : "—", wr >= 70 ? "green" : wr < 50 ? "red" : "");
+  set("hsMaiorLucro", maiorLucro, maiorLucro !== "—" ? "green" : "");
+  set("hsLucroMedio", lucroMedio, lucroMedio !== "—" ? "green" : "");
+}
+
+function renderHistoricoFeed() {
+  var feed  = document.getElementById("historicoFeed");
+  var empty = document.getElementById("historicoEmpty");
+  if (!feed) return;
+
+  var list = historicoData.slice();
+  if (historicoFilter === "profit") list = list.filter(function(s){ return s.status==="profit"; });
+  if (historicoFilter === "loss")   list = list.filter(function(s){ return s.status==="loss"; });
+  if (historicoFilter === "long")   list = list.filter(function(s){ return s.type==="LONG"; });
+  if (historicoFilter === "short")  list = list.filter(function(s){ return s.type==="SHORT"; });
+  if (historicoSearch.trim()) {
+    var q = historicoSearch.trim().toUpperCase();
+    list = list.filter(function(s){ return (s.pair||"").toUpperCase().includes(q); });
+  }
+
+  if (!list.length) {
+    feed.innerHTML = "";
+    if (empty) empty.style.display = "";
+    return;
+  }
+  if (empty) empty.style.display = "none";
+
+  feed.innerHTML = list.map(function(s) {
+    var isProfit = s.status === "profit";
+    var isLoss   = s.status === "loss";
+    var pct = s.profit_pct || s.profitPct
+      || (s.result_pct
+          ? (parseFloat(s.result_pct) > 0 ? "+" : "") + parseFloat(s.result_pct).toFixed(1) + "%"
+          : null)
+      || (s.hit > 0 && s.targets && s.targets[s.hit-1] ? "+" + s.targets[s.hit-1] : null)
+      || (isLoss ? "STOP" : isProfit ? "+?" : "—");
+
+    var pctClass  = isProfit ? "green" : isLoss ? "red" : "dim";
+    var cardClass = isProfit ? "tc-profit" : isLoss ? "tc-loss" : "tc-closed";
+    var statusLbl = isProfit ? "LUCRO" : isLoss ? "LOSS" : "FECHADO";
+    var dur       = s.time_to_hit || "";
+
+    var closedAt = s.closed_at
+      ? new Date(s.closed_at).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"})
+      : (s.updated_at
+          ? new Date(s.updated_at).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})
+          : "—");
+    var openedAt = s.created_at
+      ? new Date(s.created_at).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})
+      : "—";
+
+    var targetsHtml = (s.targets||[]).slice(0,8).map(function(t,i){
+      return '<span class="pill ' + (i < (s.hit||0) ? "hit" : "") + '">' + t + '</span>';
+    }).join("") + ((s.targets||[]).length > 8
+      ? '<span class="pill">+' + ((s.targets.length-8)) + '</span>'
+      : "");
+
+    return '<div class="trade-card ' + cardClass + '">' +
+      '<div class="tc-result">' +
+        '<div class="tc-pct ' + pctClass + '">' + pct + '</div>' +
+        '<div class="tc-status-lbl">' + statusLbl + '</div>' +
+        (dur ? '<div style="font-size:8px;color:var(--text4);margin-top:4px;font-family:var(--font-mono)">' + dur + '</div>' : '') +
+      '</div>' +
+      '<div class="tc-main">' +
+        '<div class="tc-header">' +
+          '<div class="tc-pair">' + s.pair + '</div>' +
+          '<div class="tc-time"><div>⬆ ' + openedAt + '</div><div>⬇ ' + closedAt + '</div></div>' +
+        '</div>' +
+        '<div class="tc-badges">' +
+          typeBadgeHTML(s.type) +
+          (s.leverage ? '<span style="font-family:var(--font-mono);font-size:9px;background:var(--bg3);border:1px solid var(--border);padding:2px 7px;border-radius:4px;color:var(--text3)">' + s.leverage + '</span>' : '') +
+          (s.setup && s.setup !== "MANUAL" ? '<span class="setup-badge">' + s.setup + '</span>' : '') +
+          (s.source === "admin" ? '<span class="manual-tag">MANUAL</span>' : '') +
+        '</div>' +
+        '<div class="tc-data">' +
+          '<div class="tc-field"><label>ENTRADA</label><span>' + (s.entry||"—") + '</span></div>' +
+          '<div class="tc-field"><label>STOP</label><span style="color:var(--red)">' + (s.stoploss||"—") + '</span></div>' +
+          (s.timeframe && s.timeframe !== "—" ? '<div class="tc-field"><label>TF</label><span>' + s.timeframe + '</span></div>' : '') +
+          '<div class="tc-field"><label>ALVOS</label><span>' + (s.hit||0) + '/' + (s.targets||[]).length + '</span></div>' +
+        '</div>' +
+        '<div class="tc-targets">' + targetsHtml + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join("");
+}
+
+function filterHistorico(filter, el) {
+  historicoFilter = filter;
+  document.querySelectorAll(".hist-f").forEach(function(b){ b.classList.remove("active"); });
+  if (el) el.classList.add("active");
+  renderHistoricoFeed();
+}
+
+function searchHistorico(query) {
+  historicoSearch = query;
+  renderHistoricoFeed();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+
+
+// ═══════════════════════════════════════════════════════════════
+// ABA PLANOS — renderiza status de trial e links de checkout
+// ═══════════════════════════════════════════════════════════════
+function renderPlanos() {
+  var badge = document.getElementById("planoTrialBadge");
+  if (!badge) return;
+  if (userTrialInfo && userTrialInfo.isTrial && !userTrialInfo.isExpired) {
+    var d = userTrialInfo.daysLeft;
+    badge.textContent = "⏳ " + d + (d===1?" dia restante":" dias restantes") + " no teste gratuito";
+    badge.style.background = "";
+    badge.style.borderColor = "";
+    badge.style.color = "";
+    badge.style.display = "";
+  } else if (userTrialInfo && userTrialInfo.isExpired) {
+    badge.textContent = "⚠️ Seu teste encerrou — assine para continuar";
+    badge.style.background = "rgba(255,61,107,.08)";
+    badge.style.borderColor = "rgba(255,61,107,.2)";
+    badge.style.color = "var(--red)";
+    badge.style.display = "";
+  } else {
+    badge.style.display = "none";
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ABA COMUNIDADE — posts de imagem com aprovação do admin
+// ═══════════════════════════════════════════════════════════════
+var comPosts = [];
+
+function abrirNovoPost() {
+  var form = document.getElementById("comForm");
+  if (form) {
+    form.style.display = "";
+    form.scrollIntoView({ behavior: "smooth" });
+  }
+}
+
+function fecharNovoPost() {
+  var form = document.getElementById("comForm");
+  if (form) form.style.display = "none";
+  var cap = document.getElementById("comCaption");
+  if (cap) cap.value = "";
+  var prev = document.getElementById("comPreview");
+  if (prev) prev.innerHTML = '<div style="font-size:32px">&#128247;</div><div style="font-size:12px;margin-top:8px;color:var(--text3)">Toque para selecionar imagem</div>';
+  var fi = document.getElementById("comFile");
+  if (fi) fi.value = "";
+}
+
+function previewImagem(input) {
+  var file = input.files && input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    alert("Imagem muito grande. Máximo 5MB.");
+    input.value = "";
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var prev = document.getElementById("comPreview");
+    if (prev) prev.innerHTML = '<img src="' + e.target.result + '" style="max-width:100%;max-height:200px;border-radius:8px;object-fit:cover"/>';
+  };
+  reader.readAsDataURL(file);
+}
+
+function enviarPost() {
+  var caption  = (document.getElementById("comCaption") || {}).value || "";
+  var fileInput = document.getElementById("comFile");
+  var btn      = document.getElementById("comSubmitBtn");
+  if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+    alert("Selecione uma imagem para enviar.");
+    return;
+  }
+  if (btn) { btn.disabled = true; btn.textContent = "Enviando..."; }
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var imageBase64 = e.target.result;
+    fetch("/api/community/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ caption: caption.trim(), image: imageBase64 }),
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(d) {
+      if (d.ok) {
+        fecharNovoPost();
+        alert("Seu post foi enviado para aprovacao! Aparecera em breve.");
+        loadComunidade();
+      } else {
+        alert("Erro: " + (d.message || "Tente novamente."));
+      }
+    })
+    .catch(function(err) { alert("Erro: " + err.message); })
+    .finally(function() {
+      if (btn) { btn.disabled = false; btn.textContent = "Enviar para aprovacao"; }
+    });
+  };
+  reader.readAsDataURL(fileInput.files[0]);
+}
+
+function loadComunidade() {
+  var feed = document.getElementById("comunidadeFeed");
+  if (!feed) return;
+  feed.innerHTML = '<div class="empty-state"><div class="empty-icon">&#9203;</div><div class="empty-sub">Carregando...</div></div>';
+  fetch("/api/community/posts")
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      comPosts = d.posts || [];
+      renderComunidadeFeed();
+    })
+    .catch(function() {
+      feed.innerHTML = '<div class="empty-state"><div class="empty-icon">&#9888;&#65039;</div><div class="empty-sub">Erro ao carregar</div></div>';
+    });
+}
+
+function renderComunidadeFeed() {
+  var feed = document.getElementById("comunidadeFeed");
+  if (!feed) return;
+  if (!comPosts.length) {
+    feed.innerHTML = '<div class="empty-state"><div class="empty-icon">&#128247;</div><div class="empty-title">Nenhum post aprovado ainda</div><div class="empty-sub">Seja o primeiro a compartilhar seu resultado!</div></div>';
+    return;
+  }
+  feed.innerHTML = comPosts.map(function(p) {
+    var initial = (p.user_name || "M").charAt(0).toUpperCase();
+    var dt = new Date(p.created_at).toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit", year:"2-digit" });
+    return '<div class="com-post">' +
+      '<div class="com-post-header">' +
+        '<div class="com-avatar">' + initial + '</div>' +
+        '<div>' +
+          '<div class="com-user-name">' + (p.user_name || "Membro") + '</div>' +
+          '<div class="com-post-date">' + dt + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<img class="com-post-img" src="' + p.image + '" loading="lazy"/>' +
+      (p.caption ? '<div class="com-post-caption">' + p.caption + '</div>' : '') +
+    '</div>';
+  }).join("");
+}
+
+
 function switchTab(tabId) {
   state.currentTab = tabId;
+  if (tabId === "historico")  setTimeout(loadHistorico,  50);
+  if (tabId === "comunidade") setTimeout(loadComunidade, 50);
+  if (tabId === "planos")     setTimeout(renderPlanos,   50);
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab===tabId));
   document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.tab===tabId));
   document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id===`panel-${tabId}`));
