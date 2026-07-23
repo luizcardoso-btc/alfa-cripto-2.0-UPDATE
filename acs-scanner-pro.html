@@ -141,8 +141,20 @@ body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:1
 .tv-tf-row{display:flex;gap:4px;}
 .tv-tf{font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:4px;border:1px solid var(--line);color:var(--dim);cursor:pointer;background:transparent;transition:.15s;}
 .tv-tf.on{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.3);color:var(--blue2);}
-.tv-container{position:relative;}
+.tv-container{position:relative;background:var(--bg3);border-radius:0 0 10px 10px;}
 .tv-container iframe,.tradingview-widget-container{width:100%;height:360px;border:none;}
+/* Canvas chart */
+#acsCanvas{display:block;width:100%;border-radius:0 0 10px 10px;background:#07090F;cursor:crosshair;}
+.chart-legend{display:flex;gap:10px;padding:4px 10px;background:#07090F;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.04);}
+.cl-item{font-family:var(--mono);font-size:9px;color:var(--dim);display:flex;align-items:center;gap:4px;}
+.cl-dot{width:10px;height:2px;border-radius:1px;}
+/* Mode toggle */
+.mode-row{display:flex;gap:4px;padding:6px 10px;background:var(--bg3);border-top:1px solid var(--line);}
+.mode-btn{font-family:var(--mono);font-size:9px;padding:3px 10px;border-radius:4px;border:1px solid var(--line);color:var(--dim);cursor:pointer;background:transparent;transition:.15s;}
+.mode-btn.on{background:rgba(251,146,60,.1);border-color:rgba(251,146,60,.3);color:var(--orange);}
+.mode-btn.on-dv{background:rgba(96,165,250,.1);border-color:rgba(96,165,250,.3);color:var(--blue2);}
+/* Tooltip */
+#chartTooltip{position:absolute;background:rgba(7,9,15,.95);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-family:var(--mono);font-size:10px;color:var(--text);pointer-events:none;display:none;z-index:10;white-space:nowrap;}
 
 /* Levels */
 .levels-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px;}
@@ -844,18 +856,36 @@ function openDetail(r) {
       <button onclick="runIA()" style="background:var(--purple);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:700;font-size:12px;cursor:pointer">🤖 Análise IA</button>
     </div>
 
-    <!-- TradingView com TF selecionável -->
+    <!-- Gráfico ACS com marcações -->
     <div class="tv-wrap">
       <div class="tv-head">
-        <div class="tv-lbl">GRÁFICO AO VIVO · ${r.sym} · BYBIT</div>
+        <div class="tv-lbl" id="chartLabel">GRÁFICO · ${r.sym} · BYBIT FUTURES</div>
         <div class="tv-tf-row">
-          ${['15','60','240','D'].map(t=>`<button class="tv-tf ${t===tvTF?'on':''}" onclick="changeTF('${r.sym}','${t}',this)">${t==='D'?'1D':t==='240'?'4H':t==='60'?'1H':'15M'}</button>`).join('')}
+          ${['15','60','240','D'].map(t=>`<button class="tv-tf ${t===tvTF?'on':''}" onclick="loadChartTF('${r.sym}','${t}',this)">${t==='D'?'1D':t==='240'?'4H':t==='60'?'1H':'15M'}</button>`).join('')}
         </div>
       </div>
-      <div class="tv-container" id="tvContainer">
-        <div class="tradingview-widget-container" id="tvWidget">
-          <div class="tradingview-widget-container__widget"></div>
+      <!-- Mode row: Swing x Day Trade -->
+      <div class="mode-row">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-right:4px">MODO:</div>
+        <button class="mode-btn on" id="modeSwing" onclick="setTradeMode('swing',this)">📈 SWING TRADE</button>
+        <button class="mode-btn" id="modeDT" onclick="setTradeMode('day',this)">⚡ DAY TRADE</button>
+        <div style="margin-left:auto;display:flex;gap:4px;">
+          <button class="mode-btn" onclick="toggleLevel('poc')" id="btnPOC">POC</button>
+          <button class="mode-btn" onclick="toggleLevel('ob')" id="btnOB">Order Block</button>
+          <button class="mode-btn" onclick="toggleLevel('fib')" id="btnFIB">Fibonacci</button>
         </div>
+      </div>
+      <div class="tv-container" style="position:relative">
+        <canvas id="acsCanvas"></canvas>
+        <div id="chartTooltip"></div>
+      </div>
+      <div class="chart-legend">
+        <div class="cl-item"><div class="cl-dot" style="background:#00E676"></div>EMA21</div>
+        <div class="cl-item"><div class="cl-dot" style="background:#60A5FA"></div>EMA50</div>
+        <div class="cl-item"><div class="cl-dot" style="background:#FFD166"></div>EMA200</div>
+        <div class="cl-item"><div class="cl-dot" style="background:#FF3D6B;height:1px;border-top:2px dashed #FF3D6B"></div>Stop Loss</div>
+        <div class="cl-item"><div class="cl-dot" style="background:#00E676;height:1px;border-top:2px dashed #00E676"></div>Alvos</div>
+        <div class="cl-item"><div class="cl-dot" style="background:#A78BFA"></div>OB / POC</div>
       </div>
     </div>
 
@@ -981,56 +1011,335 @@ function openDetail(r) {
   `;
 
   // Renderiza widget TradingView
-  setTimeout(()=>renderTVWidget(r.sym, tvTF), 50);
+  setTimeout(()=>initChart(r), 80);
 }
 
-// ══ TRADINGVIEW WIDGET ══════════════════════════════════════════════════
-function renderTVWidget(sym, tf) {
-  const container = document.querySelector('.tradingview-widget-container__widget');
-  if(!container) return;
-  container.innerHTML='';
-  const script = document.createElement('script');
-  script.src  = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
-  script.async = true;
-  script.textContent = JSON.stringify({
-    autosize:           true,
-    symbol:             `BYBIT:${sym}.P`,
-    interval:           tf,
-    timezone:           'Etc/UTC',
-    theme:              'dark',
-    style:              '1',
-    locale:             'br',
-    enable_publishing:  false,
-    hide_top_toolbar:   false,
-    hide_legend:        false,
-    save_image:         false,
-    container_id:       'tv_chart_container',
-    backgroundColor:    'rgba(7,9,15,1)',
-    gridColor:          'rgba(255,255,255,0.04)',
-    studies:            [
-      'STD;EMA',
-      'STD;Volume',
-      'STD;RSI',
-      'STD;MACD',
-    ],
-    overrides: {
-      'mainSeriesProperties.candleStyle.upColor':     '#00E676',
-      'mainSeriesProperties.candleStyle.downColor':   '#FF3D6B',
-      'mainSeriesProperties.candleStyle.borderUpColor':'#00E676',
-      'mainSeriesProperties.candleStyle.borderDownColor':'#FF3D6B',
-      'mainSeriesProperties.candleStyle.wickUpColor':  '#00E676',
-      'mainSeriesProperties.candleStyle.wickDownColor':'#FF3D6B',
-    },
-    width:  '100%',
-    height: 360,
-  });
-  container.appendChild(script);
+// ══ CHART ENGINE — Canvas próprio com marcações completas ══════════════
+
+let chartState = {
+  candles:[], sym:'', tf:'60', entry:0, sl:0,
+  tp1:0, tp2:0, tp3:0, fib:{}, wy:{}, smc:{}, atr:0,
+  tradeMode:'swing', showPOC:true, showOB:true, showFib:true,
+  hoverIdx:-1
+};
+
+function setTradeMode(mode, btn) {
+  chartState.tradeMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => { b.classList.remove('on','on-dv'); });
+  btn.classList.add(mode==='swing'?'on':'on-dv');
+  // Ajusta número de candles visíveis e alvos conforme o modo
+  drawACSChart();
 }
 
-function changeTF(sym, tf, btn) {
+function toggleLevel(type) {
+  const btn = document.getElementById('btn'+type.toUpperCase());
+  if(type==='poc')  chartState.showPOC = !chartState.showPOC;
+  if(type==='ob')   chartState.showOB  = !chartState.showOB;
+  if(type==='fib')  chartState.showFib = !chartState.showFib;
+  btn.classList.toggle('on', chartState['show'+type.charAt(0).toUpperCase()+type.slice(1)]);
+  drawACSChart();
+}
+
+async function loadChartTF(sym, tf, btn) {
   document.querySelectorAll('.tv-tf').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  renderTVWidget(sym, tf);
+  chartState.tf = tf;
+  document.getElementById('chartLabel').textContent = `GRÁFICO · ${sym} · ${tf==='D'?'1D':tf==='240'?'4H':tf==='60'?'1H':'15M'} · BYBIT FUTURES`;
+  try {
+    const candles = await fetchCandles(sym, tf, 120);
+    chartState.candles = candles;
+    drawACSChart();
+  } catch(e) { console.warn('Chart TF error:', e); }
+}
+
+function initChart(r) {
+  const c = document.getElementById('acsCanvas');
+  if(!c) return;
+  // Tamanho responsivo
+  const W = c.parentElement.clientWidth;
+  const H = 420;
+  const DPR = window.devicePixelRatio || 1;
+  c.width  = W * DPR; c.height = H * DPR;
+  c.style.width = W+'px'; c.style.height = H+'px';
+
+  // Estado do chart
+  chartState = {
+    ...chartState,
+    candles: r.candles,
+    sym: r.sym, tf: r.tf,
+    entry: r.entry, sl: r.sl,
+    tp1: r.tp1, tp2: r.tp2, tp3: r.tp3,
+    fib: r.fib, wy: r.wy, smc: r.smc, atr: r.atr,
+    closes: r.closes, q: r.q, ell: r.ell
+  };
+
+  // Tooltip hover
+  c.onmousemove = (e) => {
+    const rect = c.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * DPR;
+    drawACSChart(mx);
+    showTooltip(e, mx, W*DPR);
+  };
+  c.onmouseleave = () => {
+    document.getElementById('chartTooltip').style.display='none';
+    drawACSChart();
+  };
+
+  drawACSChart();
+}
+
+function drawACSChart(hoverX=-1) {
+  const canvas = document.getElementById('acsCanvas');
+  if(!canvas || !chartState.candles.length) return;
+  const W = canvas.width, H = canvas.height;
+  const ctx = canvas.getContext('2d');
+  const DPR = window.devicePixelRatio||1;
+
+  // Quantas velas mostrar baseado no modo
+  const nCandles = chartState.tradeMode==='day' ? 60 : 80;
+  const candles  = chartState.candles.slice(-nCandles);
+  const closes   = candles.map(c=>c.c);
+
+  // Padding
+  const PL=10, PR=80, PT=20, PB=28;
+  const cW=W-PL-PR, cH=H-PT-PB;
+
+  // Price range — inclui todos os níveis marcados
+  const levels = [chartState.sl, chartState.entry, chartState.tp1, chartState.tp2, chartState.tp3];
+  if(chartState.showFib) levels.push(chartState.fib.f618, chartState.fib.f382, chartState.fib.f500);
+  const allPrices = [...candles.map(c=>c.h), ...candles.map(c=>c.l), ...levels.filter(v=>v>0)];
+  const minP = Math.min(...allPrices)*0.9985;
+  const maxP = Math.max(...allPrices)*1.0015;
+  const rng  = maxP-minP || 1;
+
+  const toY = p => PT + cH - ((p-minP)/rng)*cH;
+  const toX = i => PL + (i/(nCandles-1))*cW;
+  const bW  = Math.max(1.5, Math.floor(cW/nCandles)-1);
+
+  // Fundo
+  ctx.fillStyle='#07090F'; ctx.fillRect(0,0,W,H);
+
+  // Grid horizontal
+  for(let i=0;i<=6;i++){
+    const y=PT+(cH/6)*i;
+    const p=maxP-(rng/6)*i;
+    ctx.strokeStyle='rgba(255,255,255,.04)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(PL,y); ctx.lineTo(W-PR,y); ctx.stroke();
+    ctx.fillStyle='rgba(100,116,139,.7)'; ctx.font=`${9*DPR/DPR}px 'JetBrains Mono'`;
+    ctx.fillText('$'+(p<1?p.toFixed(5):p<10?p.toFixed(3):p<1000?p.toFixed(2):p.toFixed(0)), W-PR+4, y+3);
+  }
+  // Grid vertical
+  [0,Math.floor(nCandles*.25),Math.floor(nCandles*.5),Math.floor(nCandles*.75),nCandles-1].forEach(i=>{
+    const x=toX(i);
+    ctx.strokeStyle='rgba(255,255,255,.03)'; ctx.lineWidth=1; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(x,PT); ctx.lineTo(x,H-PB); ctx.stroke();
+    if(candles[i]){
+      const dt=new Date(candles[i].t).toLocaleString('pt-BR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+      ctx.fillStyle='rgba(100,116,139,.5)'; ctx.font=`${8}px 'JetBrains Mono'`;
+      ctx.fillText(dt,x-22,H-10);
+    }
+  });
+
+  // ── POC (Point of Control) — preço com maior volume ──
+  if(chartState.showPOC && candles.length>10) {
+    const poc = candles.reduce((max,c) => c.v>max.v?c:max, candles[0]);
+    const pocY = toY((poc.h+poc.l)/2);
+    ctx.strokeStyle='rgba(167,139,250,.6)'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(PL,pocY); ctx.lineTo(W-PR,pocY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(167,139,250,.8)'; ctx.font='bold 8px JetBrains Mono';
+    ctx.fillText('POC', W-PR+4, pocY-2);
+    ctx.fillStyle='rgba(167,139,250,.5)'; ctx.font='8px JetBrains Mono';
+    ctx.fillText('$'+(poc.h+poc.l)/2<1000?((poc.h+poc.l)/2).toFixed(2):((poc.h+poc.l)/2).toFixed(0), W-PR+4, pocY+9);
+    ctx.setLineDash([]);
+  }
+
+  // ── ORDER BLOCKS ──
+  if(chartState.showOB && chartState.smc) {
+    if(chartState.smc.obBull) {
+      const ob=chartState.smc.obBull;
+      if(ob.h>minP && ob.l<maxP){
+        ctx.fillStyle='rgba(0,230,118,.08)';
+        ctx.strokeStyle='rgba(0,230,118,.35)'; ctx.lineWidth=1; ctx.setLineDash([]);
+        const y1=toY(ob.h), y2=toY(ob.l);
+        ctx.fillRect(PL, y1, cW, y2-y1);
+        ctx.strokeRect(PL, y1, cW, y2-y1);
+        ctx.fillStyle='rgba(0,230,118,.7)'; ctx.font='bold 8px JetBrains Mono';
+        ctx.fillText('OB BULL', W-PR+4, y1+9);
+      }
+    }
+    if(chartState.smc.obBear) {
+      const ob=chartState.smc.obBear;
+      if(ob.h>minP && ob.l<maxP){
+        ctx.fillStyle='rgba(255,61,107,.08)';
+        ctx.strokeStyle='rgba(255,61,107,.35)'; ctx.lineWidth=1; ctx.setLineDash([]);
+        const y1=toY(ob.h), y2=toY(ob.l);
+        ctx.fillRect(PL, y1, cW, y2-y1);
+        ctx.strokeRect(PL, y1, cW, y2-y1);
+        ctx.fillStyle='rgba(255,61,107,.7)'; ctx.font='bold 8px JetBrains Mono';
+        ctx.fillText('OB BEAR', W-PR+4, y1+9);
+      }
+    }
+  }
+
+  // ── FIBONACCI ──
+  if(chartState.showFib && chartState.fib) {
+    const fibLevels = [
+      {v:chartState.fib.f786,l:'78.6%',c:'rgba(255,255,255,.2)'},
+      {v:chartState.fib.f618,l:'61.8% ★',c:'rgba(255,209,102,.7)'},
+      {v:chartState.fib.f500,l:'50.0%',c:'rgba(255,209,102,.4)'},
+      {v:chartState.fib.f382,l:'38.2% ★',c:'rgba(255,209,102,.6)'},
+      {v:chartState.fib.f236,l:'23.6%',c:'rgba(255,255,255,.2)'},
+    ];
+    fibLevels.forEach(fl=>{
+      if(!fl.v||fl.v<minP||fl.v>maxP) return;
+      const y=toY(fl.v);
+      ctx.strokeStyle=fl.c; ctx.lineWidth=1; ctx.setLineDash([3,4]);
+      ctx.beginPath(); ctx.moveTo(PL,y); ctx.lineTo(W-PR-2,y); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle=fl.c; ctx.font='7px JetBrains Mono';
+      ctx.fillText('FIB '+fl.l, W-PR+4, y+3);
+    });
+    ctx.setLineDash([]);
+  }
+
+  // ── EMAs ──
+  const drawEMA = (arr, col, lw=1.5) => {
+    const si = chartState.closes.length-nCandles;
+    ctx.strokeStyle=col; ctx.lineWidth=lw; ctx.setLineDash([]);
+    ctx.beginPath();
+    candles.forEach((_,i)=>{
+      const v=arr[si+i]; if(!v) return;
+      const x=toX(i), y=toY(v);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  };
+  const allCloses = chartState.closes;
+  if(allCloses.length>=21)  drawEMA(ema(allCloses,21),  'rgba(167,139,250,.75)', 1.5);
+  if(allCloses.length>=50)  drawEMA(ema(allCloses,50),  'rgba(96,165,250,.75)',  1.5);
+  if(allCloses.length>=200) drawEMA(ema(allCloses,200), 'rgba(255,209,102,.85)', 2);
+
+  // ── VELAS ──
+  candles.forEach((c,i)=>{
+    const x=toX(i), bull=c.c>=c.o;
+    const col=bull?'#00E676':'#FF3D6B';
+    const bodyTop=Math.min(toY(c.o),toY(c.c));
+    const bodyH=Math.max(1.5,Math.abs(toY(c.c)-toY(c.o)));
+    // Sombra/wick
+    ctx.strokeStyle=col; ctx.lineWidth=1; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(x,toY(c.h)); ctx.lineTo(x,toY(c.l)); ctx.stroke();
+    // Corpo
+    ctx.fillStyle=bull?'rgba(0,230,118,.85)':'rgba(255,61,107,.85)';
+    ctx.fillRect(x-bW/2, bodyTop, bW, bodyH);
+
+    // Hover highlight
+    if(hoverX>0 && Math.abs(x-hoverX)<bW*2) {
+      ctx.strokeStyle='rgba(255,255,255,.3)'; ctx.lineWidth=1;
+      ctx.strokeRect(x-bW/2-1, bodyTop-1, bW+2, bodyH+2);
+      chartState.hoverIdx=i;
+    }
+  });
+
+  // ── SPRING / SOS markers ──
+  if(chartState.wy.spring) {
+    // Marca última vela baixa com recuperação
+    candles.slice(-10).forEach((c,i,a)=>{
+      if(i>0 && c.l<a[i-1].l && c.c>a[i-1].l) {
+        const xi=toX(candles.length-10+i);
+        ctx.fillStyle='rgba(251,146,60,.9)';
+        ctx.font='bold 10px JetBrains Mono';
+        ctx.fillText('⚡', xi-6, toY(c.l)+18);
+        ctx.fillStyle='rgba(251,146,60,.7)';
+        ctx.font='7px JetBrains Mono';
+        ctx.fillText('SPRING', xi-12, toY(c.l)+28);
+      }
+    });
+  }
+
+  // ── BOS marker ──
+  if(chartState.smc.bosBull || chartState.smc.bosBear) {
+    const bos = chartState.smc.bosBull;
+    const bosCandleIdx = candles.length-5;
+    const xBos = toX(bosCandleIdx);
+    ctx.strokeStyle=bos?'rgba(0,230,118,.6)':'rgba(255,61,107,.6)';
+    ctx.lineWidth=1.5; ctx.setLineDash([2,3]);
+    ctx.beginPath(); ctx.moveTo(xBos,PT); ctx.lineTo(xBos,H-PB); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=bos?'rgba(0,230,118,.8)':'rgba(255,61,107,.8)';
+    ctx.font='bold 8px JetBrains Mono';
+    ctx.fillText('BOS', xBos-8, PT+10);
+  }
+
+  // ── NÍVEIS OPERACIONAIS ──
+  const drawLevel = (price, label, color, dash=[6,3], lw=2) => {
+    if(!price || price<minP || price>maxP) return;
+    const y=toY(price);
+    ctx.strokeStyle=color; ctx.lineWidth=lw; ctx.setLineDash(dash);
+    ctx.beginPath(); ctx.moveTo(PL,y); ctx.lineTo(W-PR-2,y); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Label box
+    const labelW=66, labelH=16;
+    ctx.fillStyle=color.replace('1)','0.15)').replace('0.9)','0.15)');
+    ctx.strokeStyle=color; ctx.lineWidth=1;
+    ctx.beginPath();
+    const lx=W-PR+2;
+    ctx.roundRect(lx, y-labelH/2, labelW, labelH, 3);
+    ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle=color; ctx.font='bold 8px JetBrains Mono';
+    ctx.fillText(label, lx+4, y+3);
+    ctx.fillStyle='rgba(255,255,255,.6)'; ctx.font='7px JetBrains Mono';
+    const pStr='$'+(price<1?price.toFixed(5):price<10?price.toFixed(3):price<1000?price.toFixed(2):price.toFixed(0));
+    ctx.fillText(pStr, lx+4, y+12);
+  };
+
+  // Day trade: alvos menores (ATR based)
+  const isDT = chartState.tradeMode==='day';
+  const tp1  = isDT ? chartState.entry + (chartState.tp1-chartState.entry)*.4 : chartState.tp1;
+  const tp2  = isDT ? chartState.entry + (chartState.tp2-chartState.entry)*.5 : chartState.tp2;
+  const tp3  = isDT ? chartState.entry + (chartState.tp3-chartState.entry)*.6 : chartState.tp3;
+
+  drawLevel(chartState.sl,    'STOP  ',  '#FF3D6B', [5,3], 2);
+  drawLevel(chartState.entry, 'ENTRADA', 'rgba(255,255,255,.9)', [], 2);
+  drawLevel(tp1,  'TP1   ', 'rgba(0,230,118,.6)', [5,3], 1.5);
+  drawLevel(tp2,  'TP2   ', 'rgba(0,230,118,.8)', [5,3], 1.5);
+  drawLevel(tp3,  'TP3   ', '#00E676', [5,3], 2);
+
+  // ── PREÇO ATUAL tracker ──
+  const curP=candles.at(-1)?.c || 0;
+  if(curP>=minP && curP<=maxP) {
+    const y=toY(curP);
+    ctx.strokeStyle='rgba(255,255,255,.25)'; ctx.lineWidth=1; ctx.setLineDash([2,4]);
+    ctx.beginPath(); ctx.moveTo(PL,y); ctx.lineTo(W-PR-2,y); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // ── Modo badge ──
+  ctx.fillStyle='rgba(7,9,15,.8)';
+  ctx.fillRect(PL+4, PT+4, isDT?90:96, 16);
+  ctx.fillStyle=isDT?'#60A5FA':'#FB923C';
+  ctx.font='bold 8px JetBrains Mono';
+  ctx.fillText(isDT?'⚡ DAY TRADE':'📈 SWING TRADE', PL+8, PT+14);
+}
+
+function showTooltip(e, mx, W) {
+  if(!chartState.candles.length) return;
+  const nCandles = chartState.tradeMode==='day'?60:80;
+  const candles  = chartState.candles.slice(-nCandles);
+  const PL=10, PR=80, cW=W-PL-PR;
+  const idx = Math.round((mx-PL)/cW*(nCandles-1));
+  if(idx<0||idx>=candles.length) return;
+  const c=candles[idx];
+  if(!c) return;
+  const tip=document.getElementById('chartTooltip');
+  const dt=new Date(c.t).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const chg=((c.c-c.o)/c.o*100).toFixed(2);
+  tip.innerHTML=`${dt}<br>O: $${c.o.toFixed(2)} H: $${c.h.toFixed(2)}<br>L: $${c.l.toFixed(2)} C: $${c.c.toFixed(2)}<br>Vol: ${(c.v/1000).toFixed(1)}K · ${chg>=0?'+':''}${chg}%`;
+  tip.style.display='block';
+  tip.style.left=(e.offsetX+14)+'px';
+  tip.style.top=(e.offsetY-40)+'px';
 }
 
 // ══ IA ANÁLISE FUNDAMENTALISTA ══════════════════════════════════════════
